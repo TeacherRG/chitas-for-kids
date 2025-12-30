@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Chitas for Kids</title>
+    <title>Chitas for Kids - Хитас для детей</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -12,18 +12,42 @@
         .header h1 { font-size: 2.5em; margin-bottom: 10px; }
         .header p { font-size: 1.2em; opacity: 0.9; }
         
-        /* Навигация */
-        .navigation { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .nav-btn { background: white; color: #667eea; padding: 12px 25px; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .nav-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); background: #f0f0f0; }
-        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* Navigation */
+        .navigation { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-btn { background: white; color: #667eea; padding: 12px 25px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 1em; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .print-btn { background: #4CAF50; color: white; }
         .print-btn:hover { background: #45a049; }
         .today-btn { background: #2196F3; color: white; }
         .today-btn:hover { background: #1976D2; }
-        .unavailable-message { background: white; padding: 50px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
-        .unavailable-message h2 { color: #FF9800; margin-bottom: 20px; font-size: 2em; }
-        .unavailable-message p { color: #666; margin: 10px 0; }
+        
+        /* Auth UI */
+        .auth-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .auth-button { background: white; border: 2px solid #667eea; color: #667eea; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .auth-button:hover { background: #667eea; color: white; }
+        .user-info { background: white; padding: 15px 20px; border-radius: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .user-name { font-weight: 600; color: #333; }
+        .logout-btn { background: #f44336; color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
+        .logout-btn:hover { background: #d32f2f; }
+        
+        /* Auth Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: white; padding: 40px; border-radius: 20px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal h2 { color: #667eea; margin-bottom: 20px; text-align: center; }
+        .modal input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 1em; }
+        .modal input:focus { border-color: #667eea; outline: none; }
+        .modal-btn { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 10px; font-size: 1em; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .modal-btn.primary { background: #667eea; color: white; }
+        .modal-btn.primary:hover { background: #5568d3; }
+        .modal-btn.google { background: white; color: #333; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modal-btn.google:hover { background: #f5f5f5; }
+        .modal-divider { text-align: center; margin: 20px 0; color: #999; }
+        .modal-link { text-align: center; margin-top: 15px; color: #667eea; cursor: pointer; font-size: 0.9em; }
+        .modal-link:hover { text-decoration: underline; }
+        .modal-error { background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: center; }
         
         .score-board { background: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
@@ -72,16 +96,21 @@
         .feedback.success { background: #C8E6C9; color: #2E7D32; }
         .feedback.error { background: #FFCDD2; color: #C62828; }
         .fun-fact { background: linear-gradient(135deg, #E1BEE7, #CE93D8); padding: 15px; border-radius: 10px; margin: 15px 0; color: #4A148C; font-weight: bold; }
-        .error-message { background: white; padding: 50px; border-radius: 15px; text-align: center; }
-        .error-message h2 { color: #F44336; margin-bottom: 20px; }
+        .unavailable-message { background: white; padding: 50px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .unavailable-message h2 { color: #FF9800; margin-bottom: 20px; font-size: 2em; }
+        .unavailable-message p { color: #666; margin: 10px 0; }
         
         /* Стили для печати */
         @media print {
             body { background: white; padding: 0; }
-            .navigation, .score-board, .game-container, .btn { display: none; }
-            .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+            .navigation, .score-board, .game-container, .btn, .final-result, .auth-container { display: none !important; }
+            .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; margin-bottom: 20px; }
             .section-content { display: block !important; }
-            .header { background: none; color: black; box-shadow: none; }
+            .section-header { pointer-events: none; }
+            .header { background: none; color: black; box-shadow: none; page-break-after: avoid; }
+            .story-text { background: white; }
+            .fun-fact { background: #f0f0f0; page-break-inside: avoid; }
+            .section.completed::after { display: none; }
         }
         
         @media (max-width: 768px) { 
@@ -89,20 +118,62 @@
             .match-game { grid-template-columns: 1fr; } 
             .memory-grid { grid-template-columns: repeat(3, 1fr); }
             .header h1 { font-size: 2em; }
-            .navigation { flex-direction: column; }
-            .nav-btn { width: 100%; }
+            .auth-container { position: static; margin-bottom: 20px; text-align: center; }
         }
     </style>
 </head>
 <body>
+    <!-- Auth UI -->
+    <div class="auth-container" id="authContainer"></div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <h2 id="modalTitle">Вход</h2>
+            <div id="modalError" class="modal-error" style="display: none;"></div>
+            
+            <div id="signInForm">
+                <input type="email" id="emailInput" placeholder="Email" />
+                <input type="password" id="passwordInput" placeholder="Пароль" />
+                <button class="modal-btn primary" onclick="handleEmailSignIn()">Войти</button>
+                
+                <div class="modal-divider">или</div>
+                
+                <button class="modal-btn google" onclick="handleGoogleSignIn()">
+                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M17.6 9.2l-.1-1.8H9v3.4h4.8C13.6 12 13 13 12 13.6v2.2h3a8.8 8.8 0 0 0 2.6-6.6z" fill="#4285F4"/><path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853"/><path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05"/><path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z" fill="#EA4335"/></g></svg>
+                    Войти через Google
+                </button>
+                
+                <div class="modal-link" onclick="showSignUpForm()">Ещё нет аккаунта? Зарегистрироваться</div>
+                <div class="modal-link" onclick="showResetPassword()">Забыли пароль?</div>
+            </div>
+            
+            <div id="signUpForm" style="display: none;">
+                <input type="text" id="nameInput" placeholder="Имя" />
+                <input type="email" id="signUpEmail" placeholder="Email" />
+                <input type="password" id="signUpPassword" placeholder="Пароль (минимум 6 символов)" />
+                <button class="modal-btn primary" onclick="handleEmailSignUp()">Зарегистрироваться</button>
+                <div class="modal-link" onclick="showSignInForm()">Уже есть аккаунт? Войти</div>
+            </div>
+            
+            <div id="resetPasswordForm" style="display: none;">
+                <input type="email" id="resetEmail" placeholder="Email" />
+                <button class="modal-btn primary" onclick="handlePasswordReset()">Отправить ссылку</button>
+                <div class="modal-link" onclick="showSignInForm()">Вернуться ко входу</div>
+            </div>
+            
+            <button class="modal-btn" onclick="closeAuthModal()" style="margin-top: 20px; background: #f5f5f5;">Закрыть</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1 id="pageTitle">📖 Chitas for Kids - Хитас для детей</h1>
-            <p id="hebrewDate"></p>
+            <p id="hebrewDate">Загрузка...</p>
             <p id="dedication" style="font-size: 0.9em; margin-top: 10px;"></p>
         </div>
 
-        <div id="navigation" class="navigation"></div>
+        <div class="navigation" id="navigation"></div>
 
         <div class="score-board">
             <div class="score-grid">
@@ -116,7 +187,7 @@
                 </div>
                 <div class="score-item">
                     <div class="score-label">✅ Выполнено</div>
-                    <div class="score-value" id="done">0/0</div>
+                    <div class="score-value" id="done">0/6</div>
                 </div>
             </div>
             <div class="progress-bar">
@@ -127,13 +198,23 @@
                 <div class="final-score" id="finalScore">0</div>
                 <p style="color: white; font-size: 1.3em;">Вы изучили весь Хитас на сегодня!</p>
                 <p style="font-size: 3em; margin-top: 20px;">⭐⭐⭐⭐⭐</p>
-                <button class="btn" onclick="location.reload()">Начать заново</button>
             </div>
         </div>
 
         <div id="sectionsContainer"></div>
+        <div id="unavailableMessage"></div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Our scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="auth-manager.js"></script>
+    <script src="progress-manager.js"></script>
+    <script src="auth-ui.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
