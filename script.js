@@ -73,7 +73,6 @@ class ChitasApp {
             initTextToSpeech();
         }
     }, 500);
-}
   }
 
   /**
@@ -694,4 +693,3 @@ window.chitasApp = new ChitasApp();
 document.addEventListener('DOMContentLoaded', () => {
   window.chitasApp.init();
 });
-
