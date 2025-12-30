@@ -585,7 +585,42 @@ class ChitasApp {
     document.getElementById('prevDay').onclick = () => this.navigateDay(-1);
     document.getElementById('nextDay').onclick = () => this.navigateDay(1);
     document.getElementById('todayBtn').onclick = () => this.goToToday();
-    document.getElementById('printBtn').onclick = () => window.print();
+    document.getElementById('printBtn').onclick = () => this.handlePrint();
+  }
+
+  /**
+   * Обработка печати - открывает все разделы
+   */
+  handlePrint() {
+    // Сохраняем текущее состояние открытых разделов
+    const openSections = [];
+    this.state.data.sections.forEach(section => {
+      const sectionEl = document.getElementById(`s${section.id}`);
+      if (sectionEl && sectionEl.classList.contains('active')) {
+        openSections.push(section.id);
+      }
+    });
+
+    // Открываем все разделы для печати
+    this.state.data.sections.forEach(section => {
+      const sectionEl = document.getElementById(`s${section.id}`);
+      if (sectionEl) {
+        sectionEl.classList.add('active');
+      }
+    });
+
+    // Печатаем
+    window.print();
+
+    // Восстанавливаем предыдущее состояние после печати
+    setTimeout(() => {
+      this.state.data.sections.forEach(section => {
+        const sectionEl = document.getElementById(`s${section.id}`);
+        if (sectionEl && !openSections.includes(section.id)) {
+          sectionEl.classList.remove('active');
+        }
+      });
+    }, 100);
   }
 
   /**
