@@ -124,13 +124,6 @@
     <link rel="stylesheet" href="./audio-styles.css">
 </head>
 <body>
-  <div style="text-align:center; margin:10px;">
-    <button class="sound-toggle" onclick="toggleSound(this)">
-      🔊 Звук ВКЛ
-    </button>
-  </div>
-
-  <!-- остальной сайт -->
     <!-- Auth UI -->
     <div class="auth-container" id="authContainer"></div>
 
@@ -217,6 +210,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ResponsiveVoice для озвучивания текста -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=8dnHLNKO"></script>
     
     <!-- Our scripts -->
     <script src="firebase-config.js"></script>
