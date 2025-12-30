@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-08",
+  "days": [
+    {
+      "date": "2025-01-08",
+      "hebrewDate": "8 Тевета 5786",
+      "parsha": "Ваехи",
+      "file": "2025-01-08.json",
+      "available": true
+    },
+    {
+      "date": "2025-01-09",
+      "hebrewDate": "9 Тевета 5786",
+      "parsha": "Ваехи",
+      "file": "2025-01-09.json",
+      "available": true
+    },
+    {
+      "date": "2025-12-30",
+      "hebrewDate": "10 Тевета 5786",
+      "parsha": "Ваехи",
+      "file": "2025-01-10.json",
+      "available": false
+    }
+  ]
+}
