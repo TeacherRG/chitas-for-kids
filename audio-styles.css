@@ -3,27 +3,14 @@
    Стили для подсветки текста при озвучке
    =============================== */
 
-/* Кнопка звука (уже есть в HTML, просто дополнительные стили) */
+/* Кнопка звука в навигации */
 .sound-toggle {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.1em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+  color: white !important;
 }
 
 .sound-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-.sound-toggle:active {
-  transform: translateY(0);
+  background: linear-gradient(135deg, #45a049, #3d8b40) !important;
 }
 
 /* Кнопка "Прочитай" для раздела */
