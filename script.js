@@ -67,6 +67,13 @@ class ChitasApp {
       console.error('❌ Error loading data:', error);
       this.showUnavailable(date);
     }
+    // В САМОМ КОНЦЕ Инициализация звука:
+    setTimeout(() => {
+        if (typeof initTextToSpeech === 'function') {
+            initTextToSpeech();
+        }
+    }, 500);
+}
   }
 
   /**
