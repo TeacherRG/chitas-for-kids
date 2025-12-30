@@ -78,10 +78,14 @@
         /* Стили для печати */
         @media print {
             body { background: white; padding: 0; }
-            .navigation, .score-board, .game-container, .btn { display: none; }
-            .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+            .navigation, .score-board, .game-container, .btn, .final-result { display: none !important; }
+            .section { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; margin-bottom: 20px; }
             .section-content { display: block !important; }
-            .header { background: none; color: black; box-shadow: none; }
+            .section-header { pointer-events: none; }
+            .header { background: none; color: black; box-shadow: none; page-break-after: avoid; }
+            .story-text { background: white; }
+            .fun-fact { background: #f0f0f0; page-break-inside: avoid; }
+            .section.completed::after { display: none; }
         }
         
         @media (max-width: 768px) { 
@@ -125,7 +129,7 @@
             <div class="final-result" id="final">
                 <h2>🎉 ПОЗДРАВЛЯЕМ! 🎉</h2>
                 <div class="final-score" id="finalScore">0</div>
-                <p style="color: white; font-size: 1.3em;">Вы изучили весь Хитас на сегодня!</p>
+                <p style="color: white; font-size: 1.3em;">Вы изучили весь Читас на сегодня!</p>
                 <p style="font-size: 3em; margin-top: 20px;">⭐⭐⭐⭐⭐</p>
                 <button class="btn" onclick="location.reload()">Начать заново</button>
             </div>
