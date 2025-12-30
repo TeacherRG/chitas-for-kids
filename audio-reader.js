@@ -183,17 +183,23 @@ function highlightWord(block, words, activeIndex) {
 
 function clearHighlights(scope) {
   // Если передан конкретный блок — восстановим в нем оригинал, иначе по всему документу
-  const elements = scope
-    ? [scope.querySelectorAll(".tts-text")].flat()
-    : document.querySelectorAll(".tts-text");
+  let elements;
+  if (scope) {
+    const nodeList = scope.querySelectorAll(".tts-text");
+    elements = Array.from(nodeList);
+  } else {
+    const nodeList = document.querySelectorAll(".tts-text");
+    elements = Array.from(nodeList);
+  }
 
   elements.forEach((el) => {
     const parent = el.closest("[data-original-html]") || el.parentElement;
-    if (parent && parent.getAttribute && parent.getAttribute("data-original-html")) {
+    if (parent && parent.hasAttribute && parent.hasAttribute("data-original-html")) {
       el.innerHTML = parent.getAttribute("data-original-html");
     } else {
       // fallback: используем текстовое содержимое (без HTML)
-      el.textContent = el.textContent;
+      const textContent = el.textContent;
+      el.textContent = textContent;
     }
   });
 }
@@ -235,6 +241,12 @@ function addReadButtons() {
 
 /* ---------- INIT ---------- */
 function initTextToSpeech() {
+  // Проверяем, не была ли уже добавлена кнопка звука
+  if (document.querySelector(".sound-toggle")) {
+    console.log("Sound toggle already exists, skipping initialization");
+    return;
+  }
+
   // Добавляем кнопку переключения звука
   const soundToggle = document.createElement("button");
   soundToggle.className = "sound-toggle";
@@ -246,10 +258,18 @@ function initTextToSpeech() {
     document.querySelector("header") ||
     document.querySelector(".header") ||
     document.body;
-  header.insertBefore(soundToggle, header.firstChild);
+  
+  // Безопасное добавление элемента
+  if (header.firstChild) {
+    header.insertBefore(soundToggle, header.firstChild);
+  } else {
+    header.appendChild(soundToggle);
+  }
 
   // Добавляем кнопки чтения
   addReadButtons();
+  
+  console.log("Text-to-Speech initialized successfully");
 }
 
 // Экспортируем для использования в основном коде
