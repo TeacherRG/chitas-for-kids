@@ -687,3 +687,134 @@ window.chitasApp = new ChitasApp();
 document.addEventListener('DOMContentLoaded', () => {
   window.chitasApp.init();
 });
+
+
+
+/* ===============================
+   🔊 TEXT TO SPEECH + HIGHLIGHT
+   =============================== */
+
+let currentUtterance = null;
+let isPaused = false;
+let soundEnabled = true;
+
+/* ---------- SWITCH ---------- */
+function toggleSound(btn) {
+  soundEnabled = !soundEnabled;
+  btn.innerText = soundEnabled ? "🔊 Звук ВКЛ" : "🔇 Звук ВЫКЛ";
+
+  if (!soundEnabled) {
+    speechSynthesis.cancel();
+    clearHighlights();
+  }
+}
+
+/* ---------- SPEAK ---------- */
+function speakText(text, block, button) {
+  if (!soundEnabled || !text) return;
+
+  // пауза / продолжить
+  if (speechSynthesis.speaking && currentUtterance) {
+    if (isPaused) {
+      speechSynthesis.resume();
+      isPaused = false;
+      button.innerText = "⏸ Пауза";
+    } else {
+      speechSynthesis.pause();
+      isPaused = true;
+      button.innerText = "▶ Продолжить";
+    }
+    return;
+  }
+
+  speechSynthesis.cancel();
+  clearHighlights();
+
+  const utter = new SpeechSynthesisUtterance(text);
+  currentUtterance = utter;
+
+  utter.lang = "ru-RU";
+  utter.rate = 0.85;
+  utter.pitch = 1.15;
+
+  const words = text.split(" ");
+  let index = 0;
+
+  utter.onboundary = (e) => {
+    if (e.name === "word") {
+      highlightWord(block, words, index);
+      index++;
+    }
+  };
+
+  utter.onstart = () => {
+    button.innerText = "⏸ Пауза";
+    isPaused = false;
+  };
+
+  utter.onend = () => {
+    button.innerText = "🔊 Прочитай";
+    clearHighlights();
+    currentUtterance = null;
+  };
+
+  utter.onerror = () => {
+    button.innerText = "🔊 Прочитай";
+    clearHighlights();
+    currentUtterance = null;
+  };
+
+  speechSynthesis.speak(utter);
+}
+
+/* ---------- HIGHLIGHT ---------- */
+function highlightWord(block, words, activeIndex) {
+  const html = words
+    .map((w, i) =>
+      i === activeIndex
+        ? <span class="tts-highlight">${w}</span>
+        : w
+    )
+    .join(" ");
+
+  block.querySelector(".tts-text").innerHTML = html;
+}
+
+function clearHighlights() {
+  document.querySelectorAll(".tts-text").forEach(el => {
+    el.innerText = el.innerText;
+  });
+}
+
+/* ---------- BUTTONS ---------- */
+function addReadButtons() {
+  document.querySelectorAll(".card, .task, .section, .content").forEach(block => {
+    if (block.querySelector(".read-btn")) return;
+
+    const text = block.innerText.trim();
+    if (text.length < 5) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "tts-text";
+    wrapper.innerText = text;
+
+    block.innerHTML = "";
+    block.appendChild(wrapper);
+
+    const btn = document.createElement("button");
+    btn.className = "read-btn";
+    btn.innerText = "🔊 Прочитай";
+
+    btn.onclick = () => speakText(wrapper.innerText, block, btn);
+
+    block.prepend(btn);
+  });
+}
+
+/* ---------- OBSERVER ---------- */
+const observer = new MutationObserver(addReadButtons);
+observer.observe(document.body, { childList: true, subtree: true });
+
+/* ===============================
+   🔊 TEXT TO SPEECH + HIGHLIGHT END
+   =============================== */
