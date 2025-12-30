@@ -1,6 +1,6 @@
 /* ===============================
    🔊 TEXT TO SPEECH + HIGHLIGHT
-   Исправленная версия для Chitas for Kids
+   Версия для Chitas for Kids (адаптировано под существующий HTML)
    =============================== */
 
 let currentUtterance = null;
@@ -21,7 +21,6 @@ function escapeHtml(str) {
 // Получаем индекс слова по позиции символа (если onboundary предоставляет charIndex)
 function getWordIndexFromCharIndex(text, charIndex) {
   if (charIndex == null) return -1;
-  // Ищем все слова и их позиции
   const wordRegex = /\S+/g;
   let match;
   let i = 0;
@@ -31,10 +30,10 @@ function getWordIndexFromCharIndex(text, charIndex) {
     }
     i++;
   }
-  return i - 1; // fallback
+  return i - 1;
 }
 
-/* ---------- SWITCH ---------- */
+/* ---------- SWITCH (используется глобальной кнопкой в HTML) ---------- */
 function toggleSound(btn) {
   soundEnabled = !soundEnabled;
   btn.innerText = soundEnabled ? "🔊 Звук ВКЛ" : "🔇 Звук ВЫКЛ";
@@ -58,9 +57,12 @@ function speakText(text, block, button) {
   }
 
   // Если звук выключен — ничего не делаем
-  if (!soundEnabled) return;
+  if (!soundEnabled) {
+    alert("Звук выключен! Включите звук кнопкой вверху страницы.");
+    return;
+  }
 
-  // Если сейчас идёт проговаривание и пользователь нажал ту же кнопку — переключаем паузу/продолжение
+  // Если сейчас идёт проговаривание и пользователь нажал ту же кнопку
   if (speechSynthesis.speaking && currentUtterance) {
     if (button === currentButton) {
       if (isPaused || speechSynthesis.paused) {
@@ -74,7 +76,7 @@ function speakText(text, block, button) {
       }
       return;
     } else {
-      // Нажали на другую кнопку — останавливаем текущее и запускаем новое
+      // Нажали на другую кнопку — останавливаем текущее
       speechSynthesis.cancel();
       currentUtterance = null;
       currentButton = null;
@@ -82,7 +84,6 @@ function speakText(text, block, button) {
       clearHighlights();
     }
   } else {
-    // если paused (не speaking), но есть состояние паузы — сбросим (без гарантии)
     if (speechSynthesis.paused) {
       speechSynthesis.cancel();
       currentUtterance = null;
@@ -101,18 +102,16 @@ function speakText(text, block, button) {
   utter.rate = 0.85;
   utter.pitch = 1.15;
 
-  // подготовка слов для подсветки (чистый текст)
+  // подготовка слов для подсветки
   const words = text.trim().split(/\s+/);
   let lastActiveIndex = -1;
 
   utter.onboundary = (e) => {
     try {
-      // В некоторых реализациях e.name может быть undefined, но есть e.charIndex
       let activeIndex = -1;
       if (typeof e.charIndex === "number") {
         activeIndex = getWordIndexFromCharIndex(text, e.charIndex);
       } else if (e.name === "word") {
-        // fallback: инкрементируем индекс
         activeIndex = lastActiveIndex + 1;
       }
 
@@ -182,7 +181,6 @@ function highlightWord(block, words, activeIndex) {
 }
 
 function clearHighlights(scope) {
-  // Если передан конкретный блок — восстановим в нем оригинал, иначе по всему документу
   let elements;
   if (scope) {
     const nodeList = scope.querySelectorAll(".tts-text");
@@ -197,7 +195,6 @@ function clearHighlights(scope) {
     if (parent && parent.hasAttribute && parent.hasAttribute("data-original-html")) {
       el.innerHTML = parent.getAttribute("data-original-html");
     } else {
-      // fallback: используем текстовое содержимое (без HTML)
       const textContent = el.textContent;
       el.textContent = textContent;
     }
@@ -206,72 +203,74 @@ function clearHighlights(scope) {
 
 /* ---------- BUTTONS ---------- */
 function addReadButtons() {
-  // Ищем параграфы и секции с текстом
-  document.querySelectorAll(".story-paragraph, .section-content, .content-block").forEach((block) => {
-    // Пропускаем, если кнопка уже есть
-    if (block.querySelector(".read-btn")) return;
+  // Ищем параграфы с классами из HTML структуры
+  const selectors = [
+    ".story-text p",           // параграфы в story-text
+    ".story-paragraph",         // отдельные параграфы
+    ".section-content > p",     // параграфы внутри section-content
+    ".content-block"            // блоки контента
+  ];
 
-    // Получаем текст блока (чистый текст) и HTML (для восстановления)
-    const text = block.textContent.trim();
-    if (!text || text.length < 10) return;
+  selectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach((block) => {
+      // Пропускаем, если кнопка уже есть
+      if (block.querySelector(".read-btn")) return;
 
-    const originalHTML = block.innerHTML;
+      // Получаем текст блока
+      const text = block.textContent.trim();
+      if (!text || text.length < 10) return;
 
-    // Создаем обертку для текста (сохранение HTML внутри)
-    const wrapper = document.createElement("span");
-    wrapper.className = "tts-text";
-    // Сохраняем оригинальный HTML внутри wrapper, чтобы можно было восстановить стили/ссылки и т.д.
-    wrapper.innerHTML = originalHTML;
+      const originalHTML = block.innerHTML;
 
-    // Сохраняем оригинальный HTML на родительском элементе для восстановления
-    block.setAttribute("data-original-html", originalHTML);
+      // Создаем контейнер для кнопки и текста
+      const container = document.createElement("div");
+      container.style.marginBottom = "15px";
 
-    // Очищаем блок и добавляем кнопку + обертку
-    block.innerHTML = "";
-    const btn = document.createElement("button");
-    btn.className = "read-btn";
-    btn.innerHTML = "🔊 Прочитай";
-    btn.onclick = () => speakText(text, block, btn);
+      // Создаем кнопку
+      const btn = document.createElement("button");
+      btn.className = "read-btn";
+      btn.innerHTML = "🔊 Прочитай";
+      btn.style.cssText = "margin-right: 10px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9em;";
+      btn.onmouseover = function() { this.style.background = "#45a049"; };
+      btn.onmouseout = function() { this.style.background = "#4CAF50"; };
+      btn.onclick = () => speakText(text, wrapper, btn);
 
-    // Добавляем кнопку и текст
-    block.appendChild(btn);
-    block.appendChild(wrapper);
+      // Создаем обертку для текста
+      const wrapper = document.createElement("div");
+      wrapper.className = "tts-text";
+      wrapper.innerHTML = originalHTML;
+      wrapper.setAttribute("data-original-html", originalHTML);
+
+      // Собираем всё вместе
+      container.appendChild(btn);
+      container.appendChild(wrapper);
+      
+      // Заменяем оригинальный контент
+      block.innerHTML = "";
+      block.appendChild(container);
+    });
   });
+
+  console.log("✅ Read buttons added");
 }
 
 /* ---------- INIT ---------- */
 function initTextToSpeech() {
-  // Проверяем, не была ли уже добавлена кнопка звука
-  if (document.querySelector(".sound-toggle")) {
-    console.log("Sound toggle already exists, skipping initialization");
-    return;
-  }
-
-  // Добавляем кнопку переключения звука
-  const soundToggle = document.createElement("button");
-  soundToggle.className = "sound-toggle";
-  soundToggle.innerText = "🔊 Звук ВКЛ";
-  soundToggle.onclick = () => toggleSound(soundToggle);
-
-  // Добавляем в header или в начало body
-  const header =
-    document.querySelector("header") ||
-    document.querySelector(".header") ||
-    document.body;
+  console.log("🔊 Initializing Text-to-Speech...");
   
-  // Безопасное добавление элемента
-  if (header.firstChild) {
-    header.insertBefore(soundToggle, header.firstChild);
-  } else {
-    header.appendChild(soundToggle);
+  // Проверяем поддержку браузера
+  if (!('speechSynthesis' in window)) {
+    console.warn("⚠️ Web Speech API not supported in this browser");
+    return;
   }
 
   // Добавляем кнопки чтения
   addReadButtons();
   
-  console.log("Text-to-Speech initialized successfully");
+  console.log("✅ Text-to-Speech initialized successfully");
 }
 
 // Экспортируем для использования в основном коде
 window.initTextToSpeech = initTextToSpeech;
 window.addReadButtons = addReadButtons;
+window.toggleSound = toggleSound;
