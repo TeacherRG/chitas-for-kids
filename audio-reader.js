@@ -76,11 +76,13 @@ function speakText(text, block, button) {
   speechSynthesis.speak(utter);
 }
 
+
 /* ---------- HIGHLIGHT ---------- */
 function highlightWord(block, words, activeIndex) {
   const ttsTextElement = block.querySelector(".tts-text");
   if (!ttsTextElement) return;
 
+  // ИСПРАВЛЕНО: добавлены обратные кавычки
   const html = words
     .map((w, i) =>
       i === activeIndex
