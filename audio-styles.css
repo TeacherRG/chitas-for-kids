@@ -1,127 +1,112 @@
 /* ===============================
-   🔊 TEXT TO SPEECH STYLES
-   Стили для функции озвучки текста
+   🔊 AUDIO READER STYLES
+   Стили для подсветки текста при озвучке
    =============================== */
 
-/* Кнопка переключения звука (в углу экрана) */
+/* Кнопка звука (уже есть в HTML, просто дополнительные стили) */
 .sound-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 10px 20px;
-  background: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
+  padding: 12px 24px;
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  font-weight: bold;
+  font-size: 1.1em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .sound-toggle:hover {
-  background: #45a049;
   transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .sound-toggle:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Кнопка "Прочитай" рядом с текстом */
+/* Кнопка "Прочитай" для каждого параграфа */
 .read-btn {
-  display: inline-block;
-  padding: 8px 16px;
-  margin: 10px 10px 10px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #4CAF50;
   color: white;
   border: none;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 0.9em;
+  font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .read-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .read-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Обертка текста для озвучки */
+/* Обертка для текста с озвучкой */
 .tts-text {
-  display: inline;
+  display: inline-block;
   line-height: 1.8;
-  font-size: inherit;
+  color: #333;
 }
 
-/* Подсветка текущего слова */
+/* Подсветка активного слова */
 .tts-highlight {
-  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
   padding: 2px 6px;
   border-radius: 4px;
-  animation: highlight-pulse 0.3s ease;
-  box-shadow: 0 2px 4px rgba(132, 250, 176, 0.3);
+  font-weight: bold;
+  animation: pulse 0.5s ease-in-out;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4);
 }
 
-/* Анимация подсветки */
-@keyframes highlight-pulse {
+/* Анимация пульсации для подсвеченного слова */
+@keyframes pulse {
   0% {
-    background-color: rgba(132, 250, 176, 0.3);
     transform: scale(1);
   }
   50% {
-    background-color: rgba(132, 250, 176, 0.8);
     transform: scale(1.05);
   }
   100% {
-    background-color: rgba(132, 250, 176, 0.5);
     transform: scale(1);
   }
 }
 
-/* Адаптив для мобильных устройств */
-@media (max-width: 768px) {
-  .sound-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-  }
-
+/* Адаптивные стили */
+@media (max-width: 600px) {
   .read-btn {
     padding: 6px 12px;
-    font-size: 13px;
-    margin: 8px 8px 8px 0;
+    font-size: 0.85em;
+  }
+  
+  .sound-toggle {
+    padding: 10px 20px;
+    font-size: 1em;
   }
 }
 
-/* Состояние "на паузе" */
-.read-btn.paused {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-/* Состояние "воспроизведение" */
-.read-btn.playing {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Стили для печати - скрываем кнопки озвучки */
+@media print {
+  .read-btn,
+  .sound-toggle {
+    display: none !important;
   }
-  50% {
-    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+  
+  .tts-highlight {
+    background: none;
+    font-weight: normal;
+    box-shadow: none;
   }
 }
