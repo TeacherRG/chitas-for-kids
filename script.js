@@ -208,6 +208,7 @@ class ChitasApp {
     nav.innerHTML = `
       <button id="prevDay" class="nav-btn" disabled>◀ Предыдущий день</button>
       <button id="todayBtn" class="nav-btn today-btn">📅 Сегодня</button>
+      <button id="soundToggle" class="nav-btn sound-toggle" onclick="toggleSound(this)">🔊 Звук ВКЛ</button>
       <button id="printBtn" class="nav-btn print-btn">🖨️ Печать</button>
       <button id="nextDay" class="nav-btn" disabled>Следующий день ▶</button>
     `;
