@@ -1,10 +1,4 @@
-bash_tool
-command: cd /home/claude && python3 << 'ENDOFPYTHON'
-import json
-
-# Создаём полный JSON со всеми 6 разделами из PDF
-data = {
-    "date": "2025-01-13",
+    "date": "2025-12-29",
     "hebrewDate": "ט׳ טבת ה׳תשפ״ו (9 Тевета 5786)",
     "parsha": "Ваехи (Vayechi)",
     "dedication": "За безопасность и успех евреев в Эрец Исраэль и успех солдат, защищающих её",
@@ -535,15 +529,3 @@ data = {
         }
     ]
 }
-
-# Сохраняем в красивом формате
-with open('/mnt/user-data/outputs/2025-01-13-full.json', 'w', encoding='utf-8') as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
-
-print("✅ Создан полный JSON со всеми 6 разделами из PDF")
-print(f"📊 Всего разделов: {len(data['sections'])}")
-for section in data['sections']:
-    print(f"  - {section['icon']} {section['title']}: {len(section['games'])} игр, {section['points']} баллов")
-
-ENDOFPYTHON
-description: Creating complete JSON with all 6 sections from PDF
