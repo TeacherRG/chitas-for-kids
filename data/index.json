@@ -1,51 +1,11 @@
-  "version": "1.0",
-  "lastUpdated": "2025-01-13",
+  "version": "2.0",
+  "lastUpdated": "2025-12-29",
   "dates": [
     {
-      "date": "2025-12-29",
-      "hebrewDate": "ט׳ טבת ה׳תשפ״ו",
-      "hebrewDateDisplay": "9 Тевета 5786",
-      "parsha": "Ваехи",
-      "available": true,
-      "filename": "2025-12-29.json"
-    }
-  ],
-  "categories": [
-    {
-      "id": "chumash",
-      "name": "ХУМАШ",
-      "icon": "📖",
-      "color": "#FF6B6B"
-    },
-    {
-      "id": "tehillim",
-      "name": "ТЕИЛИМ",
-      "icon": "🙏",
-      "color": "#4ECDC4"
-    },
-    {
-      "id": "tanya",
-      "name": "ТАНИЯ",
-      "icon": "📘",
-      "color": "#45B7D1"
-    },
-    {
-      "id": "rambam",
-      "name": "РАМБАМ",
-      "icon": "⚖️",
-      "color": "#96CEB4"
-    },
-    {
-      "id": "hayom-yom",
-      "name": "HAYOM YOM",
-      "icon": "☀️",
-      "color": "#FFEAA7"
-    },
-    {
-      "id": "idea",
-      "name": "ИДЕЯ ДНЯ",
-      "icon": "💡",
-      "color": "#DFE6E9"
+      "date": "2025-01-13",
+      "hebrew": "ט׳ טבת ה׳תשפ״ו",
+      "content": "2025-12-29-content.json",
+      "games": "2025-12-29-games.json"
     }
   ]
 }
