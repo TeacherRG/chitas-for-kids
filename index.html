@@ -1744,18 +1744,11 @@ file_text: <!DOCTYPE html>
                 // Update achievement statuses
                 document.getElementById('achievement1').textContent = totalDays >= 7 ? '✅' : '🔒';
                 document.getElementById('achievement2').textContent = totalDays >= 14 ? '✅' : '🔒';
-                document.getElementById('achievement3').text navigateDate(delta) {
-            const current = new Date(this.currentDate);
-            current.setDate(current.getDate() + delta);
-            this.currentDate = current.toISOString().split('T')[0];
-            
-            // Update URL
-            const url = new URL(window.location.href);
-            url.searchParams.set('date', this.currentDate);
-            window.history.pushState({}, '', url);
-            
-            this.loadData();
-        }
+                document.getElementById('achievement3').text navigateDate(delta) 
+                document.getElementById('achievement3').textContent = this.state.stars >= 30 ? '✅' : '🔒';
+                document.getElementById('achievement4').textContent = this.state.score >= 500 ? '✅' : '🔒';
+}
+
 
        navigateDate(delta) {
     const current = new Date(this.currentDate);
