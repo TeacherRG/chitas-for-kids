@@ -1,1289 +1,1892 @@
-<!DOCTYPE html>
+create_file
+path: /home/claude/chitas-app.html
+description: Creating the complete Chitas for Kids application with JSON data support
+file_text: <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хитас для детей - Жить в ногу со временем!</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ב״ה | Хитас для детей</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         :root {
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --accent-color: #FFA500;
-            --success-color: #4CAF50;
-            --danger-color: #f44336;
-            --text-dark: #333;
-            --text-light: #666;
-            --bg-light: #f5f5f5;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --color-chumash: #FF6B6B;
+            --color-tehillim: #4ECDC4;
+            --color-tanya: #45B7D1;
+            --color-rambam: #96CEB4;
+            --color-hayom: #FFEAA7;
+            --color-idea: #DFE6E9;
+            --color-primary: #667eea;
+            --color-secondary: #764ba2;
+            --color-success: #4CAF50;
+            --color-error: #f44336;
+            --color-text-dark: #333333;
+            --color-text-light: #666666;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             min-height: 100vh;
-            padding-top: 65px;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
+            overflow-x: hidden;
         }
-        
-        /* === ВЕРХНИЙ ХЕДЕР === */
-        .top-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: linear-gradient(135deg, var(--accent-color), #FF6B6B);
-            box-shadow: var(--shadow);
-            padding: 10px 20px;
-        }
-        
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-        }
-        
-        .bsd-text {
-            position: absolute;
-            top: 5px;
-            left: 10px;
-            font-family: 'Times New Roman', serif;
-            font-size: 1.2em;
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #FFA500, #FF6B6B);
             color: white;
-            font-weight: bold;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            font-size: 14px;
             opacity: 0.9;
         }
-        
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 60px;
-        }
-        
-        .logo {
-            font-size: 2em;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .title-box h1 {
-            color: white;
-            font-size: 1.3em;
-            font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            line-height: 1.2;
-        }
-        
-        .motto {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.75em;
-            font-style: italic;
-        }
-        
-        .header-right {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .sound-toggle {
-            background: white;
-            color: var(--primary-color);
-            border: 2px solid white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        
-        .sound-toggle:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .sound-toggle.off {
-            background: #ccc;
-            color: #666;
-            border-color: #ccc;
-        }
-        
-        .auth-container {
-            background: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
-        
-        /* === КОНТЕЙНЕР === */
+
+        /* Container */
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 20px;
         }
-        
-        /* === ДАТА И НАВИГАЦИЯ ПО ДНЯМ === */
-        .date-navigation {
+
+        /* Card Base */
+        .card {
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: var(--shadow);
         }
-        
-        .date-header {
-            text-align: center;
-            margin-bottom: 15px;
+
+        /* Date Card */
+        .date-card h2 {
+            color: var(--color-text-dark);
+            font-size: 22px;
+            margin-bottom: 10px;
         }
-        
-        .hebrew-date {
-            font-size: 1.8em;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-        
+
         .dedication {
-            color: var(--text-light);
-            font-size: 0.95em;
+            color: var(--color-text-light);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
-        
-        .days-nav {
+
+        .date-navigation {
             display: flex;
-            align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 15px;
+            flex-wrap: wrap;
         }
-        
-        .nav-arrow {
-            background: var(--primary-color);
+
+        .btn {
+            background: var(--color-primary);
             color: white;
-            width: 40px;
-            height: 40px;
             border: none;
-            border-radius: 50%;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            font-size: 14px;
+            transition: transform 0.2s, opacity 0.2s;
+            font-weight: 500;
         }
-        
-        .nav-arrow:hover {
-            transform: scale(1.1);
-            background: var(--secondary-color);
+
+        .btn:hover {
+            transform: scale(1.05);
         }
-        
-        .nav-arrow:disabled {
-            opacity: 0.3;
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
         }
-        
-        .current-date-display {
-            font-weight: 700;
-            color: var(--text-dark);
-            font-size: 1.1em;
-            min-width: 150px;
+
+        /* Progress Card */
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-stat {
             text-align: center;
+            flex: 1;
+            min-width: 80px;
         }
-        
-        /* === ПАНЕЛЬ ПРОГРЕССА === */
-        .progress-panel {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
+
+        .progress-stat .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--color-primary);
         }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+
+        .progress-stat .label {
+            font-size: 12px;
+            color: var(--color-text-light);
+            margin-top: 5px;
         }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-        
-        .stat-icon {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: 800;
-            color: var(--primary-color);
-        }
-        
-        .stat-label {
-            color: var(--text-light);
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .progress-bar-wrapper {
-            background: #E0E0E0;
-            height: 35px;
-            border-radius: 20px;
+
+        .progress-bar-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 20px;
             overflow: hidden;
-            position: relative;
         }
-        
+
         .progress-bar {
-            background: linear-gradient(90deg, var(--success-color), #8BC34A);
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
             height: 100%;
-            width: 0;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
-            font-size: 1em;
-        }
-        
-        /* === ПЛИТОЧНЫЙ ВИД РАЗДЕЛОВ === */
-        .sections-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .section-tile {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .section-tile::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-        }
-        
-        .section-tile:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .section-tile.completed::after {
-            content: '✓';
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 50px;
-            height: 50px;
-            background: var(--success-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
+            font-size: 12px;
             font-weight: bold;
         }
-        
+
+        /* Tiles Grid */
+        .tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tile {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .tile:active {
+            transform: translateY(-2px);
+        }
+
         .tile-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 15px;
+            padding-left: 10px;
+            border-left: 4px solid currentColor;
         }
-        
+
         .tile-icon {
-            font-size: 3em;
+            font-size: 32px;
         }
-        
-        .tile-info h3 {
-            font-size: 1.5em;
-            color: var(--text-dark);
-            margin-bottom: 5px;
+
+        .tile-title-group {
+            flex: 1;
         }
-        
-        .tile-points {
-            background: linear-gradient(135deg, #FFD700, var(--accent-color));
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.9em;
-            display: inline-block;
+
+        .tile-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--color-text-dark);
         }
-        
+
+        .tile-subtitle {
+            font-size: 14px;
+            color: var(--color-text-light);
+            margin-top: 3px;
+        }
+
         .tile-preview {
-            color: var(--text-light);
-            font-size: 0.95em;
+            font-size: 14px;
+            color: var(--color-text-light);
             line-height: 1.6;
-            margin-bottom: 15px;
-            max-height: 60px;
+            margin: 15px 0;
+            max-height: 80px;
             overflow: hidden;
-            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
         }
-        
-        .tile-action {
+
+        .tile-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
         }
-        
-        .open-btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
+
+        .tile-points {
+            font-weight: bold;
+            color: var(--color-primary);
+            font-size: 16px;
         }
-        
-        .open-btn:hover {
-            background: var(--secondary-color);
-            transform: scale(1.05);
-        }
-        
+
         .tile-status {
-            color: var(--text-light);
-            font-size: 0.85em;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 500;
         }
-        
-        /* === ПОЛНОЭКРАННЫЙ ВИД РАЗДЕЛА === */
-        .section-fullscreen {
+
+        .tile-status.completed {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .tile-status.pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* Section View */
+        .section-view {
             display: none;
             position: fixed;
-            top: 80px;
+            top: 0;
             left: 0;
             right: 0;
-            bottom: 80px;
+            bottom: 0;
             background: white;
-            z-index: 900;
+            z-index: 200;
             overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
+            -webkit-overflow-scrolling: touch;
         }
-        
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-        
-        .section-fullscreen.active {
+
+        .section-view.active {
             display: block;
+            animation: slideUp 0.3s ease;
         }
-        
-        .section-nav-bar {
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: sticky;
             top: 0;
-            background: white;
-            border-bottom: 2px solid #f0f0f0;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             z-index: 10;
+            box-shadow: var(--shadow);
         }
-        
-        .back-btn {
-            background: #f5f5f5;
-            color: var(--text-dark);
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+
+        .section-header .btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
         }
-        
-        .back-btn:hover {
-            background: #e0e0e0;
+
+        .section-header h2 {
+            font-size: 20px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
         }
-        
-        .sound-toggle-section {
-            background: var(--primary-color);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        
-        .sound-toggle-section:hover {
-            background: var(--secondary-color);
-            transform: scale(1.1);
-        }
-        
-        .sound-toggle-section.reading {
-            background: var(--danger-color);
-        }
-        
-        .section-title-bar {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        
-        .section-content-area {
-            max-width: 900px;
-            margin: 0 auto;
+
+        .section-content {
             padding: 30px 20px;
-        }
-        
-        .story-text {
-            background: var(--bg-light);
-            padding: 30px;
-            border-radius: 20px;
-            line-height: 1.9;
-            font-size: 1.1em;
-            color: var(--text-dark);
-            margin-bottom: 25px;
-        }
-        
-        .story-text p {
-            margin-bottom: 18px;
-        }
-        
-        .story-text strong {
-            color: #FF6B6B;
-            font-weight: 700;
-        }
-        
-        .fun-fact {
-            background: linear-gradient(135deg, #E1BEE7, #CE93D8);
-            padding: 25px;
-            border-radius: 20px;
-            color: #4A148C;
-            font-weight: 700;
-            margin: 25px 0;
-            font-size: 1.05em;
-        }
-        
-        /* === НИЖНЕЕ МЕНЮ === */
-        .bottom-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            padding: 10px 0;
-        }
-        
-        .menu-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .menu-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 12px;
-            color: var(--text-light);
-            border: none;
-            background: none;
-            font-family: inherit;
-        }
-        
-        .menu-item:hover {
-            background: var(--bg-light);
-            color: var(--primary-color);
-        }
-        
-        .menu-item.active {
-            color: var(--primary-color);
-            background: #E3F2FD;
-        }
-        
-        .menu-icon {
-            font-size: 1.8em;
-        }
-        
-        .menu-label {
-            font-size: 0.75em;
-            font-weight: 600;
-        }
-        
-        /* === НАСТРОЙКИ МОДАЛ === */
-        .settings-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .settings-modal.show {
-            display: flex;
-        }
-        
-        .settings-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .settings-header h2 {
-            font-size: 1.8em;
-            color: var(--text-dark);
-        }
-        
-        .close-settings {
-            background: none;
-            border: none;
-            font-size: 1.8em;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-        
-        .setting-item {
-            padding: 20px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-        
-        .setting-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-        
-        .setting-name {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 1.1em;
-        }
-        
-        .setting-desc {
-            color: var(--text-light);
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-            background: #ccc;
-            border-radius: 13px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .toggle-switch.on {
-            background: var(--success-color);
-        }
-        
-        .toggle-switch::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            top: 3px;
-            left: 3px;
-            transition: left 0.3s;
-        }
-        
-        .toggle-switch.on::after {
-            left: 27px;
-        }
-        
-        /* AUTH MODAL */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-overlay.show { display: flex; }
-        
-        .modal {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .modal input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1em;
-        }
-        
-        .modal input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .modal-btn.primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .modal-btn.google {
-            background: white;
-            color: #333;
-            border: 2px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .modal-divider {
-            text-align: center;
-            margin: 20px 0;
-            color: #999;
-        }
-        
-        .modal-link {
-            text-align: center;
-            margin-top: 15px;
-            color: var(--primary-color);
-            cursor: pointer;
-        }
-        
-        .modal-error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-        
-        .user-name {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.9em;
-        }
-        
-        .logout-btn {
-            background: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.8em;
-        }
-        
-        .auth-button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        
-        /* === ПРОФИЛЬ === */
-        .profile-screen {
             max-width: 800px;
             margin: 0 auto;
         }
-        
-        .profile-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
+
+        .content-title {
+            color: var(--color-text-dark);
             margin-bottom: 20px;
-            box-shadow: var(--shadow);
+            font-size: 24px;
+            font-weight: bold;
         }
-        
-        .profile-card h3 {
-            color: var(--text-dark);
-            margin-bottom: 15px;
-            font-size: 1.3em;
+
+        .content-paragraph {
+            color: var(--color-text-dark);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 16px;
         }
-        
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            body {
-                padding-top: 120px;
-            }
-            
-            .bsd-text {
-                font-size: 1em;
-                top: 3px;
-                left: 5px;
-            }
-            
-            .logo-section {
-                flex-direction: column;
-                gap: 5px;
-                margin-left: 50px;
-            }
-            
-            .title-box h1 {
-                font-size: 1.1em;
-            }
-            
-            .motto {
-                font-size: 0.7em;
-            }
-            
-            .sections-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+
+        .content-paragraph.highlight {
+            background: linear-gradient(120deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--color-primary);
+            font-weight: 500;
         }
-        
-        @media print {
-            .top-header, .bottom-menu, .date-navigation, .progress-panel, .settings-modal { 
-                display: none !important; 
-            }
+
+        .content-paragraph.teaching {
+            background: linear-gradient(120deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--color-tanya);
         }
-        
-        /* === СТИЛИ ДЛЯ ИГРОВОГО МЕНЮ === */
-        .games-menu-modern {
+
+        .content-paragraph.quote {
+            font-style: italic;
+            border-left: 4px solid var(--color-hayom);
+            padding-left: 15px;
+            color: var(--color-text-light);
+        }
+
+        .content-paragraph.example,
+        .content-paragraph.explanation,
+        .content-paragraph.note {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .paragraph-title {
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        /* Game Container */
+        .game-container {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 30px 20px;
             margin-top: 30px;
         }
-        
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+        .game-menu {
+            text-align: center;
+        }
+
+        .game-menu h3 {
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .game-buttons {
+            display: flex;
+            justify-content: center;
             gap: 15px;
-            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
-        
-        .game-card {
+
+        .game-button {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            padding: 15px 25px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
             transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border: 3px solid transparent;
+            min-width: 120px;
         }
-        
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            border-color: var(--primary-color);
+
+        .game-button:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: scale(1.05);
         }
-        
-        .game-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
+
+        /* Quiz Game */
+        .quiz-game {
+            display: none;
         }
-        
-        .game-title {
-            font-weight: 700;
-            font-size: 1.1em;
-            color: var(--text-dark);
-            margin-bottom: 5px;
+
+        .quiz-game.active {
+            display: block;
+            animation: fadeIn 0.3s;
         }
-        
-        .game-subtitle {
-            font-size: 0.85em;
-            color: var(--text-light);
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .game-container-modern {
-            background: #f5f5f5;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-        
-        .game-content {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-        }
-        
-        .game-content h3 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        /* Квиз */
+
         .quiz-question {
-            background: #E3F2FD;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--color-text-dark);
+            margin-bottom: 25px;
             text-align: center;
+            font-weight: 500;
+            line-height: 1.5;
         }
-        
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
         .quiz-option {
             background: white;
-            border: 2px solid #ddd;
-            padding: 15px;
+            border: 2px solid #e0e0e0;
             border-radius: 10px;
-            margin-bottom: 12px;
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 16px;
+            text-align: left;
+            position: relative;
         }
-        
-        .quiz-option:hover {
-            background: #FFF9C4;
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: var(--color-primary);
             transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        
+
         .quiz-option.correct {
-            background: #C8E6C9;
-            border-color: #4CAF50;
+            background: #e8f5e9;
+            border-color: var(--color-success);
+            animation: pulse 0.5s;
         }
-        
-        .quiz-option.wrong {
-            background: #FFCDD2;
-            border-color: #F44336;
+
+        .quiz-option.incorrect {
+            background: #ffebee;
+            border-color: var(--color-error);
+            animation: shake 0.5s;
         }
-        
-        /* Правда/Ложь */
-        .tf-statement {
-            background: #f9f9f9;
-            padding: 15px;
+
+        .quiz-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .quiz-feedback {
+            margin-top: 20px;
+            padding: 20px;
             border-radius: 10px;
-            margin-bottom: 15px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.6;
+            display: none;
         }
-        
-        .tf-text {
-            font-size: 1.1em;
+
+        .quiz-feedback.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .quiz-feedback.success {
+            background: #e8f5e9;
+            color: var(--color-success);
+        }
+
+        .quiz-feedback.error {
+            background: #ffebee;
+            color: var(--color-error);
+        }
+
+        .feedback-title {
+            font-size: 24px;
             margin-bottom: 10px;
         }
-        
-        .tf-buttons {
+
+        /* True/False Game */
+        .truefalse-game {
+            display: none;
+        }
+
+        .truefalse-game.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .truefalse-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .truefalse-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .truefalse-statement {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--color-text-dark);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .truefalse-buttons {
             display: flex;
             gap: 10px;
         }
-        
-        .tf-btn {
+
+        .truefalse-button {
             flex: 1;
             padding: 12px;
-            border: none;
+            border: 2px solid #e0e0e0;
+            background: white;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
             transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 500;
         }
-        
-        .tf-btn:hover {
+
+        .truefalse-button:hover:not(.disabled) {
+            border-color: var(--color-primary);
             transform: scale(1.05);
         }
-        
-        /* Соедини */
+
+        .truefalse-button.correct {
+            background: #e8f5e9;
+            border-color: var(--color-success);
+        }
+
+        .truefalse-button.incorrect {
+            background: #ffebee;
+            border-color: var(--color-error);
+        }
+
+        .truefalse-button.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .truefalse-explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+            color: var(--color-text-light);
+            display: none;
+        }
+
+        .truefalse-explanation.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Match Game */
         .match-game {
+            display: none;
+        }
+
+        .match-game.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .match-instruction {
+            text-align: center;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .match-pairs {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        
-        .match-column h4 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 15px;
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        
+
         .match-item {
             background: white;
-            border: 3px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .match-item:hover:not(.matched):not(.disabled) {
+            border-color: var(--color-primary);
+            transform: scale(1.05);
+        }
+
+        .match-item.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .match-item.matched {
+            background: #e8f5e9;
+            border-color: var(--color-success);
+            cursor: default;
+            animation: pulse 0.5s;
+        }
+
+        .match-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Reflection Game */
+        .reflection-game {
+            display: none;
+        }
+
+        .reflection-game.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .reflection-question {
+            font-size: 18px;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .reflection-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .reflection-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .reflection-save {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            color: var(--color-text-light);
+        }
+
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+
+        .nav-item.active {
+            color: var(--color-primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            padding-bottom: 20px;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Profile View */
+        .profile-header {
+            text-align: center;
+        }
+
+        .profile-header h2 {
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profile-stat {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .profile-stat .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .profile-stat .label {
+            font-size: 14px;
+            color: var(--color-text-light);
+            margin-top: 8px;
+        }
+
+        .achievements h2 {
+            color: var(--color-text-dark);
+            margin-bottom: 15px;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+        }
+
+        .achievement-icon {
+            font-size: 32px;
+        }
+
+        .achievement-info {
+            flex: 1;
+        }
+
+        .achievement-info h3 {
+            color: var(--color-text-dark);
+            margin-bottom: 3px;
+        }
+
+        .achievement-info p {
+            color: var(--color-text-light);
+            font-size: 14px;
+        }
+
+        .achievement-status {
+            font-size: 28px;
+        }
+
+        /* Settings View */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .setting-info h3 {
+            color: var(--color-text-dark);
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            color: var(--color-text-light);
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--color-primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            left: 33px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tiles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .match-pairs {
+                grid-template-columns: 1fr;
+            }
+
+            .app-header h1 {
+                font-size: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 16px;
+            }
+
+            .game-buttons {
+                flex-direction: column;
+            }
+
+            .game-button {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .bottom-nav, .date-navigation, .game-container, .section-header button {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                padding-bottom: 0;
+            }
+            
+            .section-view {
+                position: static;
+            }
+
+            .section-header {
+                background: #333;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Hide elements when section is open */
+        body.section-open .app-header,
+        body.section-open .container,
+        body.section-open .bottom-nav {
+            display: none;
+        }
+
+        /* Mazel Tov Section */
+        .mazel-tov-section {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .mazel-tov-section h3 {
+            color: var(--color-text-dark);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .mazel-tov-item {
+            background: white;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            border-left: 4px solid #ffa726;
         }
-        
-        .match-item:hover {
-            background: #E1F5FE;
-            transform: scale(1.02);
+
+        .mazel-tov-item h4 {
+            color: var(--color-primary);
+            margin-bottom: 5px;
         }
-        
-        .match-item.selected {
-            border-color: var(--primary-color);
-            background: #BBDEFB;
-        }
-        
-        .match-item.matched {
-            background: #C8E6C9;
-            border-color: #4CAF50;
-            opacity: 0.7;
-            cursor: default;
-        }
-        
-        .feedback {
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .feedback.success {
-            background: #C8E6C9;
-            color: #2E7D32;
-        }
-        
-        .feedback.error {
-            background: #FFCDD2;
-            color: #C62828;
+
+        .mazel-tov-item p {
+            color: var(--color-text-light);
+            font-size: 14px;
+            margin: 3px 0;
         }
     </style>
-    
-    <link rel="stylesheet" href="./audio-styles.css">
-    <link rel="stylesheet" href="./wheel-game.css">
-    <link rel="stylesheet" href="./games-menu.css">
 </head>
 <body>
-    <!-- ВЕРХНИЙ ХЕДЕР -->
-    <div class="top-header">
-        <div class="header-content">
-            <div class="bsd-text">ב״ה</div>
-            <div class="logo-section">
-                <div class="logo">📖</div>
-                <div class="title-box">
-                    <h1>Хитас для детей</h1>
-                    <div class="motto">Жить в ногу со временем!</div>
-                </div>
-            </div>
-            
-            <div class="header-right">
-                <!-- Скрытый контейнер для совместимости с auth-ui.js -->
-                <div id="authContainer" style="display: none;"></div>
-            </div>
-        </div>
+    <!-- Main App Header -->
+    <div class="app-header">
+        <h1>ב״ה 📖 Хитас для детей</h1>
+        <p>Жить в ногу со временем!</p>
     </div>
 
-    <!-- МОДАЛЫ -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal">
-            <h2 id="modalTitle">Вход</h2>
-            <div id="modalError" class="modal-error" style="display: none;"></div>
-            
-            <div id="signInForm">
-                <input type="email" id="emailInput" placeholder="Email" />
-                <input type="password" id="passwordInput" placeholder="Пароль" />
-                <button class="modal-btn primary" onclick="handleEmailSignIn()">Войти</button>
-                <div class="modal-divider">или</div>
-                <button class="modal-btn google" onclick="handleGoogleSignIn()">
-                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M17.6 9.2l-.1-1.8H9v3.4h4.8C13.6 12 13 13 12 13.6v2.2h3a8.8 8.8 0 0 0 2.6-6.6z" fill="#4285F4"/><path d="M9 18c2.4 0 4.5-.8 6-2.2l-3-2.2a5.4 5.4 0 0 1-8-2.9H1V13a9 9 0 0 0 8 5z" fill="#34A853"/><path d="M4 10.7a5.4 5.4 0 0 1 0-3.4V5H1a9 9 0 0 0 0 8l3-2.3z" fill="#FBBC05"/><path d="M9 3.6c1.3 0 2.5.4 3.4 1.3L15 2.3A9 9 0 0 0 1 5l3 2.4a5.4 5.4 0 0 1 5-3.7z" fill="#EA4335"/></g></svg>
-                    Войти через Google
-                </button>
-                <div class="modal-link" onclick="showSignUpForm()">Зарегистрироваться</div>
-                <div class="modal-link" onclick="showResetPassword()">Забыли пароль?</div>
-            </div>
-            
-            <div id="signUpForm" style="display: none;">
-                <input type="text" id="nameInput" placeholder="Имя" />
-                <input type="email" id="signUpEmail" placeholder="Email" />
-                <input type="password" id="signUpPassword" placeholder="Пароль (мин. 6 символов)" />
-                <button class="modal-btn primary" onclick="handleEmailSignUp()">Зарегистрироваться</button>
-                <div class="modal-link" onclick="showSignInForm()">Уже есть аккаунт? Войти</div>
-            </div>
-            
-            <div id="resetPasswordForm" style="display: none;">
-                <input type="email" id="resetEmail" placeholder="Email" />
-                <button class="modal-btn primary" onclick="handlePasswordReset()">Отправить ссылку</button>
-                <div class="modal-link" onclick="showSignInForm()">Назад</div>
-            </div>
-            
-            <button class="modal-btn" onclick="closeAuthModal()" style="margin-top: 20px; background: #f5f5f5;">Закрыть</button>
-        </div>
-    </div>
-
-    <!-- НАСТРОЙКИ МОДАЛ -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2>⚙️ Настройки</h2>
-                <button class="close-settings" onclick="closeModernSettings()">✕</button>
-            </div>
-            
-            <div class="setting-item">
-                <div class="setting-label" onclick="toggleModernSetting('sound')">
-                    <div>
-                        <div class="setting-name">🔊 Озвучивание текста</div>
-                        <div class="setting-desc">Автоматическое чтение разделов</div>
-                    </div>
-                    <div class="toggle-switch on" id="soundToggle"></div>
-                </div>
-            </div>
-            
-            <div class="setting-item">
-                <div class="setting-label" onclick="toggleModernSetting('autoNext')">
-                    <div>
-                        <div class="setting-name">⏭️ Автопереход</div>
-                        <div class="setting-desc">Автоматически открывать следующий раздел</div>
-                    </div>
-                    <div class="toggle-switch" id="autoNextToggle"></div>
-                </div>
-            </div>
-            
-            <div class="setting-item">
-                <div class="setting-label" onclick="toggleModernSetting('animations')">
-                    <div>
-                        <div class="setting-name">✨ Анимации</div>
-                        <div class="setting-desc">Плавные переходы и эффекты</div>
-                    </div>
-                    <div class="toggle-switch on" id="animationsToggle"></div>
-                </div>
-            </div>
-            
-            <div class="setting-item">
-                <div class="setting-label" onclick="toggleModernSetting('darkMode')">
-                    <div>
-                        <div class="setting-name">🌙 Тёмная тема</div>
-                        <div class="setting-desc">Комфортное чтение вечером</div>
-                    </div>
-                    <div class="toggle-switch" id="darkModeToggle"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- КОНТЕНТ -->
-    <div class="container">
-        <!-- ДАТА И НАВИГАЦИЯ -->
-        <div class="date-navigation">
-            <div class="date-header">
-                <div class="hebrew-date" id="hebrewDate">Загрузка...</div>
+    <!-- Main View -->
+    <div class="view active" id="homeView">
+        <div class="container">
+            <!-- Date Card -->
+            <div class="card date-card">
+                <h2 id="hebrewDate">Загрузка...</h2>
                 <div class="dedication" id="dedication"></div>
+                <div class="date-navigation">
+                    <button class="btn" onclick="app.navigateDate(-1)">◀ Пред</button>
+                    <button class="btn" onclick="app.navigateToToday()">📅 Сегодня</button>
+                    <button class="btn" onclick="window.print()">🖨️ Печать</button>
+                    <button class="btn" onclick="app.navigateDate(1)">След ▶</button>
+                </div>
             </div>
-            
-            <div class="days-nav">
-                <button class="nav-arrow" id="prevDay" onclick="changeModernDay(-1)">◀</button>
-                <div class="current-date-display" id="currentDate">Сегодня</div>
-                <button class="nav-arrow" id="nextDay" onclick="changeModernDay(1)">▶</button>
-            </div>
-        </div>
 
-        <!-- ПЛИТОЧНЫЙ ВИД РАЗДЕЛОВ (только это на главной) -->
-        <div class="sections-grid" id="sectionsGrid"></div>
-        
-        <!-- ПОЛНОЭКРАННЫЙ ВИД РАЗДЕЛА -->
-        <div class="section-fullscreen" id="sectionFullscreen">
-            <div class="section-nav-bar">
-                <button class="back-btn" onclick="closeModernSection()">
-                    ← Назад
-                </button>
-                <div class="section-title-bar" id="sectionTitleBar"></div>
-                <button class="sound-toggle-section" onclick="toggleSectionSound()" title="Озвучить текст">
-                    🔊
-                </button>
-            </div>
-            <div class="section-content-area" id="sectionContentArea"></div>
-        </div>
-        
-        <!-- ПРОФИЛЬ (скрыт по умолчанию) -->
-        <div class="profile-screen" id="profileScreen" style="display: none;">
-            <h2 style="text-align: center; color: var(--text-dark); margin-bottom: 30px;">👤 Мой профиль</h2>
-            
-            <!-- Информация об аккаунте -->
-            <div class="profile-card">
-                <h3>📧 Аккаунт</h3>
-                <div id="profileAccountInfo"></div>
-            </div>
-            
-            <!-- Панель прогресса -->
-            <div class="progress-panel">
-                <h3 style="margin-bottom: 20px; color: var(--text-dark);">📊 Мой прогресс</h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">🏆</div>
-                        <div class="stat-value" id="score">0</div>
-                        <div class="stat-label">Баллы</div>
+            <!-- Mazel Tov Section -->
+            <div id="mazelTovSection"></div>
+
+            <!-- Progress Card -->
+            <div class="card progress-card">
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <div class="value" id="scoreValue">0</div>
+                        <div class="label">📊 Баллы</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⭐</div>
-                        <div class="stat-value" id="stars">0</div>
-                        <div class="stat-label">Звёзды</div>
+                    <div class="progress-stat">
+                        <div class="value" id="starsValue">0</div>
+                        <div class="label">⭐ Звёзды</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-value" id="done">0/5</div>
-                        <div class="stat-label">Выполнено</div>
+                    <div class="progress-stat">
+                        <div class="value" id="completedValue">0/6</div>
+                        <div class="label">✅ Пройдено</div>
                     </div>
                 </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+                </div>
+            </div>
+
+            <!-- Tiles Grid -->
+            <div class="tiles-grid" id="tilesGrid">
+                <div class="loading">Загрузка данных</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile View -->
+    <div class="view" id="profileView">
+        <div class="container">
+            <div class="card profile-header">
+                <h2>👤 Мой профиль</h2>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="value" id="totalScore">0</div>
+                        <div class="label">🏆 Всего баллов</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="value" id="totalStars">0</div>
+                        <div class="label">⭐ Всего звёзд</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="value" id="totalDays">0</div>
+                        <div class="label">📅 Дней подряд</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card achievements">
+                <h2>🎯 Достижения</h2>
+                <div class="achievement-item">
+                    <div class="achievement-icon">🥇</div>
+                    <div class="achievement-info">
+                        <h3>Первая неделя</h3>
+                        <p>Изучай 7 дней подряд</p>
+                    </div>
+                    <div class="achievement-status" id="achievement1">🔒</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-icon">🔥</div>
+                    <div class="achievement-info">
+                        <h3>В огне</h3>
+                        <p>14 дней подряд</p>
+                    </div>
+                    <div class="achievement-status" id="achievement2">🔒</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-info">
+                        <h3>Звёздный</h3>
+                        <p>Собери 30 звёзд</p>
+                    </div>
+                    <div class="achievement-status" id="achievement3">🔒</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-icon">🏆</div>
+                    <div class="achievement-info">
+                        <h3>Чемпион</h3>
+                        <p>500 баллов</p>
+                    </div>
+                    <div class="achievement-status" id="achievement4">🔒</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings View -->
+    <div class="view" id="settingsView">
+        <div class="container">
+            <div class="card setting-item" onclick="app.toggleSetting('sound')">
+                <div class="setting-info">
+                    <h3>🔊 Звук</h3>
+                    <p>Звуковые эффекты</p>
+                </div>
+                <div class="toggle-switch active" id="soundToggle"></div>
+            </div>
+            <div class="card setting-item" onclick="app.toggleSetting('animations')">
+                <div class="setting-info">
+                    <h3>✨ Анимации</h3>
+                    <p>Плавные переходы</p>
+                </div>
+                <div class="toggle-switch active" id="animationsToggle"></div>
+            </div>
+            <div class="card setting-item" onclick="app.toggleSetting('darkMode')">
+                <div class="setting-info">
+                    <h3>🌙 Тёмная тема</h3>
+                    <p>Режим для вечера</p>
+                </div>
+                <div class="toggle-switch" id="darkModeToggle"></div>
+            </div>
+            <div class="card setting-item" onclick="app.resetProgress()">
+                <div class="setting-info">
+                    <h3>🗑️ Сбросить прогресс</h3>
+                    <p>Начать заново</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section View (Fullscreen) -->
+    <div class="section-view" id="sectionView">
+        <div class="section-header">
+            <button class="btn" onclick="app.closeSection()">← Назад</button>
+            <h2 id="sectionTitle">Раздел</h2>
+            <button class="btn" onclick="app.speakContent()">🔊</button>
+        </div>
+        <div class="section-content" id="sectionContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-view="homeView">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Главная</div>
+        </div>
+        <div class="nav-item" data-view="profileView">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Профиль</div>
+        </div>
+        <div class="nav-item" data-view="settingsView">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Настройки</div>
+        </div>
+    </div>
+
+    <script>
+        class ChitasApp {
+            constructor() {
+                this.data = null;
+                this.index = null;
+                this.currentDate = this.getTodayDate();
+                this.currentSection = null;
+                this.state = this.loadProgress();
+                this.matchGame = { selected: [], matched: [] };
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadIndex();
+            }
+
+            setupEventListeners() {
+                // Bottom navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const viewId = item.dataset.view;
+                        this.switchView(viewId);
+                    });
+                });
+            }
+
+            getTodayDate() {
+                const url = new URL(window.location.href);
+                const dateParam = url.searchParams.get('date');
+                if (dateParam) return dateParam;
                 
-                <div class="progress-bar-wrapper">
-                    <div class="progress-bar" id="progress">0%</div>
-                </div>
-            </div>
+                const today = new Date();
+                return today.toISOString().split('T')[0];
+            }
+
+            async loadIndex() {
+                try {
+                    // For demo, create index data
+                    this.index = {
+                        dates: [{
+                            date: this.currentDate,
+                            available: true,
+                            filename: `${this.currentDate}.json`
+                        }]
+                    };
+                    await this.loadData();
+                } catch (error) {
+                    console.error('Error loading index:', error);
+                    this.showError('Ошибка загрузки индекса');
+                }
+            }
+
+            async loadData() {
+                try {
+                    // For demo, check if we have the JSON file created by Python
+                    const response = await fetch(`${this.currentDate}.json`);
+                    if (response.ok) {
+                        this.data = await response.json();
+                    } else {
+                        // Fallback to demo data
+                        this.data = this.createDemoData();
+                    }
+                    
+                    this.renderPage();
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    this.data = this.createDemoData();
+                    this.renderPage();
+                }
+            }
+
+            createDemoData() {
+                // This would normally be loaded from JSON
+                // For now, return the structure
+                return {
+                    date: this.currentDate,
+                    hebrewDate: "9 Тевета 5786",
+                    parsha: "Ваехи",
+                    dedication: "За безопасность и успех евреев в Эрец Исраэль",
+                    sections: [] // Will be populated from actual JSON
+                };
+            }
+
+            renderPage() {
+                this.updateDateDisplay();
+                this.renderMazelTov();
+                this.renderTiles();
+                this.updateProgress();
+                this.updateAchievements();
+            }
+
+            updateDateDisplay() {
+                document.getElementById('hebrewDate').textContent = this.data.hebrewDate;
+                document.getElementById('dedication').textContent = this.data.dedication;
+            }
+
+            renderMazelTov() {
+                const container = document.getElementById('mazelTovSection');
+                if (!this.data.mazalTov || this.data.mazalTov.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                let html = '<div class="mazel-tov-section"><h3>🎉 Мазаль Тов!</h3>';
+                this.data.mazalTov.forEach(mt => {
+                    html += `
+                        <div class="mazel-tov-item">
+                            <h4>${mt.name}</h4>
+                            <p>${mt.occasion}</p>
+                            <p><small>${mt.location}</small></p>
+                            <p><em>${mt.blessing}</em></p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            renderTiles() {
+                const grid = document.getElementById('tilesGrid');
+                if (!this.data.sections || this.data.sections.length === 0) {
+                    grid.innerHTML = '<div class="loading">Нет данных для отображения</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+                this.data.sections.forEach(section => {
+                    const tile = this.createTile(section);
+                    grid.appendChild(tile);
+                });
+            }
+
+            createTile(section) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.dataset.category = section.category;
+                tile.style.setProperty('color', section.color);
+                
+                const isCompleted = this.state.completed[this.currentDate]?.[section.id] || false;
+                const preview = this.getPreviewText(section);
+
+                tile.innerHTML = `
+                    <div class="tile-header">
+                        <div class="tile-icon">${section.icon}</div>
+                        <div class="tile-title-group">
+                            <div class="tile-title">${section.title}</div>
+                            <div class="tile-subtitle">${section.subtitle}</div>
+                        </div>
+                    </div>
+                    <div class="tile-preview">${preview}</div>
+                    <div class="tile-footer">
+                        <div class="tile-points">+${section.points} баллов</div>
+                        <div class="tile-status ${isCompleted ? 'completed' : 'pending'}">
+                            ${isCompleted ? '✅ Пройдено' : '⏳ Не пройдено'}
+                        </div>
+                    </div>
+                `;
+
+                tile.addEventListener('click', () => this.openSection(section.id));
+                return tile;
+            }
+
+            getPreviewText(section) {
+                if (!section.content || !section.content.paragraphs) return '';
+                const firstText = section.content.paragraphs.find(p => p.type === 'text');
+                return firstText ? firstText.text.substring(0, 120) + '...' : '';
+            }
+
+            openSection(sectionId) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (!section) return;
+
+                this.currentSection = section;
+                document.body.classList.add('section-open');
+                
+                const sectionView = document.getElementById('sectionView');
+                sectionView.classList.add('active');
+                
+                document.getElementById('sectionTitle').textContent = section.title;
+                this.renderSectionContent(section);
+                
+                window.scrollTo(0, 0);
+            }
+
+            closeSection() {
+                document.body.classList.remove('section-open');
+                document.getElementById('sectionView').classList.remove('active');
+                this.currentSection = null;
+            }
+
+            renderSectionContent(section) {
+                const container = document.getElementById('sectionContent');
+                let html = '';
+
+                // Title
+                if (section.content.title) {
+                    html += `<h2 class="content-title">${section.content.title}</h2>`;
+                }
+
+                // Paragraphs
+                section.content.paragraphs.forEach(para => {
+                    html += this.renderParagraph(para);
+                });
+
+                // Games
+                html += this.renderGames(section);
+
+                container.innerHTML = html;
+                this.attachGameHandlers(section);
+            }
+
+            renderParagraph(para) {
+                const classList = ['content-paragraph', para.type].filter(Boolean).join(' ');
+                let content = '';
+
+                if (para.title) {
+                    content += `<div class="paragraph-title">${para.title}</div>`;
+                }
+                content += para.text;
+
+                return `<div class="${classList}">${content}</div>`;
+            }
+
+            renderGames(section) {
+                if (!section.games || section.games.length === 0) return '';
+
+                let html = '<div class="game-container">';
+                
+                if (section.games.length > 1) {
+                    html += `
+                        <div class="game-menu">
+                            <h3>🎮 Выбери игру!</h3>
+                            <div class="game-buttons">
+                    `;
+                    section.games.forEach((game, index) => {
+                        html += `<button class="game-button" data-game="${index}">${this.getGameIcon(game.type)} ${game.title}</button>`;
+                    });
+                    html += '</div></div>';
+                }
+
+                // Render all games (hidden initially if more than 1)
+                section.games.forEach((game, index) => {
+                    html += this.renderGame(game, index, section.games.length === 1);
+                });
+
+                html += '</div>';
+                return html;
+            }
+
+            getGameIcon(type) {
+                const icons = {
+                    quiz: '🎯',
+                    truefalse: '✓',
+                    match: '🔗',
+                    reflection: '🤔'
+                };
+                return icons[type] || '🎮';
+            }
+
+            renderGame(game, index, showNow) {
+                const display = showNow ? 'active' : '';
+                
+                switch (game.type) {
+                    case 'quiz':
+                        return this.renderQuizGame(game, index, display);
+                    case 'truefalse':
+                        return this.renderTrueFalseGame(game, index, display);
+                    case 'match':
+                        return this.renderMatchGame(game, index, display);
+                    case 'reflection':
+                        return this.renderReflectionGame(game, index, display);
+                    default:
+                        return '';
+                }
+            }
+
+            renderQuizGame(game, index, display) {
+                let html = `<div class="quiz-game ${display}" data-game-index="${index}">`;
+                html += `<h3 class="quiz-question">${game.question}</h3>`;
+                html += '<div class="quiz-options">';
+                
+                game.options.forEach((option, i) => {
+                    html += `<div class="quiz-option" data-option="${i}">${option}</div>`;
+                });
+                
+                html += '</div>';
+                html += `
+                    <div class="quiz-feedback">
+                        <div class="feedback-title"></div>
+                        <div class="feedback-text"></div>
+                    </div>
+                `;
+                html += '</div>';
+                return html;
+            }
+
+            renderTrueFalseGame(game, index, display) {
+                let html = `<div class="truefalse-game ${display}" data-game-index="${index}">`;
+                html += '<div class="truefalse-questions">';
+                
+                game.questions.forEach((q, i) => {
+                    html += `
+                        <div class="truefalse-item" data-question="${i}">
+                            <div class="truefalse-statement">${i + 1}. ${q.statement}</div>
+                            <div class="truefalse-buttons">
+                                <button class="truefalse-button" data-answer="true">✓ Правда</button>
+                                <button class="truefalse-button" data-answer="false">✗ Ложь</button>
+                            </div>
+                            <div class="truefalse-explanation">${q.explanation}</div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+                return html;
+            }
+
+            renderMatchGame(game, index, display) {
+                let html = `<div class="match-game ${display}" data-game-index="${index}">`;
+                html += `<div class="match-instruction">${game.instruction}</div>`;
+                html += '<div class="match-pairs">';
+                
+                // Left column
+                html += '<div class="match-column">';
+                game.pairs.forEach((pair, i) => {
+                    html += `<div class="match-item" data-side="left" data-pair="${i}">${pair.left}</div>`;
+                });
+                html += '</div>';
+                
+                // Right column (shuffled)
+                html += '<div class="match-column">';
+                const shuffled = [...game.pairs].sort(() => Math.random() - 0.5);
+                shuffled.forEach((pair, i) => {
+                    const originalIndex = game.pairs.indexOf(pair);
+                    html += `<div class="match-item" data-side="right" data-pair="${originalIndex}">${pair.right}</div>`;
+                });
+                html += '</div>';
+                
+                html += '</div></div>';
+                return html;
+            }
+
+            renderReflectionGame(game, index, display) {
+                return `
+                    <div class="reflection-game ${display}" data-game-index="${index}">
+                        <div class="reflection-question">${game.question}</div>
+                        <textarea class="reflection-textarea" placeholder="${game.prompt}"></textarea>
+                        <button class="btn reflection-save">💾 Сохранить размышление</button>
+                    </div>
+                `;
+            }
+
+            attachGameHandlers(section) {
+                // Game menu buttons
+                document.querySelectorAll('.game-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const gameIndex = parseInt(e.target.dataset.game);
+                        this.showGame(gameIndex);
+                    });
+                });
+
+                // Quiz handlers
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.addEventListener('click', (e) => {
+                        const option = parseInt(e.target.dataset.option);
+                        const gameEl = e.target.closest('.quiz-game');
+                        const gameIndex = parseInt(gameEl.dataset.gameIndex);
+                        this.handleQuizAnswer(section, gameIndex, option);
+                    });
+                });
+
+                // True/False handlers
+                document.querySelectorAll('.truefalse-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const answer = e.target.dataset.answer === 'true';
+                        const item = e.target.closest('.truefalse-item');
+                        const questionIndex = parseInt(item.dataset.question);
+                        const gameEl = e.target.closest('.truefalse-game');
+                        const gameIndex = parseInt(gameEl.dataset.gameIndex);
+                        this.handleTrueFalseAnswer(section, gameIndex, questionIndex, answer, item, e.target);
+                    });
+                });
+
+                // Match handlers
+                document.querySelectorAll('.match-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.handleMatchClick(section, e.target);
+                    });
+                });
+
+                // Reflection handler
+                document.querySelectorAll('.reflection-save').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const game = e.target.closest('.reflection-game');
+                        const textarea = game.querySelector('.reflection-textarea');
+                        this.handleReflectionSave(section, textarea.value);
+                    });
+                });
+            }
+
+            showGame(gameIndex) {
+                document.querySelectorAll('.quiz-game, .truefalse-game, .match-game, .reflection-game').forEach(g => {
+                    g.classList.remove('active');
+                });
+                document.querySelector(`.quiz-game[data-game-index="${gameIndex}"], 
+                                       .truefalse-game[data-game-index="${gameIndex}"],
+                                       .match-game[data-game-index="${gameIndex}"],
+                                       .reflection-game[data-game-index="${gameIndex}"]`).classList.add('active');
+                document.querySelector('.game-menu').style.display = 'none';
+            }
+
+            handleQuizAnswer(section, gameIndex, optionIndex) {
+                const game = section.games[gameIndex];
+                const isCorrect = optionIndex === game.correctIndex;
+                
+                // Disable all options
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.add('disabled');
+                });
+
+                // Mark selected option
+                const options = document.querySelectorAll('.quiz-option');
+                if (isCorrect) {
+                    options[optionIndex].classList.add('correct');
+                    this.showFeedback(true, game.explanation);
+                    this.addScore(section.points, section.id);
+                } else {
+                    options[optionIndex].classList.add('incorrect');
+                    options[game.correctIndex].classList.add('correct');
+                    this.showFeedback(false, game.explanation);
+                }
+            }
+
+            showFeedback(success, text) {
+                const feedback = document.querySelector('.quiz-feedback');
+                feedback.className = success ? 'quiz-feedback success show' : 'quiz-feedback error show';
+                feedback.querySelector('.feedback-title').textContent = success ? '🎉 Отлично!' : '😔 Неправильно';
+                feedback.querySelector('.feedback-text').textContent = text;
+            }
+
+            handleTrueFalseAnswer(section, gameIndex, questionIndex, answer, itemEl, buttonEl) {
+                const game = section.games[gameIndex];
+                const question = game.questions[questionIndex];
+                const isCorrect = answer === question.correct;
+
+                // Disable buttons
+                itemEl.querySelectorAll('.truefalse-button').forEach(btn => {
+                    btn.classList.add('disabled');
+                });
+
+                // Mark answer
+                if (isCorrect) {
+                    buttonEl.classList.add('correct');
+                } else {
+                    buttonEl.classList.add('incorrect');
+                    // Show correct answer
+                    const correctBtn = itemEl.querySelector(`[data-answer="${question.correct}"]`);
+                    correctBtn.classList.add('correct');
+                }
+
+                // Show explanation
+                const explanation = itemEl.querySelector('.truefalse-explanation');
+                explanation.classList.add('show');
+
+                // Check if all questions answered
+                const allAnswered = Array.from(itemEl.parentElement.querySelectorAll('.truefalse-item'))
+                    .every(item => item.querySelector('.truefalse-button.disabled'));
+                
+                if (allAnswered) {
+                    this.addScore(section.points, section.id);
+                }
+            }
+
+            handleMatchClick(section, item) {
+                if (item.classList.contains('matched') || item.classList.contains('disabled')) return;
+
+                const pairId = parseInt(item.dataset.pair);
+                const side = item.dataset.side;
+
+                // Toggle selection
+                if (item.classList.contains('selected')) {
+                    item.classList.remove('selected');
+                    this.matchGame.selected = this.matchGame.selected.filter(s => !(s.side === side && s.pair === pairId));
+                } else {
+                    item.classList.add('selected');
+                    this.matchGame.selected.push({ side, pair: pairId, element: item });
+                }
+
+                // Check for match
+                if (this.matchGame.selected.length === 2) {
+                    const [first, second] = this.matchGame.selected;
+                    if (first.side !== second.side && first.pair === second.pair) {
+                        // Match!
+                        first.element.classList.remove('selected');
+                        second.element.classList.remove('selected');
+                        first.element.classList.add('matched');
+                        second.element.classList.add('matched');
+                        this.matchGame.matched.push(first.pair);
+                        
+                        // Check if all matched
+                        const gameEl = item.closest('.match-game');
+                        const totalPairs = gameEl.querySelectorAll('.match-item[data-side="left"]').length;
+                        if (this.matchGame.matched.length === totalPairs) {
+                            this.addScore(section.points, section.id);
+                        }
+                    } else {
+                        // No match - deselect after delay
+                        setTimeout(() => {
+                            first.element.classList.remove('selected');
+                            second.element.classList.remove('selected');
+                        }, 500);
+                    }
+                    this.matchGame.selected = [];
+                }
+            }
+
+            handleReflectionSave(section, text) {
+                if (text.trim().length > 10) {
+                    // Save reflection (in real app, save to localStorage or server)
+                    this.addScore(section.points, section.id);
+                    alert('💾 Размышление сохранено!');
+                } else {
+                    alert('✍️ Напиши хотя бы пару предложений');
+                }
+            }
+
+            addScore(points, sectionId) {
+                const dateKey = this.currentDate;
+                
+                // Initialize date if needed
+                if (!this.state.completed[dateKey]) {
+                    this.state.completed[dateKey] = {};
+                }
+
+                // Only add points if not already completed
+                if (!this.state.completed[dateKey][sectionId]) {
+                    this.state.score += points;
+                    this.state.stars += 1;
+                    this.state.completed[dateKey][sectionId] = true;
+                    
+                    this.saveProgress();
+                    this.updateProgress();
+                    this.updateAchievements();
+                    
+                    // Update tile status
+                    this.renderTiles();
+                }
+            }
+
+            updateProgress() {
+                const dateKey = this.currentDate;
+                const completedCount = Object.keys(this.state.completed[dateKey] || {}).length;
+                const totalSections = this.data.sections.length;
+                const percentage = Math.round((completedCount / totalSections) * 100);
+
+                document.getElementById('scoreValue').textContent = this.state.score;
+                document.getElementById('starsValue').textContent = this.state.stars;
+                document.getElementById('completedValue').textContent = `${completedCount}/${totalSections}`;
+                
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = `${percentage}%`;
+                progressBar.textContent = `${percentage}%`;
+            }
+
+            updateAchievements() {
+                const totalDays = Object.keys(this.state.completed).length;
+                
+                document.getElementById('totalScore').textContent = this.state.score;
+                document.getElementById('totalStars').textContent = this.state.stars;
+                document.getElementById('totalDays').textContent = totalDays;
+
+                // Update achievement statuses
+                document.getElementById('achievement1').textContent = totalDays >= 7 ? '✅' : '🔒';
+                document.getElementById('achievement2').textContent = totalDays >= 14 ? '✅' : '🔒';
+                document.getElementById('achievement3').text navigateDate(delta) {
+            const current = new Date(this.currentDate);
+            current.setDate(current.getDate() + delta);
+            this.currentDate = current.toISOString().split('T')[0];
             
-            <!-- История -->
-            <div class="profile-card">
-                <h3>📅 История</h3>
-                <div id="profileHistory">
-                    <p style="color: var(--text-light);">Здесь будет отображаться ваша история изучения</p>
-                </div>
-            </div>
-        </div>
-    </div>
+            // Update URL
+            const url = new URL(window.location.href);
+            url.searchParams.set('date', this.currentDate);
+            window.history.pushState({}, '', url);
+            
+            this.loadData();
+        }
 
-    <!-- НИЖНЕЕ МЕНЮ -->
-    <div class="bottom-menu">
-        <div class="menu-items">
-            <button class="menu-item active" onclick="switchModernTab('home')">
-                <div class="menu-icon">🏠</div>
-                <div class="menu-label">Главная</div>
-            </button>
-            <button class="menu-item" onclick="switchModernTab('profile')">
-                <div class="menu-icon">👤</div>
-                <div class="menu-label">Профиль</div>
-            </button>
-            <button class="menu-item" onclick="window.print()">
-                <div class="menu-icon">🖨️</div>
-                <div class="menu-label">Печать</div>
-            </button>
-            <button class="menu-item" onclick="openModernSettings()">
-                <div class="menu-icon">⚙️</div>
-                <div class="menu-label">Настройки</div>
-            </button>
-        </div>
-    </div>
+        navigateToToday() {
+            const today = new Date();
+            this.currentDate = today.toISOString().split('T')[0];
+            
+            const url = new URL(window.location.href);
+            url.searchParams.set('date', this.currentDate);
+            window.history.pushState({}, '', url);
+            
+            this.loadData();
+        }
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=8dnHLNKO"></script>
-    
-    <script src="firebase-config.js"></script>
-    <script src="auth-manager.js"></script>
-    <script src="auth-ui.js"></script>
-    <script src="./progress.manager.js"></script>
-    <script src="./audio-reader.js"></script>
-    <script src="./wheel-game.js"></script>
-    <script src="./games-menu.js"></script>
-    <script src="./script.js"></script>
-    <script src="./chitas-modern-ui.js"></script>
-</body>
-</html>
+        switchView(viewId) {
+            // Update views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === viewId);
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        toggleSetting(setting) {
+            this.state.settings[setting] = !this.state.settings[setting];
+            this.saveProgress();
+            
+            const toggleId = setting + 'Toggle';
+            const toggle = document.getElementById(toggleId);
+            if (toggle) {
+                toggle.classList.toggle('active', this.state.settings[setting]);
+            }
+
+            // Apply dark mode if needed
+            if (setting === 'darkMode') {
+                document.body.classList.toggle('dark-mode', this.state.settings[setting]);
+            }
+        }
+
+        resetProgress() {
+            if (confirm('Вы уверены? Весь прогресс будет удалён!')) {
+                this.state = {
+                    score: 0,
+                    stars: 0,
+                    completed: {},
+                    settings: {
+                        sound: true,
+                        animations: true,
+                        darkMode: false
+                    }
+                };
+                this.saveProgress();
+                this.updateProgress();
+                this.updateAchievements();
+                this.renderTiles();
+                alert('✅ Прогресс сброшен!');
+            }
+        }
+
+        speakContent() {
+            if (!this.currentSection) return;
+            
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                // Get text content
+                const text = this.currentSection.content.paragraphs
+                    .map(p => p.text)
+                    .join('. ');
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ru-RU';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Озвучивание не поддерживается в вашем браузере');
+            }
+        }
+
+        loadProgress() {
+            try {
+                const saved = localStorage.getItem('chitasProgress');
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Error loading progress:', e);
+            }
+            
+            return {
+                score: 0,
+                stars: 0,
+                completed: {},
+                settings: {
+                    sound: true,
+                    animations: true,
+                    darkMode: false
+                }
+            };
+        }
+
+        saveProgress() {
+            try {
+                localStorage.setItem('chitasProgress', JSON.stringify(this.state));
+            } catch (e) {
+                console.error('Error saving progress:', e);
+            }
+        }
+
+        showError(message) {
+            const grid = document.getElementById('tilesGrid');
+            grid.innerHTML = `<div class="loading">${message}</div>`;
+        }
+    }
+
+    // Initialize app
+    let app;
+    document.addEventListener('DOMContentLoaded', () => {
+        app = new ChitasApp();
+    });
+
+    // Handle back button
+    window.addEventListener('popstate', () => {
+        if (app) {
+            app.currentDate = app.getTodayDate();
+            app.loadData();
+        }
+    });
+</script>
