@@ -1,0 +1,789 @@
+/* ===============================
+   🎮 GAMES MENU STYLES
+   Стили для меню выбора игр
+   =============================== */
+
+.games-menu {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 30px;
+  border-radius: 20px;
+  margin: 20px 0;
+}
+
+.games-menu-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.games-menu-header h3 {
+  font-size: 2em;
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.games-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 1.2em;
+  color: #34495e;
+}
+
+.games-stats strong {
+  color: #e74c3c;
+  font-size: 1.3em;
+}
+
+/* Сетка игр */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Карточка игры */
+.game-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.game-card.completed {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 3px solid #4caf50;
+}
+
+.game-card-icon {
+  font-size: 4em;
+  margin-bottom: 15px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.game-card-title {
+  font-size: 1.3em;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.game-card-description {
+  color: #7f8c8d;
+  font-size: 0.95em;
+  margin-bottom: 15px;
+  min-height: 40px;
+}
+
+.game-card-difficulty {
+  color: #f39c12;
+  font-size: 1.2em;
+  margin-bottom: 15px;
+}
+
+.game-card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #4caf50;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.game-card-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.game-card-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.6);
+}
+
+.game-card-btn:active {
+  transform: scale(0.98);
+}
+
+/* Область игры */
+.game-area {
+  display: none;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Кнопка возврата */
+.back-to-menu-btn {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.back-to-menu-btn:hover {
+  background: #7f8c8d;
+  transform: translateX(-5px);
+}
+
+/* True/False стили */
+.truefalse-question {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 30px;
+  background: #ecf0f1;
+  border-radius: 15px;
+  margin: 20px 0;
+  border-left: 5px solid #3498db;
+}
+
+.truefalse-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.tf-btn {
+  padding: 25px;
+  font-size: 1.3em;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.true-btn {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.true-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(46, 204, 113, 0.4);
+}
+
+.false-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.false-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+}
+
+.tf-btn.correct {
+  background: #27ae60;
+  animation: pulse 0.5s;
+}
+
+.tf-btn.wrong {
+  background: #c0392b;
+  animation: shake 0.5s;
+}
+
+.tf-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Прогресс бар */
+.progress-bar {
+  background: #ecf0f1;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-align: center;
+  font-weight: bold;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+/* Экран завершения */
+.game-complete {
+  text-align: center;
+  padding: 50px 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.game-complete h2 {
+  font-size: 2.5em;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.score-big {
+  font-size: 5em;
+  font-weight: bold;
+  color: #e74c3c;
+  margin: 20px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .games-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .truefalse-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .game-card-icon {
+    font-size: 3em;
+  }
+
+  .games-menu-header h3 {
+    font-size: 1.5em;
+  }
+}
+
+/* Печать */
+@media print {
+  .games-menu {
+    display: none;
+  }
+}
+
+/* === MATCHING GAME === */
+.match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-item {
+  background: white;
+  padding: 15px 20px;
+  border: 3px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-align: center;
+}
+
+.match-item:hover:not(.matched) {
+  border-color: #667eea;
+  transform: translateX(-3px);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+.match-item.selected {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.match-item.matched {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+  cursor: default;
+  animation: matchSuccess 0.5s;
+}
+
+.match-item.wrong {
+  background: #f44336;
+  color: white;
+  border-color: #f44336;
+  animation: shake 0.5s;
+}
+
+@keyframes matchSuccess {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.match-progress {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 20px;
+}
+
+.match-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+}
+
+/* === MEMORY GAME === */
+.memory-stats {
+  display: flex;
+  justify-content: space-around;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.memory-card {
+  aspect-ratio: 1;
+  cursor: pointer;
+  perspective: 1000px;
+}
+
+.memory-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.memory-card.flipped .memory-card-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-card.matched .memory-card-inner {
+  opacity: 0.6;
+}
+
+.memory-card-front,
+.memory-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.memory-card-front {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.memory-card-back {
+  background: white;
+  color: #333;
+  transform: rotateY(180deg);
+  flex-direction: column;
+  padding: 10px;
+}
+
+.memory-emoji {
+  font-size: 2em;
+  margin-bottom: 5px;
+}
+
+.memory-text {
+  font-size: 0.6em;
+  text-align: center;
+}
+
+/* === ANAGRAM GAME === */
+.anagram-hint {
+  background: #fff9c4;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  font-size: 1.2em;
+  text-align: center;
+  border-left: 5px solid #fbc02d;
+}
+
+.anagram-letters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 30px 0;
+  min-height: 80px;
+}
+
+.anagram-letter {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8em;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  user-select: none;
+}
+
+.anagram-letter:hover:not(.used) {
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.5);
+}
+
+.anagram-letter.used {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(0.9);
+}
+
+.anagram-answer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 30px 0;
+  min-height: 80px;
+}
+
+.anagram-slot {
+  width: 50px;
+  height: 50px;
+  border: 3px dashed #bdbdbd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.anagram-slot.filled {
+  border-color: #4caf50;
+  background: #e8f5e9;
+  border-style: solid;
+  animation: slotFill 0.3s;
+}
+
+@keyframes slotFill {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.anagram-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.anagram-clear-btn,
+.anagram-check-btn {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.anagram-clear-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.anagram-clear-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+.anagram-check-btn {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+}
+
+.anagram-check-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+/* Адаптивность для новых игр */
+@media (max-width: 768px) {
+  .match-container {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .anagram-letter {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+  }
+
+  .anagram-slot {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+  }
+}
+
+/* ===============================
+   🏆 MATCHING GAME STYLES
+   =============================== */
+
+.match-progress {
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #ecf0f1;
+  border-radius: 10px;
+}
+
+.match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.match-item {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 3px solid #e0e0e0;
+  font-size: 1.1em;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.match-item:hover:not(.matched) {
+  transform: translateX(5px);
+  border-color: #3498db;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.match-item.selected {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.match-item.matched {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  border-color: #27ae60;
+  cursor: default;
+  opacity: 0.7;
+}
+
+.match-item.wrong {
+  background: #e74c3c;
+  color: white;
+  animation: shake 0.5s;
+}
+
+/* ===============================
+   🎴 MEMORY GAME STYLES
+   =============================== */
+
+.memory-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #ecf0f1;
+  border-radius: 10px;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+  perspective: 1000px;
+}
+
+.memory-card {
+  aspect-ratio: 1;
+  cursor: pointer;
+  position: relative;
+}
+
+.memory-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.memory-card.flipped .memory-card-inner,
+.memory-card.matched .memory-card-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-card-front,
+.memory-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.memory-card-front {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.memory-card-back {
+  background: white;
+  transform: rotateY(180deg);
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.memory-emoji {
+  font-size: 2em;
+}
+
+.memory-text {
+  font-size: 0.6em;
+  color: #2c3e50;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.memory-card.matched .memory-card-back {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.memory-card.matched .memory-text {
+  color: white;
+}
+
+/* Адаптивность для memory */
+@media (max-width: 768px) {
+  .memory-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .match-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .memory-card-front,
+  .memory-card-back {
+    font-size: 1.5em;
+  }
+
+  .memory-text {
+    font-size: 0.5em;
+  }
+}
