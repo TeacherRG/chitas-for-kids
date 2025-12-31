@@ -6,36 +6,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#667eea">
-    <meta name="description" content="Интерактивное приложение для изучения ежедневных еврейских текстов детьми">
     <title>ב״ה | Хитас для детей</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Main App Header -->
     <header class="app-header">
         <h1>ב״ה 📖 Хитас для детей</h1>
         <p>Жить в ногу со временем!</p>
     </header>
 
-    <!-- Main View -->
     <div class="view active" id="homeView">
         <div class="container">
-            <!-- Date Card -->
             <div class="card date-card">
                 <h2 id="hebrewDate">Загрузка...</h2>
                 <div class="dedication" id="dedication"></div>
-                <nav class="date-navigation">
-                    <button class="btn" id="prevDayBtn" aria-label="Предыдущий день">◀ Пред</button>
-                    <button class="btn" id="todayBtn" aria-label="Сегодня">📅 Сегодня</button>
-                    <button class="btn" id="printBtn" aria-label="Печать">🖨️ Печать</button>
-                    <button class="btn" id="nextDayBtn" aria-label="Следующий день">След ▶</button>
-                </nav>
             </div>
 
-            <!-- Mazel Tov Section -->
             <div id="mazelTovSection"></div>
 
-            <!-- Progress Card -->
             <div class="card progress-card">
                 <div class="progress-stats">
                     <div class="progress-stat">
@@ -56,14 +44,19 @@
                 </div>
             </div>
 
-            <!-- Tiles Grid -->
             <div class="tiles-grid" id="tilesGrid">
                 <div class="loading">Загрузка данных</div>
             </div>
+
+            <!-- Date Navigation moved to bottom -->
+            <nav class="date-navigation-bottom">
+                <button class="btn" id="prevDayBtn">◀ Пред</button>
+                <button class="btn" id="todayBtn">📅 Сегодня</button>
+                <button class="btn" id="nextDayBtn">След ▶</button>
+            </nav>
         </div>
     </div>
 
-    <!-- Profile View -->
     <div class="view" id="profileView">
         <div class="container">
             <div class="card profile-header">
@@ -122,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Settings View -->
     <div class="view" id="settingsView">
         <div class="container">
             <div class="card setting-item" data-setting="sound">
@@ -155,19 +147,15 @@
         </div>
     </div>
 
-    <!-- Section View (Fullscreen) -->
     <div class="section-view" id="sectionView">
         <div class="section-header">
-            <button class="btn" id="closeSectionBtn" aria-label="Назад">← Назад</button>
+            <button class="btn" id="closeSectionBtn">← Назад</button>
             <h2 id="sectionTitle">Раздел</h2>
-            <button class="btn" id="speakBtn" aria-label="Озвучить">🔊</button>
+            <button class="btn" id="speakBtn">🔊</button>
         </div>
-        <div class="section-content" id="sectionContent">
-            <!-- Content will be loaded here -->
-        </div>
+        <div class="section-content" id="sectionContent"></div>
     </div>
 
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <div class="nav-item active" data-view="homeView">
             <div class="nav-icon">🏠</div>
@@ -183,14 +171,11 @@
         </div>
     </nav>
 
-    <!-- Load Game Modules First -->
     <script src="games/quiz.js"></script>
     <script src="games/truefalse.js"></script>
     <script src="games/match.js"></script>
     <script src="games/reflection.js"></script>
     <script src="games/wheel.js"></script>
-    
-    <!-- Load Main App -->
     <script src="app.js"></script>
 </body>
 </html>
