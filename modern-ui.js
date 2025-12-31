@@ -378,3 +378,23 @@ window.toggleSectionSound = function() {
     }
   }
 };
+
+// Глобальная функция для переключения звука (для старых кнопок)
+window.toggleSound = function(button) {
+  if (!button) return;
+  
+  const isOn = button.textContent.includes('ВКЛ');
+  
+  if (isOn) {
+    button.textContent = '🔊 Звук ВЫКЛ';
+    button.classList.add('off');
+    settings.sound = false;
+  } else {
+    button.textContent = '🔊 Звук ВКЛ';
+    button.classList.remove('off');
+    settings.sound = true;
+  }
+  
+  // Сохраняем настройку
+  localStorage.setItem('chitasSettings', JSON.stringify(settings));
+};
