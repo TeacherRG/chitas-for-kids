@@ -84,6 +84,29 @@ function waitForChitasApp() {
 function integrateModernUI() {
   console.log('🔧 Integrating Modern UI...');
   
+  // ПАТЧ: Исправляем renderHeader для работы без metadata
+  const originalRenderHeader = window.chitasApp.renderHeader.bind(window.chitasApp);
+  window.chitasApp.renderHeader = function() {
+    // Добавляем пустой metadata если его нет
+    if (this.state.data && !this.state.data.metadata) {
+      this.state.data.metadata = {
+        parsha: '',
+        dedication: this.state.data.dedication || ''
+      };
+    }
+    
+    try {
+      originalRenderHeader();
+    } catch (e) {
+      console.warn('renderHeader error (suppressed):', e.message);
+      // Обновляем вручную
+      const hebrewDateEl = document.getElementById('hebrewDate');
+      if (hebrewDateEl && this.state.data.hebrewDate) {
+        hebrewDateEl.textContent = this.state.data.hebrewDate;
+      }
+    }
+  };
+  
   // Перехватываем renderSections
   const originalRenderSections = window.chitasApp.renderSections.bind(window.chitasApp);
   
@@ -140,10 +163,18 @@ function updateHebrewDate() {
     hebrewDateEl.textContent = data.hebrewDate;
   }
   
+  // Посвящение может быть в разных местах
   const dedicationEl = document.getElementById('dedication');
-  if (dedicationEl && data.metadata && data.metadata.dedication) {
-    dedicationEl.textContent = data.metadata.dedication;
+  if (dedicationEl) {
+    const dedication = data.dedication || 
+                      data.metadata?.dedication || 
+                      '';
+    if (dedication) {
+      dedicationEl.textContent = dedication;
+    }
   }
+  
+  console.log('📅 Date updated:', data.hebrewDate);
 }
 
 // ==========================================
