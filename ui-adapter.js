@@ -62,9 +62,28 @@ function integrateUI() {
       }
     }
     
-    // Игры
-    if (section.game && this.renderGame) {
-      html += this.renderGame(section.game, section.id);
+    // Игры - поддерживаем и массив и объект
+    if (section.game) {
+      if (Array.isArray(section.game)) {
+        // Новый формат - массив игр (меню)
+        console.log('Rendering games menu for section', section.id);
+        html += '<div id="games-menu-container"></div>';
+        
+        // После рендеринга HTML инициализируем меню игр
+        setTimeout(() => {
+          if (window.GamesMenu && typeof window.GamesMenu.init === 'function') {
+            window.GamesMenu.init(section.id, section.game, window.chitasApp);
+          } else {
+            console.error('GamesMenu not available');
+          }
+        }, 100);
+      } else {
+        // Старый формат - одна игра
+        console.log('Rendering single game for section', section.id);
+        if (this.renderGame) {
+          html += this.renderGame(section.game, section.id);
+        }
+      }
     }
     
     return html;
