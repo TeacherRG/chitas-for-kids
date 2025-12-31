@@ -121,6 +121,7 @@
             .auth-container { position: static; margin-bottom: 20px; text-align: center; }
         }
     </style>
+    <link rel="stylesheet" href="./audio-styles.css">
 </head>
 <body>
     <!-- Auth UI -->
@@ -210,11 +211,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
+    <!-- ResponsiveVoice для озвучивания текста -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=8dnHLNKO"></script>
+    
     <!-- Our scripts -->
     <script src="firebase-config.js"></script>
     <script src="auth-manager.js"></script>
-    <script src="progress-manager.js"></script>
     <script src="auth-ui.js"></script>
-    <script src="script.js"></script>
+    <script src="./progress.manager.js"></script>
+    <script src="./audio-reader.js"></script>
+    <script src="./script.js"></script>
 </body>
 </html>
