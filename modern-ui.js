@@ -43,9 +43,6 @@ function switchTab(tab) {
     
     // Обновляем информацию профиля
     updateProfileInfo();
-  } else if (tab === 'calendar') {
-    // Календарь (TODO)
-    console.log('Calendar view - в разработке');
   }
   
   console.log('Switched to tab:', tab);
@@ -168,8 +165,20 @@ function openSection(sectionId) {
     dateNav.style.display = 'none';
   }
   
-  // НЕ запускаем озвучивание автоматически!
-  // Озвучивание будет только по кнопке
+  // Озвучивание ТОЛЬКО если включено в настройках
+  if (settings.sound) {
+    console.log('Auto-reading enabled, starting...');
+    if (window.startReading) {
+      setTimeout(() => window.startReading(), 500);
+    }
+    
+    // Обновляем кнопку звука в разделе
+    const sectionBtn = document.querySelector('.sound-toggle-section');
+    if (sectionBtn) {
+      sectionBtn.classList.add('reading');
+      sectionBtn.textContent = '🔇';
+    }
+  }
 }
 
 function closeSection() {
@@ -303,6 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // Инициализируем кнопку звука
+  initSoundButton();
+  
   // Закрытие модалов по клику вне них
   document.getElementById('settingsModal')?.addEventListener('click', (e) => {
     if (e.target.id === 'settingsModal') {
@@ -310,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  console.log('Modern UI initialized');
+  console.log('Modern UI initialized with settings:', settings);
 });
 
 // === ОБНОВЛЕНИЕ ПРОГРЕССА ===
@@ -379,22 +391,47 @@ window.toggleSectionSound = function() {
   }
 };
 
-// Глобальная функция для переключения звука (для старых кнопок)
+// Глобальная функция для переключения звука (для кнопки в шапке)
 window.toggleSound = function(button) {
   if (!button) return;
   
-  const isOn = button.textContent.includes('ВКЛ');
+  // Переключаем настройку
+  settings.sound = !settings.sound;
   
-  if (isOn) {
-    button.textContent = '🔊 Звук ВЫКЛ';
-    button.classList.add('off');
-    settings.sound = false;
-  } else {
+  // Обновляем кнопку
+  if (settings.sound) {
     button.textContent = '🔊 Звук ВКЛ';
     button.classList.remove('off');
-    settings.sound = true;
+  } else {
+    button.textContent = '🔊 Звук ВЫКЛ';
+    button.classList.add('off');
+    
+    // Останавливаем озвучивание если играет
+    if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+      if (window.stopReading) {
+        window.stopReading();
+      } else {
+        window.responsiveVoice.cancel();
+      }
+    }
   }
   
   // Сохраняем настройку
   localStorage.setItem('chitasSettings', JSON.stringify(settings));
+  
+  console.log('Sound setting changed to:', settings.sound);
 };
+
+// Инициализация кнопки звука при загрузке
+function initSoundButton() {
+  const soundBtn = document.querySelector('.sound-toggle');
+  if (soundBtn && settings.sound !== undefined) {
+    if (settings.sound) {
+      soundBtn.textContent = '🔊 Звук ВКЛ';
+      soundBtn.classList.remove('off');
+    } else {
+      soundBtn.textContent = '🔊 Звук ВЫКЛ';
+      soundBtn.classList.add('off');
+    }
+  }
+}
