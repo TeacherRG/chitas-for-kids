@@ -69,24 +69,52 @@ function integrateUI() {
       }
     }
     
-    // Игры - используем стандартный метод renderGames
+    // Игры - ВАЖНО: используем правильный контейнер и инициализацию
     if (section.game) {
-      console.log('Section has game(s):', Array.isArray(section.game) ? section.game.length : 1);
+      const gameCount = Array.isArray(section.game) ? section.game.length : 1;
+      console.log('Section has game(s):', gameCount);
       
-      // Используем встроенный метод рендеринга игр
-      if (this.renderGames && typeof this.renderGames === 'function') {
-        html += this.renderGames(section.game, section.id);
-      } else if (this.renderGame && typeof this.renderGame === 'function') {
-        // Fallback на старый метод
-        if (Array.isArray(section.game)) {
-          section.game.forEach((game, idx) => {
-            html += this.renderGame(game, section.id + '-' + idx);
-          });
-        } else {
-          html += this.renderGame(section.game, section.id);
-        }
+      if (Array.isArray(section.game) && section.game.length > 1) {
+        // Множественные игры - рендерим меню
+        console.log('Rendering games menu container');
+        html += '<div id="games-menu-container"></div>';
+        
+        // Инициализируем меню после вставки HTML
+        setTimeout(() => {
+          console.log('Initializing games menu...');
+          console.log('GamesMenu available?', typeof window.GamesMenu);
+          
+          if (window.GamesMenu && typeof window.GamesMenu.init === 'function') {
+            try {
+              window.GamesMenu.init(section.id, section.game, window.chitasApp);
+              console.log('Games menu initialized successfully');
+            } catch (e) {
+              console.error('Error initializing games menu:', e);
+            }
+          } else if (window.initGamesMenu && typeof window.initGamesMenu === 'function') {
+            // Альтернативный метод
+            try {
+              window.initGamesMenu(section.id, section.game);
+              console.log('Games menu initialized via initGamesMenu');
+            } catch (e) {
+              console.error('Error with initGamesMenu:', e);
+            }
+          } else {
+            console.error('No games menu initializer available');
+            console.log('window.GamesMenu:', window.GamesMenu);
+            console.log('window.initGamesMenu:', window.initGamesMenu);
+          }
+        }, 200);
       } else {
-        console.error('No game rendering method available');
+        // Одна игра - рендерим напрямую
+        const game = Array.isArray(section.game) ? section.game[0] : section.game;
+        console.log('Rendering single game');
+        
+        if (this.renderGame && typeof this.renderGame === 'function') {
+          html += this.renderGame(game, section.id);
+        } else {
+          console.error('renderGame method not available');
+        }
       }
     }
     
