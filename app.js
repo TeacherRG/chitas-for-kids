@@ -1,13 +1,9 @@
-/**
- * ХИТАС ДЛЯ ДЕТЕЙ - APPLICATION (REFACTORED v2.0)
- * Using modular game engines and split data files
+ /**
+ * ХИТАС ДЛЯ ДЕТЕЙ - APPLICATION (FIXED)
  */
 
 'use strict';
 
-// ============================================
-// CONSTANTS
-// ============================================
 const CONFIG = {
     DATA_PATH: 'data/',
     STORAGE_KEY: 'chitasProgress',
@@ -15,9 +11,6 @@ const CONFIG = {
     SPEECH_RATE: 0.9
 };
 
-// ============================================
-// MAIN APPLICATION CLASS
-// ============================================
 class ChitasApp {
     constructor() {
         this.contentData = null;
@@ -30,18 +23,15 @@ class ChitasApp {
         this.init();
     }
 
-    // ========================================
-    // INITIALIZATION
-    // ========================================
     init() {
         this.setupEventListeners();
+        this.applySettings();
         this.loadData();
     }
 
     setupEventListeners() {
         this.addClickHandler('prevDayBtn', () => this.navigateDate(-1));
         this.addClickHandler('todayBtn', () => this.navigateToToday());
-        this.addClickHandler('printBtn', () => window.print());
         this.addClickHandler('nextDayBtn', () => this.navigateDate(1));
         this.addClickHandler('closeSectionBtn', () => this.closeSection());
         this.addClickHandler('speakBtn', () => this.speakContent());
@@ -70,9 +60,6 @@ class ChitasApp {
         if (element) element.addEventListener('click', handler);
     }
 
-    // ========================================
-    // DATE MANAGEMENT
-    // ========================================
     getTodayDate() {
         const url = new URL(window.location.href);
         const dateParam = url.searchParams.get('date');
@@ -114,12 +101,8 @@ class ChitasApp {
         window.history.pushState({}, '', url);
     }
 
-    // ========================================
-    // DATA LOADING (NEW STRUCTURE)
-    // ========================================
     async loadData() {
         try {
-            // Load index to get file names
             const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
             const index = await indexResponse.json();
             
@@ -131,7 +114,6 @@ class ChitasApp {
                 return;
             }
 
-            // Load content and games separately
             const [contentResponse, gamesResponse] = await Promise.all([
                 fetch(`${CONFIG.DATA_PATH}${dateEntry.content}`),
                 fetch(`${CONFIG.DATA_PATH}${dateEntry.games}`)
@@ -152,7 +134,6 @@ class ChitasApp {
     }
 
     mergeData() {
-        // Merge games into sections
         if (this.contentData && this.gamesData) {
             this.contentData.sections.forEach(section => {
                 const sectionGames = this.gamesData.games[section.id];
@@ -163,9 +144,6 @@ class ChitasApp {
         }
     }
 
-    // ========================================
-    // RENDERING
-    // ========================================
     renderPage() {
         this.updateDateDisplay();
         this.renderMazelTov();
@@ -255,9 +233,6 @@ class ChitasApp {
         return firstText ? firstText.text.substring(0, 120) + '...' : '';
     }
 
-    // ========================================
-    // SECTION VIEW
-    // ========================================
     openSection(sectionId) {
         const section = this.contentData.sections.find(s => s.id === sectionId);
         if (!section) return;
@@ -335,7 +310,6 @@ class ChitasApp {
             html += '</div></div>';
         }
 
-        // Create empty containers for each game
         section.games.forEach((game, index) => {
             html += `<div class="game-wrapper" data-game-index="${index}"></div>`;
         });
@@ -355,9 +329,6 @@ class ChitasApp {
         return icons[type] || '🎮';
     }
 
-    // ========================================
-    // GAME INITIALIZATION (USING MODULES)
-    // ========================================
     initializeGames(section) {
         if (!section.games) return;
 
@@ -393,13 +364,11 @@ class ChitasApp {
 
             this.gameInstances[`${section.id}-${index}`] = gameInstance;
             
-            // Show first game by default, hide others
             if (index === 0 || section.games.length === 1) {
                 gameInstance.render();
             }
         });
 
-        // Attach game menu handlers
         document.querySelectorAll('.game-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const gameIndex = parseInt(e.target.dataset.gameIndex);
@@ -409,12 +378,10 @@ class ChitasApp {
     }
 
     showGame(section, gameIndex) {
-        // Hide all games
         document.querySelectorAll('.game-wrapper').forEach(wrapper => {
             wrapper.innerHTML = '';
         });
         
-        // Show selected game
         const container = document.querySelector(`.game-wrapper[data-game-index="${gameIndex}"]`);
         const gameInstance = this.gameInstances[`${section.id}-${gameIndex}`];
         
@@ -422,14 +389,10 @@ class ChitasApp {
             gameInstance.render();
         }
         
-        // Hide game menu
         const menu = document.getElementById('gameMenu');
         if (menu) menu.style.display = 'none';
     }
 
-    // ========================================
-    // PROGRESS & SCORING
-    // ========================================
     isSectionCompleted(sectionId) {
         return this.state.completed[this.currentDate]?.[sectionId] || false;
     }
@@ -483,9 +446,6 @@ class ChitasApp {
         this.setTextContent('achievement4', this.state.score >= 500 ? '✅' : '🔒');
     }
 
-    // ========================================
-    // VIEW SWITCHING
-    // ========================================
     switchView(viewId) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         const targetView = document.getElementById(viewId);
@@ -498,22 +458,47 @@ class ChitasApp {
         window.scrollTo(0, 0);
     }
 
-    // ========================================
-    // SETTINGS
-    // ========================================
     toggleSetting(setting) {
+        // ИСПРАВЛЕНИЕ: правильное переключение состояния
         this.state.settings[setting] = !this.state.settings[setting];
         this.saveProgress();
         
+        // Обновляем визуальное состояние переключателя
         const toggleId = setting + 'Toggle';
         const toggle = document.getElementById(toggleId);
         if (toggle) {
-            toggle.classList.toggle('active', this.state.settings[setting]);
+            if (this.state.settings[setting]) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
         }
 
+        // Применяем настройку
         if (setting === 'darkMode') {
             document.body.classList.toggle('dark-mode', this.state.settings[setting]);
         }
+
+        console.log(`Setting ${setting} is now:`, this.state.settings[setting]);
+    }
+
+    applySettings() {
+        // Применяем сохранённые настройки при загрузке
+        Object.keys(this.state.settings).forEach(setting => {
+            const toggleId = setting + 'Toggle';
+            const toggle = document.getElementById(toggleId);
+            if (toggle) {
+                if (this.state.settings[setting]) {
+                    toggle.classList.add('active');
+                } else {
+                    toggle.classList.remove('active');
+                }
+            }
+
+            if (setting === 'darkMode') {
+                document.body.classList.toggle('dark-mode', this.state.settings[setting]);
+            }
+        });
     }
 
     resetProgress() {
@@ -529,6 +514,7 @@ class ChitasApp {
                 }
             };
             this.saveProgress();
+            this.applySettings();
             this.updateProgress();
             this.updateAchievements();
             this.renderTiles();
@@ -536,9 +522,6 @@ class ChitasApp {
         }
     }
 
-    // ========================================
-    // TEXT-TO-SPEECH
-    // ========================================
     speakContent() {
         if (!this.currentSection) return;
         
@@ -560,9 +543,6 @@ class ChitasApp {
         }
     }
 
-    // ========================================
-    // STORAGE
-    // ========================================
     loadProgress() {
         try {
             const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
@@ -591,9 +571,6 @@ class ChitasApp {
         }
     }
 
-    // ========================================
-    // UTILITY METHODS
-    // ========================================
     setTextContent(elementId, text) {
         const element = document.getElementById(elementId);
         if (element) element.textContent = text;
@@ -614,9 +591,6 @@ class ChitasApp {
     }
 }
 
-// ============================================
-// APP INITIALIZATION
-// ============================================
 let app;
 
 document.addEventListener('DOMContentLoaded', () => {
