@@ -1,4 +1,4 @@
-  "version": "2.0",
+    {"version": "2.0",
   "lastUpdated": "2025-12-29",
   "dates": [
     {
@@ -8,3 +8,4 @@
       "games": "2025-12-29-games.json"
     }
   ]
+  }
