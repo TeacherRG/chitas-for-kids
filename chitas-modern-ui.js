@@ -166,7 +166,10 @@ function hideOriginalSectionsShowTiles() {
 // ==========================================
 function renderTiles() {
   const grid = document.getElementById('sectionsGrid');
-  if (!grid || !window.chitasApp || !window.chitasApp.state.data) return;
+  if (!grid || !window.chitasApp || !window.chitasApp.state.data) {
+    console.warn('⚠️ Cannot render tiles - missing grid or data');
+    return;
+  }
   
   const sections = window.chitasApp.state.data.sections;
   
@@ -176,7 +179,8 @@ function renderTiles() {
     const shortPreview = preview.substring(0, 100) + (preview.length > 100 ? '...' : '');
     
     return `
-      <div class="section-tile ${isCompleted ? 'completed' : ''}" onclick="openModernSection(${section.id})">
+      <div class="section-tile ${isCompleted ? 'completed' : ''}" 
+           onclick="openModernSection(${section.id}); event.stopPropagation();">
         <div class="tile-header">
           <div class="tile-icon">${section.icon || '📖'}</div>
           <div class="tile-info">
@@ -186,7 +190,7 @@ function renderTiles() {
         </div>
         <div class="tile-preview">${shortPreview}</div>
         <div class="tile-action">
-          <button class="open-btn">Открыть</button>
+          <button class="open-btn" onclick="event.stopPropagation();">Открыть</button>
           <span class="tile-status">${isCompleted ? '✅ Пройдено' : 'Не пройдено'}</span>
         </div>
       </div>
@@ -194,6 +198,7 @@ function renderTiles() {
   }).join('');
   
   console.log('✅ Tiles rendered:', sections.length);
+  console.log('Section IDs:', sections.map(s => s.id));
 }
 
 // ==========================================
@@ -207,15 +212,25 @@ function openModernSection(sectionId) {
   // Находим оригинальный раздел в DOM
   const originalSection = document.getElementById('s' + sectionId);
   if (!originalSection) {
-    console.error('Section not found:', sectionId);
+    console.error('❌ Section DOM element not found: s' + sectionId);
+    console.log('Available sections:', 
+      Array.from(document.querySelectorAll('[id^="s"]')).map(el => el.id)
+    );
+    return;
+  }
+  
+  // Находим данные раздела
+  const section = window.chitasApp?.state?.data?.sections.find(s => s.id === sectionId);
+  if (!section) {
+    console.error('❌ Section data not found:', sectionId);
+    console.log('Available section IDs:', 
+      window.chitasApp?.state?.data?.sections.map(s => s.id)
+    );
     return;
   }
   
   // Открываем оригинальный раздел (чтобы игры инициализировались)
   originalSection.classList.add('active');
-  
-  // Копируем контент в fullscreen
-  const section = window.chitasApp.state.data.sections.find(s => s.id === sectionId);
   
   const titleBar = document.getElementById('sectionTitleBar');
   if (titleBar) {
@@ -228,6 +243,9 @@ function openModernSection(sectionId) {
     const originalContent = originalSection.querySelector('.section-content');
     if (originalContent) {
       contentArea.innerHTML = originalContent.innerHTML;
+      console.log('✅ Content copied successfully');
+    } else {
+      console.error('❌ .section-content not found in section');
     }
   }
   
