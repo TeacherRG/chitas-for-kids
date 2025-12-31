@@ -12,6 +12,13 @@ function integrateUI() {
   }
   
   console.log('UI Adapter: ChitasApp found, integrating...');
+  console.log('Available methods:', {
+    renderSections: typeof window.chitasApp.renderSections,
+    renderGame: typeof window.chitasApp.renderGame,
+    renderGames: typeof window.chitasApp.renderGames,
+    addScore: typeof window.chitasApp.addScore,
+    processHighlights: typeof window.chitasApp.processHighlights
+  });
   
   // Сохраняем оригинальный метод renderSections
   const originalRender = window.chitasApp.renderSections.bind(window.chitasApp);
@@ -62,27 +69,24 @@ function integrateUI() {
       }
     }
     
-    // Игры - поддерживаем и массив и объект
+    // Игры - используем стандартный метод renderGames
     if (section.game) {
-      if (Array.isArray(section.game)) {
-        // Новый формат - массив игр (меню)
-        console.log('Rendering games menu for section', section.id);
-        html += '<div id="games-menu-container"></div>';
-        
-        // После рендеринга HTML инициализируем меню игр
-        setTimeout(() => {
-          if (window.GamesMenu && typeof window.GamesMenu.init === 'function') {
-            window.GamesMenu.init(section.id, section.game, window.chitasApp);
-          } else {
-            console.error('GamesMenu not available');
-          }
-        }, 100);
-      } else {
-        // Старый формат - одна игра
-        console.log('Rendering single game for section', section.id);
-        if (this.renderGame) {
+      console.log('Section has game(s):', Array.isArray(section.game) ? section.game.length : 1);
+      
+      // Используем встроенный метод рендеринга игр
+      if (this.renderGames && typeof this.renderGames === 'function') {
+        html += this.renderGames(section.game, section.id);
+      } else if (this.renderGame && typeof this.renderGame === 'function') {
+        // Fallback на старый метод
+        if (Array.isArray(section.game)) {
+          section.game.forEach((game, idx) => {
+            html += this.renderGame(game, section.id + '-' + idx);
+          });
+        } else {
           html += this.renderGame(section.game, section.id);
         }
+      } else {
+        console.error('No game rendering method available');
       }
     }
     
@@ -116,6 +120,20 @@ function renderAfterDataLoad() {
   }
   
   console.log('UI Adapter: Data loaded, rendering...');
+  console.log('Current date:', window.chitasApp.state.currentDate);
+  console.log('Hebrew date:', window.chitasApp.state.data.hebrewDate);
+  
+  // Обновляем еврейскую дату
+  const hebrewDateEl = document.getElementById('hebrewDate');
+  if (hebrewDateEl && window.chitasApp.state.data.hebrewDate) {
+    hebrewDateEl.textContent = window.chitasApp.state.data.hebrewDate;
+  }
+  
+  // Обновляем посвящение
+  const dedicationEl = document.getElementById('dedication');
+  if (dedicationEl && window.chitasApp.state.data.dedication) {
+    dedicationEl.textContent = window.chitasApp.state.data.dedication;
+  }
   
   // Рендерим плитки
   if (window.renderSectionsTiles) {
@@ -127,7 +145,7 @@ function renderAfterDataLoad() {
     window.updateProgress();
   }
   
-  // Обновляем дату
+  // Обновляем отображение текущей даты
   if (window.chitasApp.state.currentDate && window.updateDateDisplay) {
     window.updateDateDisplay(window.chitasApp.state.currentDate);
   }
