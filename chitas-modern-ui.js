@@ -28,6 +28,29 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.assign(settings, JSON.parse(savedSettings));
   }
   
+  // Подписываемся на изменения авторизации
+  if (window.authManager) {
+    window.authManager.onAuthStateChanged((user) => {
+      console.log('Auth state changed in Modern UI:', user ? user.email : 'No user');
+      
+      // Обновляем профиль если открыт
+      if (currentTab === 'profile') {
+        updateProfileInfo();
+      }
+      
+      // Синхронизируем прогресс
+      if (user && window.chitasApp && window.progressManager) {
+        window.progressManager.syncProgress().then(progress => {
+          if (progress) {
+            window.chitasApp.loadProgressFromManager();
+            updateProgress();
+            renderTiles(); // Обновляем плитки с новым прогрессом
+          }
+        });
+      }
+    });
+  }
+  
   // Ждём загрузки ChitasApp
   waitForChitasApp();
 });
@@ -300,24 +323,27 @@ function updateProfileInfo() {
   const accountInfo = document.getElementById('profileAccountInfo');
   if (!accountInfo) return;
   
-  if (window.firebase && firebase.auth().currentUser) {
-    const user = firebase.auth().currentUser;
+  if (window.authManager && window.authManager.isSignedIn()) {
+    const user = window.authManager.getCurrentUser();
+    const userName = window.authManager.getUserName();
+    const initial = userName ? userName.charAt(0).toUpperCase() : '?';
+    
     accountInfo.innerHTML = `
       <div style="padding: 15px; background: var(--bg-light); border-radius: 12px;">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
           <div class="user-avatar" style="width: 60px; height: 60px; font-size: 1.8em; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-            ${user.displayName ? user.displayName[0].toUpperCase() : user.email[0].toUpperCase()}
+            ${initial}
           </div>
           <div>
             <div style="font-weight: 700; font-size: 1.2em; color: var(--text-dark);">
-              ${user.displayName || 'Пользователь'}
+              ${userName}
             </div>
             <div style="color: var(--text-light); font-size: 0.9em;">
               ${user.email}
             </div>
           </div>
         </div>
-        <button onclick="firebase.auth().signOut()" 
+        <button onclick="handleSignOut()" 
                 style="width: 100%; padding: 12px; background: #f44336; 
                        color: white; border: none; border-radius: 10px; 
                        font-weight: bold; cursor: pointer;">
@@ -331,7 +357,7 @@ function updateProfileInfo() {
         <p style="color: var(--text-light); margin-bottom: 15px;">
           Войдите в аккаунт, чтобы сохранять прогресс
         </p>
-        <button onclick="showAuthModal()" 
+        <button onclick="openAuthModal()" 
                 style="background: #667eea; color: white; border: none; 
                        padding: 12px 30px; border-radius: 10px; 
                        font-weight: bold; cursor: pointer;">
