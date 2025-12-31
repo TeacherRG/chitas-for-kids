@@ -864,6 +864,198 @@
                 display: none !important; 
             }
         }
+        
+        /* === СТИЛИ ДЛЯ ИГРОВОГО МЕНЮ === */
+        .games-menu-modern {
+            margin-top: 30px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .game-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .game-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+        
+        .game-subtitle {
+            font-size: 0.85em;
+            color: var(--text-light);
+        }
+        
+        .game-container-modern {
+            background: #f5f5f5;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .game-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .game-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        /* Квиз */
+        .quiz-question {
+            background: #E3F2FD;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background: #FFF9C4;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.correct {
+            background: #C8E6C9;
+            border-color: #4CAF50;
+        }
+        
+        .quiz-option.wrong {
+            background: #FFCDD2;
+            border-color: #F44336;
+        }
+        
+        /* Правда/Ложь */
+        .tf-statement {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tf-text {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .tf-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tf-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tf-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Соедини */
+        .match-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .match-column h4 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .match-item {
+            background: white;
+            border: 3px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .match-item:hover {
+            background: #E1F5FE;
+            transform: scale(1.02);
+        }
+        
+        .match-item.selected {
+            border-color: var(--primary-color);
+            background: #BBDEFB;
+        }
+        
+        .match-item.matched {
+            background: #C8E6C9;
+            border-color: #4CAF50;
+            opacity: 0.7;
+            cursor: default;
+        }
+        
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .feedback.success {
+            background: #C8E6C9;
+            color: #2E7D32;
+        }
+        
+        .feedback.error {
+            background: #FFCDD2;
+            color: #C62828;
+        }
     </style>
     
     <link rel="stylesheet" href="./audio-styles.css">
@@ -884,9 +1076,7 @@
             </div>
             
             <div class="header-right">
-                <button class="sound-toggle" onclick="toggleSound(this)">
-                    🔊 Звук ВКЛ
-                </button>
+                <!-- Кнопка звука теперь в настройках -->
             </div>
         </div>
     </div>
@@ -933,11 +1123,11 @@
         <div class="settings-content">
             <div class="settings-header">
                 <h2>⚙️ Настройки</h2>
-                <button class="close-settings" onclick="closeSettings()">✕</button>
+                <button class="close-settings" onclick="closeModernSettings()">✕</button>
             </div>
             
             <div class="setting-item">
-                <div class="setting-label" onclick="toggleSetting('sound')">
+                <div class="setting-label" onclick="toggleModernSetting('sound')">
                     <div>
                         <div class="setting-name">🔊 Озвучивание текста</div>
                         <div class="setting-desc">Автоматическое чтение разделов</div>
@@ -947,7 +1137,7 @@
             </div>
             
             <div class="setting-item">
-                <div class="setting-label" onclick="toggleSetting('autoNext')">
+                <div class="setting-label" onclick="toggleModernSetting('autoNext')">
                     <div>
                         <div class="setting-name">⏭️ Автопереход</div>
                         <div class="setting-desc">Автоматически открывать следующий раздел</div>
@@ -957,7 +1147,7 @@
             </div>
             
             <div class="setting-item">
-                <div class="setting-label" onclick="toggleSetting('animations')">
+                <div class="setting-label" onclick="toggleModernSetting('animations')">
                     <div>
                         <div class="setting-name">✨ Анимации</div>
                         <div class="setting-desc">Плавные переходы и эффекты</div>
@@ -967,7 +1157,7 @@
             </div>
             
             <div class="setting-item">
-                <div class="setting-label" onclick="toggleSetting('darkMode')">
+                <div class="setting-label" onclick="toggleModernSetting('darkMode')">
                     <div>
                         <div class="setting-name">🌙 Тёмная тема</div>
                         <div class="setting-desc">Комфортное чтение вечером</div>
@@ -988,9 +1178,9 @@
             </div>
             
             <div class="days-nav">
-                <button class="nav-arrow" id="prevDay" onclick="changeDay(-1)">◀</button>
+                <button class="nav-arrow" id="prevDay" onclick="changeModernDay(-1)">◀</button>
                 <div class="current-date-display" id="currentDate">Сегодня</div>
-                <button class="nav-arrow" id="nextDay" onclick="changeDay(1)">▶</button>
+                <button class="nav-arrow" id="nextDay" onclick="changeModernDay(1)">▶</button>
             </div>
         </div>
 
@@ -1000,7 +1190,7 @@
         <!-- ПОЛНОЭКРАННЫЙ ВИД РАЗДЕЛА -->
         <div class="section-fullscreen" id="sectionFullscreen">
             <div class="section-nav-bar">
-                <button class="back-btn" onclick="closeSection()">
+                <button class="back-btn" onclick="closeModernSection()">
                     ← Назад
                 </button>
                 <div class="section-title-bar" id="sectionTitleBar"></div>
@@ -1060,11 +1250,11 @@
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-menu">
         <div class="menu-items">
-            <button class="menu-item active" onclick="switchTab('home')">
+            <button class="menu-item active" onclick="switchModernTab('home')">
                 <div class="menu-icon">🏠</div>
                 <div class="menu-label">Главная</div>
             </button>
-            <button class="menu-item" onclick="switchTab('profile')">
+            <button class="menu-item" onclick="switchModernTab('profile')">
                 <div class="menu-icon">👤</div>
                 <div class="menu-label">Профиль</div>
             </button>
@@ -1072,7 +1262,7 @@
                 <div class="menu-icon">🖨️</div>
                 <div class="menu-label">Печать</div>
             </button>
-            <button class="menu-item" onclick="openSettings()">
+            <button class="menu-item" onclick="openModernSettings()">
                 <div class="menu-icon">⚙️</div>
                 <div class="menu-label">Настройки</div>
             </button>
@@ -1093,7 +1283,6 @@
     <script src="./wheel-game.js"></script>
     <script src="./games-menu.js"></script>
     <script src="./script.js"></script>
-    <script src="./modern-ui.js"></script>
-    <script src="./ui-adapter.js"></script>
+    <script src="./chitas-modern-ui.js"></script>
 </body>
 </html>
