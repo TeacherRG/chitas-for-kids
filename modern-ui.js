@@ -147,7 +147,7 @@ function openSection(sectionId) {
   
   // Заполняем контент
   const contentArea = document.getElementById('sectionContentArea');
-  if (contentArea && window.chitasApp) {
+  if (contentArea && window.chitasApp && window.chitasApp.renderSectionContent) {
     contentArea.innerHTML = window.chitasApp.renderSectionContent(section);
   }
   
@@ -157,16 +157,19 @@ function openSection(sectionId) {
     fullscreen.classList.add('active');
   }
   
-  // Скрываем сетку
+  // Скрываем сетку и навигацию
   const grid = document.getElementById('sectionsGrid');
   if (grid) {
     grid.style.display = 'none';
   }
   
-  // Озвучиваем если включено
-  if (settings.sound && window.startReading) {
-    setTimeout(() => window.startReading(), 500);
+  const dateNav = document.querySelector('.date-navigation');
+  if (dateNav) {
+    dateNav.style.display = 'none';
   }
+  
+  // НЕ запускаем озвучивание автоматически!
+  // Озвучивание будет только по кнопке
 }
 
 function closeSection() {
@@ -180,6 +183,12 @@ function closeSection() {
   const grid = document.getElementById('sectionsGrid');
   if (grid) {
     grid.style.display = 'grid';
+  }
+  
+  // Показываем навигацию по дням
+  const dateNav = document.querySelector('.date-navigation');
+  if (dateNav) {
+    dateNav.style.display = 'block';
   }
   
   currentSectionId = null;
@@ -342,3 +351,30 @@ window.toggleSetting = toggleSetting;
 window.renderSectionsTiles = renderSectionsTiles;
 window.updateProgress = updateProgress;
 window.updateProfileInfo = updateProfileInfo;
+
+// Функция для переключения звука в разделе
+window.toggleSectionSound = function() {
+  const btn = document.querySelector('.sound-toggle-section');
+  
+  if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+    // Останавливаем
+    if (window.stopReading) {
+      window.stopReading();
+    } else {
+      window.responsiveVoice.cancel();
+    }
+    if (btn) {
+      btn.classList.remove('reading');
+      btn.textContent = '🔊';
+    }
+  } else {
+    // Запускаем
+    if (window.startReading) {
+      window.startReading();
+    }
+    if (btn) {
+      btn.classList.add('reading');
+      btn.textContent = '🔇';
+    }
+  }
+};
