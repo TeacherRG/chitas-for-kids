@@ -1757,16 +1757,24 @@ file_text: <!DOCTYPE html>
             this.loadData();
         }
 
-        navigateToToday() {
-            const today = new Date();
-            this.currentDate = today.toISOString().split('T')[0];
-            
-            const url = new URL(window.location.href);
-            url.searchParams.set('date', this.currentDate);
-            window.history.pushState({}, '', url);
-            
-            this.loadData();
-        }
+       navigateDate(delta) {
+    const current = new Date(this.currentDate);
+    current.setDate(current.getDate() + delta);
+    this.currentDate = current.toISOString().split('T')[0];
+    const url = new URL(window.location.href);
+    url.searchParams.set('date', this.currentDate);
+    window.history.pushState({}, '', url);
+    this.loadData();
+}
+
+       navigateToToday() {
+    const today = new Date();
+    this.currentDate = today.toISOString().split('T')[0];
+    const url = new URL(window.location.href);
+    url.searchParams.set('date', this.currentDate);
+    window.history.pushState({}, '', url);
+    this.loadData();
+}
 
         switchView(viewId) {
             // Update views
