@@ -107,16 +107,8 @@ function integrateModernUI() {
     }
   };
   
-  // Перехватываем renderSections
-  const originalRenderSections = window.chitasApp.renderSections.bind(window.chitasApp);
-  
-  window.chitasApp.renderSections = function() {
-    // Сначала рендерим оригинально (создаём DOM)
-    originalRenderSections();
-    
-    // Потом прячем и показываем плитки
-    hideOriginalSectionsShowTiles();
-  };
+  // НЕ перехватываем renderSections - даём ему отработать!
+  // Просто ждём когда данные загрузятся
   
   // Ждём загрузки данных
   waitForData();
@@ -138,10 +130,28 @@ function waitForData() {
       
       // Обновляем UI
       updateHebrewDate();
-      renderTiles();
       
-      // Скрываем оригинальные секции
-      hideOriginalSections();
+      // Ждём пока script.js создаст DOM элементы
+      setTimeout(() => {
+        // Проверяем что секции созданы
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        const firstSection = document.getElementById('s1');
+        
+        if (sectionsContainer && firstSection) {
+          console.log('✅ Sections DOM created by script.js');
+          
+          // Теперь прячем и показываем плитки
+          hideOriginalSections();
+          renderTiles();
+        } else {
+          console.warn('⚠️ Sections not created yet, waiting...');
+          // Повторим через секунду
+          setTimeout(() => {
+            hideOriginalSections();
+            renderTiles();
+          }, 1000);
+        }
+      }, 500);
     }
     
     if (attempts >= maxAttempts) {
@@ -184,12 +194,8 @@ function hideOriginalSections() {
   const container = document.getElementById('sectionsContainer');
   if (container) {
     container.style.display = 'none';
+    console.log('✅ Original sections hidden');
   }
-}
-
-function hideOriginalSectionsShowTiles() {
-  hideOriginalSections();
-  renderTiles();
 }
 
 // ==========================================
