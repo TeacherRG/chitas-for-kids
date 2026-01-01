@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Testing
+coverage/
+
+# Package manager
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
