@@ -18,23 +18,30 @@ class MatchGame {
                 <div class="match-instruction">${this.escapeHtml(this.data.instruction)}</div>
                 <div class="match-pairs">
         `;
-        
-        // Left column
-        html += '<div class="match-column">';
+
+        // Left column with header
+        html += '<div class="match-column match-column-left">';
+        html += '<div class="match-column-header">Колонка 1</div>';
+        html += '<div class="match-items-container">';
         this.data.pairs.forEach((pair, i) => {
             html += `<div class="match-item" data-side="left" data-pair-id="${i}">${this.escapeHtml(pair.left)}</div>`;
         });
-        html += '</div>';
-        
-        // Right column (shuffled)
-        html += '<div class="match-column">';
+        html += '</div></div>';
+
+        // Separator
+        html += '<div class="match-separator">⟷</div>';
+
+        // Right column with header (shuffled)
+        html += '<div class="match-column match-column-right">';
+        html += '<div class="match-column-header">Колонка 2</div>';
+        html += '<div class="match-items-container">';
         const shuffled = this.shuffleArray([...this.data.pairs]);
         shuffled.forEach(pair => {
             const originalIndex = this.data.pairs.findIndex(p => p.id === pair.id);
             html += `<div class="match-item" data-side="right" data-pair-id="${originalIndex}">${this.escapeHtml(pair.right)}</div>`;
         });
-        html += '</div>';
-        
+        html += '</div></div>';
+
         html += '</div></div>';
         this.container.innerHTML = html;
         this.attachHandlers();
