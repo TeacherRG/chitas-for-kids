@@ -68,9 +68,10 @@ class ChitasApp {
         this.setupLanguageSelector();
         this.applySettings();
 
-        // Initialize language
-        await this.initLanguage();
+        // Initialize language (don't block on translation)
+        this.initLanguage();
 
+        // Load data immediately
         this.loadData();
     }
 
@@ -187,6 +188,19 @@ class ChitasApp {
 
     async translateUI() {
         if (!window.i18n) return;
+
+        const lang = window.i18n.getCurrentLanguage();
+
+        // For Russian, no translation needed - just save originals
+        if (lang === 'ru') {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(element => {
+                if (!element.getAttribute('data-i18n-original')) {
+                    element.setAttribute('data-i18n-original', element.textContent);
+                }
+            });
+            return;
+        }
 
         const elements = document.querySelectorAll('[data-i18n]');
 
