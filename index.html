@@ -9,20 +9,12 @@
     <title>ב״ה | Хитас для детей</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="translator.css">
 </head>
 <body>
     <header class="app-header">
         <div class="bh-corner">ב״ה</div>
-        <div class="language-selector" id="languageSelector">
-            <div class="current-lang" id="currentLangBtn">🌐</div>
-            <div class="lang-dropdown" id="langDropdown">
-                <div class="lang-option" data-lang="ru">🇷🇺 Русский</div>
-                <div class="lang-option" data-lang="en">🇬🇧 English</div>
-                <div class="lang-option" data-lang="uk">🇺🇦 Українська</div>
-                <div class="lang-option" data-lang="de">🇩🇪 Deutsch</div>
-                <div class="lang-option" data-lang="he">🇮🇱 עברית</div>
-            </div>
-        </div>
+        <div id="languageSwitcherContainer"></div>
         <h1 data-i18n="app-title">📖 Хитас для детей</h1>
         <p data-i18n="app-subtitle">Жить в ногу со временем!</p>
     </header>
@@ -245,12 +237,33 @@
     <script src="auth-manager.js"></script>
     <script src="auth-ui.js"></script>
 
-    <script src="i18n.js"></script>
+    <!-- Translator -->
+    <script src="config.js"></script>
+    <script src="translator.js"></script>
+
+    <!-- Games -->
     <script src="games/quiz.js"></script>
     <script src="games/truefalse.js"></script>
     <script src="games/match.js"></script>
     <script src="games/reflection.js"></script>
     <script src="games/wheel.js"></script>
+
+    <!-- Main App -->
     <script src="app.js"></script>
+
+    <!-- Initialize Translator -->
+    <script>
+        // Инициализируем переводчик
+        const translator = new ChitasTranslator(GEMINI_API_KEY);
+
+        // Создаём и вставляем переключатель языков
+        const container = document.getElementById('languageSwitcherContainer');
+        if (container) {
+            container.appendChild(translator.createLanguageSwitcher());
+        }
+
+        // Делаем переводчик доступным глобально
+        window.chitasTranslator = translator;
+    </script>
 </body>
 </html>
