@@ -1536,15 +1536,48 @@ body {
     border-color: #bbb;
 }
 
+.modal-btn.secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.modal-btn.secondary:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 .modal-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
+.modal-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: var(--space-md) 0;
+    color: #999;
+    font-size: 14px;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-divider span {
+    padding: 0 var(--space-md);
+}
+
 .modal-links {
     margin-top: var(--space-lg);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     font-size: 14px;
 }
 
