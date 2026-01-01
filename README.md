@@ -1,7 +1,7 @@
 create_file
 path: /home/claude/README.md
 description: Creating README with instructions for the project
-file_text: # 📖 Хитас для детей - Chitas for Kids
+file_text: # 📖 Хитас для вундеркиндов - Chitas for Kids
 
 Интерактивное веб-приложение для изучения ежедневных еврейских текстов детьми на русском языке.
 

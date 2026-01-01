@@ -172,7 +172,7 @@ class AchievementsManager {
         const level = this.calculateLevel();
         const weeklyBadges = this.getWeeklyBadges();
 
-        const message = `🔥 Мой прогресс в Хитас для детей!\n\n` +
+        const message = `🔥 Мой прогресс в Хитас для вундеркиндов!\n\n` +
             `📚 Уровень: ${level.icon} ${level.name}\n` +
             `🔥 Стрик: ${currentStreak} дней подряд\n` +
             `⭐ Звёзды: ${this.app.state.stars}\n` +
