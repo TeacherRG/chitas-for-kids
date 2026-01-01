@@ -11,6 +11,45 @@ const CONFIG = {
     SPEECH_RATE: 0.9
 };
 
+/**
+ * GameFactory - Manages game type registration and instantiation
+ * Replaces the switch statement with a cleaner registry pattern
+ */
+class GameFactory {
+    constructor() {
+        this.gameTypes = new Map();
+        this.registerDefaultGameTypes();
+    }
+
+    registerDefaultGameTypes() {
+        // Register all available game types
+        this.register('quiz', QuizGame);
+        this.register('truefalse', TrueFalseGame);
+        this.register('match', MatchGame);
+        this.register('reflection', ReflectionGame);
+        this.register('wheel', WheelGame);
+    }
+
+    register(type, GameClass) {
+        this.gameTypes.set(type, GameClass);
+    }
+
+    create(gameData, container, onComplete) {
+        const GameClass = this.gameTypes.get(gameData.type);
+
+        if (!GameClass) {
+            console.warn(`Unknown game type: ${gameData.type}`);
+            return null;
+        }
+
+        return new GameClass(gameData, container, onComplete);
+    }
+
+    hasGameType(type) {
+        return this.gameTypes.has(type);
+    }
+}
+
 class ChitasApp {
     constructor() {
         this.contentData = null;
@@ -19,7 +58,8 @@ class ChitasApp {
         this.currentSection = null;
         this.state = this.loadProgress();
         this.speechSynthesis = window.speechSynthesis;
-        this.gameInstances = {};
+        this.gameInstances = new Map(); // Use Map instead of object for better key management
+        this.gameFactory = new GameFactory();
         this.init();
     }
 
@@ -36,10 +76,13 @@ class ChitasApp {
         this.addClickHandler('closeSectionBtn', () => this.closeSection());
         this.addClickHandler('speakBtn', () => this.speakContent());
         this.addClickHandler('resetBtn', () => this.resetProgress());
+        this.addClickHandler('printBtn', () => this.printPage());
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
-                this.switchView(item.dataset.view);
+                if (item.dataset.view) {
+                    this.switchView(item.dataset.view);
+                }
             });
         });
 
@@ -254,8 +297,8 @@ class ChitasApp {
         const sectionView = document.getElementById('sectionView');
         sectionView.classList.remove('active');
         this.currentSection = null;
-        this.gameInstances = {};
-        
+        this.gameInstances.clear(); // Clear Map entries instead of reassigning
+
         if (this.speechSynthesis) {
             this.speechSynthesis.cancel();
         }
@@ -329,46 +372,52 @@ class ChitasApp {
         return icons[type] || '🎮';
     }
 
+    /**
+     * Helper method to create consistent game instance keys
+     */
+    getGameKey(sectionId, gameIndex) {
+        return `${sectionId}-${gameIndex}`;
+    }
+
+    /**
+     * Initialize games for a section using the GameFactory pattern
+     * Cleaner and more maintainable than the original switch statement
+     */
     initializeGames(section) {
         if (!section.games) return;
 
         section.games.forEach((gameData, index) => {
-            const container = document.querySelector(`.game-wrapper[data-game-index="${index}"]`);
-            if (!container) return;
-
-            const onComplete = (success) => {
-                if (success) this.addScore(section.points, section.id);
-            };
-
-            let gameInstance;
-            switch (gameData.type) {
-                case 'quiz':
-                    gameInstance = new QuizGame(gameData, container, onComplete);
-                    break;
-                case 'truefalse':
-                    gameInstance = new TrueFalseGame(gameData, container, onComplete);
-                    break;
-                case 'match':
-                    gameInstance = new MatchGame(gameData, container, onComplete);
-                    break;
-                case 'reflection':
-                    gameInstance = new ReflectionGame(gameData, container, onComplete);
-                    break;
-                case 'wheel':
-                    gameInstance = new WheelGame(gameData, container, onComplete);
-                    break;
-                default:
-                    console.warn(`Unknown game type: ${gameData.type}`);
-                    return;
-            }
-
-            this.gameInstances[`${section.id}-${index}`] = gameInstance;
-            
-            if (index === 0 || section.games.length === 1) {
-                gameInstance.render();
-            }
+            this.initializeSingleGame(section, gameData, index);
         });
 
+        this.setupGameButtons(section);
+    }
+
+    /**
+     * Initialize a single game instance
+     */
+    initializeSingleGame(section, gameData, index) {
+        const container = document.querySelector(`.game-wrapper[data-game-index="${index}"]`);
+        if (!container) return;
+
+        const onComplete = (success) => {
+            if (success) this.addScore(section.points, section.id);
+        };
+
+        const gameInstance = this.gameFactory.create(gameData, container, onComplete);
+
+        if (!gameInstance) return; // Factory returns null for unknown game types
+
+        const gameKey = this.getGameKey(section.id, index);
+        this.gameInstances.set(gameKey, gameInstance);
+
+        // Don't auto-render - user must select from menu
+    }
+
+    /**
+     * Setup event listeners for game selection buttons
+     */
+    setupGameButtons(section) {
         document.querySelectorAll('.game-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const gameIndex = parseInt(e.target.dataset.gameIndex);
@@ -378,19 +427,20 @@ class ChitasApp {
     }
 
     showGame(section, gameIndex) {
+        // Clear all game wrappers
         document.querySelectorAll('.game-wrapper').forEach(wrapper => {
             wrapper.innerHTML = '';
         });
-        
+
         const container = document.querySelector(`.game-wrapper[data-game-index="${gameIndex}"]`);
-        const gameInstance = this.gameInstances[`${section.id}-${gameIndex}`];
-        
+        const gameKey = this.getGameKey(section.id, gameIndex);
+        const gameInstance = this.gameInstances.get(gameKey);
+
         if (container && gameInstance) {
             gameInstance.render();
         }
-        
-        const menu = document.getElementById('gameMenu');
-        if (menu) menu.style.display = 'none';
+
+        // Keep game menu visible - don't hide it
     }
 
     isSectionCompleted(sectionId) {
@@ -524,23 +574,27 @@ class ChitasApp {
 
     speakContent() {
         if (!this.currentSection) return;
-        
+
         if (this.speechSynthesis) {
             this.speechSynthesis.cancel();
-            
+
             const text = this.currentSection.content.paragraphs
                 .map(p => p.text)
                 .join('. ');
-            
+
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = CONFIG.SPEECH_LANG;
             utterance.rate = CONFIG.SPEECH_RATE;
             utterance.pitch = 1;
-            
+
             this.speechSynthesis.speak(utterance);
         } else {
             alert('Озвучивание не поддерживается в вашем браузере');
         }
+    }
+
+    printPage() {
+        window.print();
     }
 
     loadProgress() {
