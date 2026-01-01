@@ -64,6 +64,9 @@ class ChitasApp {
         // Инициализируем менеджер достижений
         this.achievementsManager = new AchievementsManager(this);
 
+        // Инициализируем менеджер печати
+        this.printManager = new PrintManager(this);
+
         this.init();
     }
 
@@ -600,7 +603,7 @@ class ChitasApp {
     }
 
     printPage() {
-        window.print();
+        this.printManager.print();
     }
 
     loadProgress() {
