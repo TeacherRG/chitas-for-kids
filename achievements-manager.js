@@ -12,7 +12,7 @@ class AchievementsManager {
             { name: 'Талмид', icon: '📚', minStreak: 0, color: '#4CAF50' },
             { name: 'Бакки', icon: '📖', minStreak: 7, color: '#2196F3' },
             { name: 'Ламдан', icon: '🎓', minStreak: 21, color: '#9C27B0' },
-            { name: 'Рав', icon: '👨‍🏫', minStreak: 50, color: '#FF9800' },
+            { name: 'Рав', icon: '🎯', minStreak: 50, color: '#FF9800' },
             { name: 'Гаон', icon: '⭐', minStreak: 100, color: '#FFD700' }
         ];
     }
@@ -172,13 +172,14 @@ class AchievementsManager {
         const level = this.calculateLevel();
         const weeklyBadges = this.getWeeklyBadges();
 
-        const message = `🔥 Мой прогресс в Хитас для детей!\n\n` +
+        const message = `🔥 Мой прогресс в Хитас для вундеркиндов!\n\n` +
             `📚 Уровень: ${level.icon} ${level.name}\n` +
             `🔥 Стрик: ${currentStreak} дней подряд\n` +
             `⭐ Звёзды: ${this.app.state.stars}\n` +
             `🏆 Баллы: ${this.app.state.score}\n` +
             `🏅 Недель завершено: ${weeklyBadges.length}\n\n` +
-            `Присоединяйся! 📖`;
+            `Присоединяйся! 📖\n` +
+            `www.mychitas.app`;
 
         const encodedMessage = encodeURIComponent(message);
 
