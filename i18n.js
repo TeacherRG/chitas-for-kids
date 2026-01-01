@@ -89,22 +89,75 @@ class I18n {
     loadTranslationsFromCache() {
         try {
             const cached = localStorage.getItem('chitasTranslations');
-            return cached ? JSON.parse(cached) : {};
+            const cacheData = cached ? JSON.parse(cached) : {};
+
+            // Check cache version
+            const cacheVersion = localStorage.getItem('chitasTranslationsVersion') || '1.0';
+            const currentVersion = '1.0';
+
+            if (cacheVersion !== currentVersion) {
+                console.log('Cache version mismatch, clearing cache');
+                this.clearCache();
+                return {};
+            }
+
+            return cacheData;
         } catch (e) {
             console.error('Failed to load translations from cache:', e);
+            // If cache is corrupted, clear it
+            this.clearCache();
             return {};
         }
     }
 
     /**
      * Save translations to localStorage cache
+     * Uses monitoring to avoid quota exceeded errors
      */
     saveTranslationsToCache() {
         try {
-            localStorage.setItem('chitasTranslations', JSON.stringify(this.translations));
+            const cacheString = JSON.stringify(this.translations);
+            const cacheSize = new Blob([cacheString]).size;
+
+            // Check if cache is getting too large (> 4MB)
+            if (cacheSize > 4 * 1024 * 1024) {
+                console.warn('Translation cache is large, pruning old entries');
+                this.pruneCache();
+            }
+
+            localStorage.setItem('chitasTranslations', cacheString);
+            localStorage.setItem('chitasTranslationsVersion', '1.0');
+            localStorage.setItem('chitasTranslationsLastUpdate', new Date().toISOString());
+
+            // Log cache statistics
+            if (Math.random() < 0.1) { // Log 10% of the time to avoid spam
+                console.log(`Cache: ${Object.keys(this.translations).length} entries, ${(cacheSize / 1024).toFixed(2)} KB`);
+            }
         } catch (e) {
-            console.error('Failed to save translations to cache:', e);
+            if (e.name === 'QuotaExceededError') {
+                console.warn('localStorage quota exceeded, pruning cache');
+                this.pruneCache();
+                // Try again after pruning
+                try {
+                    localStorage.setItem('chitasTranslations', JSON.stringify(this.translations));
+                } catch (e2) {
+                    console.error('Failed to save even after pruning:', e2);
+                }
+            } else {
+                console.error('Failed to save translations to cache:', e);
+            }
         }
+    }
+
+    /**
+     * Prune cache to keep only most recent entries
+     */
+    pruneCache() {
+        const entries = Object.entries(this.translations);
+        // Keep only first 1000 entries
+        const pruned = Object.fromEntries(entries.slice(0, 1000));
+        this.translations = pruned;
+        console.log('Cache pruned to 1000 entries');
     }
 
     /**
