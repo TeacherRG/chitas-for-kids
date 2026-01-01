@@ -68,10 +68,10 @@ class ChitasApp {
         this.setupLanguageSelector();
         this.applySettings();
 
-        // Initialize language (don't block on translation)
-        this.initLanguage();
+        // Initialize language first (UI translation happens in background)
+        await this.initLanguage();
 
-        // Load data immediately
+        // Load data after language is set
         this.loadData();
     }
 
@@ -167,8 +167,10 @@ class ChitasApp {
         window.i18n.setLanguage(currentLang);
         this.updateLanguageDisplay();
 
-        // Translate static UI elements
-        await this.translateUI();
+        // Translate static UI elements (in background for non-Russian)
+        if (currentLang !== 'ru') {
+            this.translateUI(); // Don't await - let it run in background
+        }
     }
 
     async changeLanguage(lang) {
@@ -180,9 +182,9 @@ class ChitasApp {
         // Translate UI
         await this.translateUI();
 
-        // Reload and translate current data
+        // Reload data to translate content
         if (this.contentData && this.gamesData) {
-            await this.renderPage();
+            await this.loadData();
         }
     }
 
