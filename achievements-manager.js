@@ -178,7 +178,7 @@ class AchievementsManager {
             `⭐ Звёзды: ${this.app.state.stars}\n` +
             `🏆 Баллы: ${this.app.state.score}\n` +
             `🏅 Недель завершено: ${weeklyBadges.length}\n\n` +
-            `Присоединяйся! 📖`;
+            `Присоединяйтесь! www.mychitas.app`;
 
         const encodedMessage = encodeURIComponent(message);
 
