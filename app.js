@@ -76,10 +76,13 @@ class ChitasApp {
         this.addClickHandler('closeSectionBtn', () => this.closeSection());
         this.addClickHandler('speakBtn', () => this.speakContent());
         this.addClickHandler('resetBtn', () => this.resetProgress());
+        this.addClickHandler('printBtn', () => this.printPage());
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
-                this.switchView(item.dataset.view);
+                if (item.dataset.view) {
+                    this.switchView(item.dataset.view);
+                }
             });
         });
 
@@ -408,10 +411,7 @@ class ChitasApp {
         const gameKey = this.getGameKey(section.id, index);
         this.gameInstances.set(gameKey, gameInstance);
 
-        // Render first game immediately
-        if (index === 0 || section.games.length === 1) {
-            gameInstance.render();
-        }
+        // Don't auto-render - user must select from menu
     }
 
     /**
@@ -440,8 +440,7 @@ class ChitasApp {
             gameInstance.render();
         }
 
-        const menu = document.getElementById('gameMenu');
-        if (menu) menu.style.display = 'none';
+        // Keep game menu visible - don't hide it
     }
 
     isSectionCompleted(sectionId) {
@@ -575,23 +574,27 @@ class ChitasApp {
 
     speakContent() {
         if (!this.currentSection) return;
-        
+
         if (this.speechSynthesis) {
             this.speechSynthesis.cancel();
-            
+
             const text = this.currentSection.content.paragraphs
                 .map(p => p.text)
                 .join('. ');
-            
+
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = CONFIG.SPEECH_LANG;
             utterance.rate = CONFIG.SPEECH_RATE;
             utterance.pitch = 1;
-            
+
             this.speechSynthesis.speak(utterance);
         } else {
             alert('Озвучивание не поддерживается в вашем браузере');
         }
+    }
+
+    printPage() {
+        window.print();
     }
 
     loadProgress() {
