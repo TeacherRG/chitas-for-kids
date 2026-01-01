@@ -180,9 +180,9 @@ class ChitasApp {
         // Translate UI
         await this.translateUI();
 
-        // Reload and translate current data
+        // Reload data to translate content
         if (this.contentData && this.gamesData) {
-            await this.renderPage();
+            await this.loadData();
         }
     }
 
