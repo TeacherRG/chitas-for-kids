@@ -277,19 +277,30 @@ class ChitasApp {
         return firstText ? firstText.text.substring(0, 120) + '...' : '';
     }
 
-    openSection(sectionId) {
+    async openSection(sectionId) {
         const section = this.contentData.sections.find(s => s.id === sectionId);
         if (!section) return;
 
         this.currentSection = section;
         document.body.classList.add('section-open');
-        
+
         const sectionView = document.getElementById('sectionView');
         sectionView.classList.add('active');
-        
-        this.setTextContent('sectionTitle', section.title);
-        this.renderSectionContent(section);
-        
+
+        // Переводим секцию если язык не русский
+        if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+            const translatedTitle = await window.chitasTranslator.translateText(
+                section.title,
+                window.chitasTranslator.currentLang,
+                'lesson'
+            );
+            this.setTextContent('sectionTitle', translatedTitle);
+        } else {
+            this.setTextContent('sectionTitle', section.title);
+        }
+
+        await this.renderSectionContent(section);
+
         window.scrollTo(0, 0);
     }
 
@@ -305,52 +316,103 @@ class ChitasApp {
         }
     }
 
-    renderSectionContent(section) {
+    async renderSectionContent(section) {
         const container = document.getElementById('sectionContent');
         if (!container) return;
 
         let html = '';
 
+        // Переводим заголовок если нужно
         if (section.content.title) {
-            html += `<h2 class="content-title">${this.escapeHtml(section.content.title)}</h2>`;
+            let title = section.content.title;
+            if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+                title = await window.chitasTranslator.translateText(
+                    title,
+                    window.chitasTranslator.currentLang,
+                    'lesson'
+                );
+            }
+            html += `<h2 class="content-title">${this.escapeHtml(title)}</h2>`;
         }
 
-        section.content.paragraphs.forEach(para => {
-            html += this.renderParagraph(para);
-        });
+        // Переводим параграфы
+        for (const para of section.content.paragraphs) {
+            html += await this.renderParagraph(para);
+        }
 
-        html += this.renderGamesContainer(section);
+        html += await this.renderGamesContainer(section);
 
         container.innerHTML = html;
-        this.initializeGames(section);
+        await this.initializeGames(section);
     }
 
-    renderParagraph(para) {
+    async renderParagraph(para) {
         const classList = ['content-paragraph', para.type].filter(Boolean).join(' ');
         let content = '';
 
+        // Переводим заголовок параграфа
         if (para.title) {
-            content += `<div class="paragraph-title">${this.escapeHtml(para.title)}</div>`;
+            let title = para.title;
+            if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+                title = await window.chitasTranslator.translateText(
+                    title,
+                    window.chitasTranslator.currentLang,
+                    'lesson'
+                );
+            }
+            content += `<div class="paragraph-title">${this.escapeHtml(title)}</div>`;
         }
-        content += this.escapeHtml(para.text);
+
+        // Переводим текст параграфа
+        let text = para.text;
+        if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+            text = await window.chitasTranslator.translateText(
+                text,
+                window.chitasTranslator.currentLang,
+                'lesson'
+            );
+        }
+        content += this.escapeHtml(text);
 
         return `<div class="${classList}">${content}</div>`;
     }
 
-    renderGamesContainer(section) {
+    async renderGamesContainer(section) {
         if (!section.games || section.games.length === 0) return '';
 
         let html = '<div class="game-container">';
-        
+
         if (section.games.length > 1) {
+            // Переводим текст "Выбери игру!"
+            let chooseGameText = '🎮 Выбери игру!';
+            if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+                const translated = await window.chitasTranslator.translateText(
+                    'Выбери игру!',
+                    window.chitasTranslator.currentLang,
+                    'ui'
+                );
+                chooseGameText = `🎮 ${translated}`;
+            }
+
             html += `
                 <div class="game-menu" id="gameMenu">
-                    <h3>🎮 Выбери игру!</h3>
+                    <h3>${chooseGameText}</h3>
                     <div class="game-buttons">
             `;
-            section.games.forEach((game, index) => {
-                html += `<button class="game-button" data-game-index="${index}">${this.getGameIcon(game.type)} ${this.escapeHtml(game.title)}</button>`;
-            });
+
+            // Переводим названия игр
+            for (let index = 0; index < section.games.length; index++) {
+                const game = section.games[index];
+                let gameTitle = game.title;
+                if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+                    gameTitle = await window.chitasTranslator.translateText(
+                        gameTitle,
+                        window.chitasTranslator.currentLang,
+                        'game'
+                    );
+                }
+                html += `<button class="game-button" data-game-index="${index}">${this.getGameIcon(game.type)} ${this.escapeHtml(gameTitle)}</button>`;
+            }
             html += '</div></div>';
         }
 
@@ -384,12 +446,14 @@ class ChitasApp {
      * Initialize games for a section using the GameFactory pattern
      * Cleaner and more maintainable than the original switch statement
      */
-    initializeGames(section) {
+    async initializeGames(section) {
         if (!section.games) return;
 
-        section.games.forEach((gameData, index) => {
-            this.initializeSingleGame(section, gameData, index);
-        });
+        // Инициализируем все игры параллельно
+        const promises = section.games.map((gameData, index) =>
+            this.initializeSingleGame(section, gameData, index)
+        );
+        await Promise.all(promises);
 
         this.setupGameButtons(section);
     }
@@ -397,15 +461,25 @@ class ChitasApp {
     /**
      * Initialize a single game instance
      */
-    initializeSingleGame(section, gameData, index) {
+    async initializeSingleGame(section, gameData, index) {
         const container = document.querySelector(`.game-wrapper[data-game-index="${index}"]`);
         if (!container) return;
+
+        // Переводим данные игры если нужно
+        let translatedGameData = gameData;
+        if (window.chitasTranslator && window.chitasTranslator.currentLang !== 'ru') {
+            translatedGameData = JSON.parse(JSON.stringify(gameData)); // Копируем
+            await window.chitasTranslator.translateGameData(
+                translatedGameData,
+                window.chitasTranslator.currentLang
+            );
+        }
 
         const onComplete = (success) => {
             if (success) this.addScore(section.points, section.id);
         };
 
-        const gameInstance = this.gameFactory.create(gameData, container, onComplete);
+        const gameInstance = this.gameFactory.create(translatedGameData, container, onComplete);
 
         if (!gameInstance) return; // Factory returns null for unknown game types
 
