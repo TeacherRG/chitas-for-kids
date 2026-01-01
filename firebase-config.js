@@ -6,7 +6,7 @@
 // Конфигурация Firebase - ваши реальные данные
 const firebaseConfig = {
   apiKey: "AIzaSyDQneMDJ6Hx30G8bIu-XYzfxxNZ1QAW5hM",
-  authDomain: "chitas-for-kids.firebaseapp.com",
+  authDomain: "mychitas.app",
   projectId: "chitas-for-kids",
   storageBucket: "chitas-for-kids.firebasestorage.app",
   messagingSenderId: "1046909437256",
@@ -15,7 +15,10 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
+
+// Инициализация Firebase Analytics для отслеживания статистики
+const analytics = firebase.analytics();
 
 // Экспорт сервисов
 const auth = firebase.auth();
@@ -25,3 +28,4 @@ const db = firebase.firestore();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 console.log('🔥 Firebase initialized successfully');
+console.log('📊 Firebase Analytics enabled');
