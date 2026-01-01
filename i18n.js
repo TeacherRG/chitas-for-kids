@@ -8,7 +8,7 @@
 class I18n {
     constructor() {
         this.GEMINI_API_KEY = 'AIzaSyAnuW56wUaAcKikopTWGsFeSdYChBH2vAg';
-        this.GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+        this.GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
         // Supported languages
         this.LANGUAGES = {
