@@ -70,6 +70,11 @@
 
     <div class="view" id="profileView">
         <div class="container">
+            <!-- Auth Container -->
+            <div class="card auth-card">
+                <div id="authContainer"></div>
+            </div>
+
             <div class="card profile-header">
                 <h2 data-i18n="my-profile">👤 Мой профиль</h2>
                 <div class="profile-stats">
@@ -185,6 +190,59 @@
             <div class="nav-label" data-i18n="settings">Настройки</div>
         </div>
     </nav>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAuthModal()">&times;</span>
+            <h2 id="modalTitle">Вход</h2>
+            <div id="modalError" class="modal-error"></div>
+
+            <!-- Sign In Form -->
+            <div id="signInForm">
+                <input type="email" id="emailInput" placeholder="Email" class="modal-input">
+                <input type="password" id="passwordInput" placeholder="Пароль" class="modal-input">
+                <button onclick="handleEmailSignIn()" class="modal-btn primary">Войти</button>
+                <button onclick="handleGoogleSignIn()" class="modal-btn google">
+                    <span>🔐</span> Войти через Google
+                </button>
+                <div class="modal-links">
+                    <a href="#" onclick="showResetPassword(); return false;">Забыли пароль?</a>
+                    <a href="#" onclick="showSignUpForm(); return false;">Регистрация</a>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signUpForm" style="display:none;">
+                <input type="text" id="nameInput" placeholder="Имя" class="modal-input">
+                <input type="email" id="signUpEmail" placeholder="Email" class="modal-input">
+                <input type="password" id="signUpPassword" placeholder="Пароль (мин. 6 символов)" class="modal-input">
+                <button onclick="handleEmailSignUp()" class="modal-btn primary">Зарегистрироваться</button>
+                <div class="modal-links">
+                    <a href="#" onclick="showSignInForm(); return false;">Уже есть аккаунт? Войти</a>
+                </div>
+            </div>
+
+            <!-- Reset Password Form -->
+            <div id="resetPasswordForm" style="display:none;">
+                <input type="email" id="resetEmail" placeholder="Email" class="modal-input">
+                <button onclick="handlePasswordReset()" class="modal-btn primary">Отправить ссылку</button>
+                <div class="modal-links">
+                    <a href="#" onclick="showSignInForm(); return false;">Назад ко входу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config and Auth -->
+    <script src="firebase-config.js"></script>
+    <script src="auth-manager.js"></script>
+    <script src="auth-ui.js"></script>
 
     <script src="i18n.js"></script>
     <script src="games/quiz.js"></script>
