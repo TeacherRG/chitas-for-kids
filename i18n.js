@@ -1,14 +1,14 @@
 /**
  * INTERNATIONALIZATION MODULE
- * Multi-language support with Gemini API translation
+ * Multi-language support with Google Translate API
  */
 
 'use strict';
 
 class I18n {
     constructor() {
-        this.GEMINI_API_KEY = 'AIzaSyAnuW56wUaAcKikopTWGsFeSdYChBH2vAg';
-        this.GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+        // Google Translate API endpoint (free, no key required)
+        this.TRANSLATE_API_URL = 'https://translate.googleapis.com/translate_a/single';
 
         // Supported languages
         this.LANGUAGES = {
@@ -183,7 +183,7 @@ class I18n {
     }
 
     /**
-     * Translate text using Gemini API
+     * Translate text using Google Translate API
      */
     async translateWithGemini(text, targetLang) {
         if (!text || typeof text !== 'string') {
@@ -201,57 +201,36 @@ class I18n {
             return this.translations[cacheKey];
         }
 
-        const targetLangName = this.LANGUAGES[targetLang].nativeName;
-
-        const prompt = `You are translating Jewish educational content from Russian to ${targetLangName}.
-
-CRITICAL INSTRUCTIONS:
-1. Keep ALL Hebrew text EXACTLY as written (ב״ה, Hebrew dates, Hebrew names, Torah portions)
-2. Keep Jewish terms in their transliterated form (Chumash, Rashi, Tehillim, Tanya, etc.)
-3. Preserve all emoji and special characters
-4. Keep numbers and punctuation as they are
-5. Maintain respectful and appropriate religious terminology
-6. Do NOT translate Hebrew names of people or places
-7. Do NOT translate names of Torah portions (parshas)
-8. Do NOT translate sacred Hebrew terms
-
-Examples of what to preserve:
-- ב״ה (always keep as is)
-- Hebrew dates: כ״ח כסלו ה׳תשפ״ו
-- Names: Яаков (Jacob), Йосеф (Joseph)
-- Torah portions: Ваехи, Берешит
-- Hebrew terms in Russian text
-
-Return ONLY the translation, without any explanations or additional text.
-
-Text to translate:
-${text}`;
-
         try {
-            const response = await fetch(`${this.GEMINI_API_URL}?key=${this.GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.3,
-                        maxOutputTokens: 1024,
-                    }
-                })
+            // Use Google Translate API
+            const params = new URLSearchParams({
+                client: 'gtx',
+                sl: 'ru',
+                tl: targetLang,
+                dt: 't',
+                q: text
+            });
+
+            const response = await fetch(`${this.TRANSLATE_API_URL}?${params}`, {
+                method: 'GET'
             });
 
             if (!response.ok) {
-                throw new Error(`Gemini API error: ${response.status}`);
+                throw new Error(`Translation API error: ${response.status}`);
             }
 
             const data = await response.json();
-            const translatedText = data.candidates[0].content.parts[0].text.trim();
+
+            // Google Translate returns array of translated segments
+            // Format: [[[translated_text, original_text, null, null, ...]], ...]
+            let translatedText = '';
+            if (data && data[0]) {
+                translatedText = data[0].map(segment => segment[0]).join('');
+            }
+
+            if (!translatedText) {
+                throw new Error('Empty translation response');
+            }
 
             // Cache the translation
             this.translations[cacheKey] = translatedText;
