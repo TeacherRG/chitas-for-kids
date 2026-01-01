@@ -60,6 +60,10 @@ class ChitasApp {
         this.speechSynthesis = window.speechSynthesis;
         this.gameInstances = new Map(); // Use Map instead of object for better key management
         this.gameFactory = new GameFactory();
+
+        // Инициализируем менеджер достижений
+        this.achievementsManager = new AchievementsManager(this);
+
         this.init();
     }
 
@@ -79,12 +83,12 @@ class ChitasApp {
         this.addClickHandler('printBtn', () => this.printPage());
 
         // Новые обработчики для функции "Поделиться"
-        this.addClickHandler('shareWhatsAppBtn', () => this.shareProgress('whatsapp'));
-        this.addClickHandler('shareTelegramBtn', () => this.shareProgress('telegram'));
+        this.addClickHandler('shareWhatsAppBtn', () => this.achievementsManager.shareProgress('whatsapp'));
+        this.addClickHandler('shareTelegramBtn', () => this.achievementsManager.shareProgress('telegram'));
 
         // Обработчики для синхронизации с Firebase
-        this.addClickHandler('syncProgressBtn', () => this.syncToFirebase());
-        this.addClickHandler('loadProgressBtn', () => this.loadFromFirebase());
+        this.addClickHandler('syncProgressBtn', () => this.achievementsManager.syncToFirebase());
+        this.addClickHandler('loadProgressBtn', () => this.achievementsManager.loadFromFirebase());
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -201,7 +205,7 @@ class ChitasApp {
         this.renderMazelTov();
         this.renderTiles();
         this.updateProgress();
-        this.updateAchievements();
+        this.achievementsManager.updateAchievements();
     }
 
     updateDateDisplay() {
@@ -464,7 +468,7 @@ class ChitasApp {
 
     addScore(points, sectionId) {
         const dateKey = this.currentDate;
-        
+
         if (!this.state.completed[dateKey]) {
             this.state.completed[dateKey] = {};
         }
@@ -473,94 +477,12 @@ class ChitasApp {
             this.state.score += points;
             this.state.stars += 1;
             this.state.completed[dateKey][sectionId] = true;
-            
+
             this.saveProgress();
             this.updateProgress();
-            this.updateAchievements();
+            this.achievementsManager.updateAchievements();
             this.renderTiles();
         }
-    }
-
-    /**
-     * Подсчёт текущего стрика (серии дней подряд)
-     * КРИТИЧНО для визуализации огонька
-     */
-    calculateStreak() {
-        const completedDates = Object.keys(this.state.completed)
-            .filter(date => Object.keys(this.state.completed[date]).length > 0)
-            .sort()
-            .reverse();
-
-        if (completedDates.length === 0) return 0;
-
-        let streak = 0;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        for (let i = 0; i < completedDates.length; i++) {
-            const checkDate = new Date(today);
-            checkDate.setDate(checkDate.getDate() - i);
-            const checkDateStr = this.formatDate(checkDate);
-
-            if (completedDates.includes(checkDateStr)) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-
-        return streak;
-    }
-
-    /**
-     * Определение уровня пользователя
-     * 5 уровней: Талмид → Бакки → Ламдан → Рав → Гаон
-     */
-    calculateLevel() {
-        const streak = this.calculateStreak();
-        const levels = [
-            { name: 'Талмид', icon: '📚', minStreak: 0, color: '#4CAF50' },
-            { name: 'Бакки', icon: '📖', minStreak: 7, color: '#2196F3' },
-            { name: 'Ламдан', icon: '🎓', minStreak: 21, color: '#9C27B0' },
-            { name: 'Рав', icon: '👨‍🏫', minStreak: 50, color: '#FF9800' },
-            { name: 'Гаон', icon: '⭐', minStreak: 100, color: '#FFD700' }
-        ];
-
-        for (let i = levels.length - 1; i >= 0; i--) {
-            if (streak >= levels[i].minStreak) {
-                return { ...levels[i], streak };
-            }
-        }
-
-        return { ...levels[0], streak };
-    }
-
-    /**
-     * Подсчёт значков за недели изучения
-     * 3 значка за каждую полную неделю
-     */
-    getWeeklyBadges() {
-        const completedDates = Object.keys(this.state.completed)
-            .filter(date => Object.keys(this.state.completed[date]).length > 0)
-            .sort();
-
-        const weeklyBadges = [];
-        let weekCount = 0;
-
-        // Группируем по неделям (каждые 7 дней)
-        for (let i = 0; i < completedDates.length; i += 7) {
-            const weekDates = completedDates.slice(i, i + 7);
-            if (weekDates.length === 7) {
-                weekCount++;
-                weeklyBadges.push({
-                    week: weekCount,
-                    dates: weekDates,
-                    badges: ['🏅', '🎖️', '🏆']
-                });
-            }
-        }
-
-        return weeklyBadges;
     }
 
     updateProgress() {
@@ -577,108 +499,6 @@ class ChitasApp {
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
             progressBar.textContent = `${percentage}%`;
-        }
-    }
-
-    updateAchievements() {
-        const totalDays = Object.keys(this.state.completed).length;
-        const currentStreak = this.calculateStreak();
-        const level = this.calculateLevel();
-        const weeklyBadges = this.getWeeklyBadges();
-
-        this.setTextContent('totalScore', this.state.score);
-        this.setTextContent('totalStars', this.state.stars);
-        this.setTextContent('totalDays', totalDays);
-
-        // Обновляем стрик (огонёк)
-        this.setTextContent('currentStreak', currentStreak);
-        this.setTextContent('streakIcon', currentStreak > 0 ? '🔥' : '💨');
-
-        // Обновляем уровень
-        this.setTextContent('userLevel', level.name);
-        this.setTextContent('levelIcon', level.icon);
-        this.setTextContent('levelProgress', `${currentStreak}/${this.getNextLevelStreak(level)}`);
-
-        // Обновляем достижения с учетом СТРИКОВ (не общего количества дней)
-        this.setTextContent('achievement1', currentStreak >= 7 ? '✅' : '🔒');
-        this.setTextContent('achievement2', currentStreak >= 14 ? '✅' : '🔒');
-        this.setTextContent('achievement3', currentStreak >= 21 ? '✅' : '🔒');
-        this.setTextContent('achievement4', currentStreak >= 30 ? '✅' : '🔒');
-        this.setTextContent('achievement5', currentStreak >= 50 ? '✅' : '🔒');
-
-        // Обновляем значки за недели
-        this.setTextContent('weeklyBadgesCount', weeklyBadges.length);
-        this.renderWeeklyBadges(weeklyBadges);
-    }
-
-    /**
-     * Получить требуемый стрик для следующего уровня
-     */
-    getNextLevelStreak(currentLevel) {
-        const levels = [
-            { name: 'Талмид', minStreak: 0 },
-            { name: 'Бакки', minStreak: 7 },
-            { name: 'Ламдан', minStreak: 21 },
-            { name: 'Рав', minStreak: 50 },
-            { name: 'Гаон', minStreak: 100 }
-        ];
-
-        const currentIndex = levels.findIndex(l => l.name === currentLevel.name);
-        if (currentIndex < levels.length - 1) {
-            return levels[currentIndex + 1].minStreak;
-        }
-        return levels[levels.length - 1].minStreak;
-    }
-
-    /**
-     * Отрисовка значков за недели
-     */
-    renderWeeklyBadges(weeklyBadges) {
-        const container = document.getElementById('weeklyBadgesContainer');
-        if (!container) return;
-
-        if (weeklyBadges.length === 0) {
-            container.innerHTML = '<p class="no-badges">Завершите первую неделю, чтобы получить значки!</p>';
-            return;
-        }
-
-        let html = '<div class="weekly-badges-grid">';
-        weeklyBadges.forEach(week => {
-            html += `
-                <div class="weekly-badge-item">
-                    <div class="week-number">Неделя ${week.week}</div>
-                    <div class="week-badges">
-                        ${week.badges.map(badge => `<span class="badge-icon">${badge}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-    }
-
-    /**
-     * Функция "Поделиться успехами" в WhatsApp/Telegram
-     */
-    shareProgress(platform) {
-        const currentStreak = this.calculateStreak();
-        const level = this.calculateLevel();
-        const weeklyBadges = this.getWeeklyBadges();
-
-        const message = `🔥 Мой прогресс в Хитас для детей!\n\n` +
-            `📚 Уровень: ${level.icon} ${level.name}\n` +
-            `🔥 Стрик: ${currentStreak} дней подряд\n` +
-            `⭐ Звёзды: ${this.state.stars}\n` +
-            `🏆 Баллы: ${this.state.score}\n` +
-            `🏅 Недель завершено: ${weeklyBadges.length}\n\n` +
-            `Присоединяйся! 📖`;
-
-        const encodedMessage = encodeURIComponent(message);
-
-        if (platform === 'whatsapp') {
-            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
-        } else if (platform === 'telegram') {
-            window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
         }
     }
 
@@ -752,7 +572,7 @@ class ChitasApp {
             this.saveProgress();
             this.applySettings();
             this.updateProgress();
-            this.updateAchievements();
+            this.achievementsManager.updateAchievements();
             this.renderTiles();
             alert('✅ Прогресс сброшен!');
         }
@@ -808,103 +628,10 @@ class ChitasApp {
             localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.state));
             // Автоматическая синхронизация с Firebase (если пользователь авторизован)
             if (window.authManager && window.authManager.getCurrentUser()) {
-                this.syncToFirebase(true); // silent mode
+                this.achievementsManager.syncToFirebase(true); // silent mode
             }
         } catch (e) {
             console.error('Error saving progress:', e);
-        }
-    }
-
-    /**
-     * Синхронизация прогресса с Firebase Firestore
-     * Локальное хранилище + Firebase sync
-     */
-    async syncToFirebase(silent = false) {
-        if (!window.authManager || !window.authManager.getCurrentUser()) {
-            if (!silent) {
-                alert('Войдите в систему, чтобы синхронизировать прогресс');
-            }
-            return;
-        }
-
-        try {
-            const user = window.authManager.getCurrentUser();
-            const userId = user.uid;
-
-            // Используем Firebase Firestore из firebase-config.js
-            if (typeof db === 'undefined') {
-                console.error('Firebase Firestore not initialized');
-                return;
-            }
-
-            // Сохраняем прогресс в Firestore
-            await db.collection('userProgress').doc(userId).set({
-                score: this.state.score,
-                stars: this.state.stars,
-                completed: this.state.completed,
-                settings: this.state.settings,
-                lastSync: new Date().toISOString()
-            });
-
-            if (!silent) {
-                alert('✅ Прогресс синхронизирован с облаком!');
-            }
-            console.log('Progress synced to Firebase');
-        } catch (e) {
-            console.error('Error syncing to Firebase:', e);
-            if (!silent) {
-                alert('❌ Ошибка синхронизации с облаком');
-            }
-        }
-    }
-
-    /**
-     * Загрузка прогресса из Firebase Firestore
-     */
-    async loadFromFirebase() {
-        if (!window.authManager || !window.authManager.getCurrentUser()) {
-            alert('Войдите в систему, чтобы загрузить прогресс');
-            return;
-        }
-
-        try {
-            const user = window.authManager.getCurrentUser();
-            const userId = user.uid;
-
-            if (typeof db === 'undefined') {
-                console.error('Firebase Firestore not initialized');
-                return;
-            }
-
-            const doc = await db.collection('userProgress').doc(userId).get();
-
-            if (doc.exists) {
-                const data = doc.data();
-                this.state = {
-                    score: data.score || 0,
-                    stars: data.stars || 0,
-                    completed: data.completed || {},
-                    settings: data.settings || {
-                        sound: true,
-                        animations: true,
-                        darkMode: false
-                    }
-                };
-
-                this.saveProgress();
-                this.applySettings();
-                this.updateProgress();
-                this.updateAchievements();
-                this.renderTiles();
-
-                alert('✅ Прогресс загружен из облака!');
-                console.log('Progress loaded from Firebase');
-            } else {
-                alert('В облаке нет сохранённого прогресса');
-            }
-        } catch (e) {
-            console.error('Error loading from Firebase:', e);
-            alert('❌ Ошибка загрузки из облака');
         }
     }
 
