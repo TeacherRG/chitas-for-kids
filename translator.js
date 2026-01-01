@@ -34,10 +34,8 @@ class ChitasTranslator {
     }
 
     init() {
-        // Применяем сохранённый язык
-        if (this.currentLang !== 'ru') {
-            this.translatePage(this.currentLang);
-        }
+        // НЕ переводим автоматически - ждём действия пользователя
+        console.log('ChitasTranslator initialized, current language:', this.currentLang);
     }
 
     // Загрузка кэша из localStorage
@@ -82,10 +80,6 @@ class ChitasTranslator {
             // 2. Переводим текущий контент урока
             await this.translateCurrentLesson(targetLang);
 
-            // 3. Сохраняем выбранный язык
-            this.currentLang = targetLang;
-            localStorage.setItem('chitas_language', targetLang);
-
             this.showSuccess(`Переведено на ${this.languages[targetLang].name}`);
         } catch (error) {
             console.error('Ошибка перевода:', error);
@@ -98,6 +92,8 @@ class ChitasTranslator {
 
     // Сброс на русский (оригинал)
     resetToRussian() {
+        this.currentLang = 'ru';
+        localStorage.setItem('chitas_language', 'ru');
         location.reload(); // Перезагружаем страницу для возврата к оригиналу
     }
 
@@ -125,6 +121,7 @@ class ChitasTranslator {
     async translateCurrentLesson(targetLang) {
         // Проверяем, есть ли загруженный урок
         if (!window.chitasApp || !window.chitasApp.contentData) {
+            console.log('Данные ещё не загружены, перевод будет выполнен при открытии секции');
             return;
         }
 
@@ -133,11 +130,21 @@ class ChitasTranslator {
         // Переводим содержимое секций
         if (app.contentData && app.contentData.sections) {
             for (const section of app.contentData.sections) {
+                // Переводим заголовок секции
                 if (section.title) {
                     section.title = await this.translateText(section.title, targetLang, 'lesson');
                 }
-                if (section.content) {
-                    section.content = await this.translateText(section.content, targetLang, 'lesson');
+
+                // Переводим параграфы внутри секции
+                if (section.content && section.content.paragraphs) {
+                    for (const para of section.content.paragraphs) {
+                        if (para.title) {
+                            para.title = await this.translateText(para.title, targetLang, 'lesson');
+                        }
+                        if (para.text) {
+                            para.text = await this.translateText(para.text, targetLang, 'lesson');
+                        }
+                    }
                 }
             }
         }
@@ -365,13 +372,19 @@ ${textToTranslate}`;
 
         // Добавляем обработчики
         switcher.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const lang = btn.dataset.lang;
-                this.translatePage(lang);
 
-                // Обновляем активную кнопку
+                // Обновляем активную кнопку сразу
                 switcher.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+
+                // Сохраняем язык
+                this.currentLang = lang;
+                localStorage.setItem('chitas_language', lang);
+
+                // Переводим
+                await this.translatePage(lang);
             });
 
             // Отмечаем текущий язык
