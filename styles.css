@@ -977,6 +977,210 @@ body {
 }
 
 /* ============================================
+   STREAK CARD (Огонёк) - КРИТИЧНО
+   ============================================ */
+.streak-card {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    color: white;
+}
+
+.streak-card h2 {
+    color: white;
+    margin-bottom: var(--space-md);
+}
+
+.streak-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    padding: var(--space-lg) 0;
+}
+
+.streak-flame {
+    font-size: 80px;
+    animation: flameFlicker 2s infinite;
+}
+
+@keyframes flameFlicker {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.1) rotate(5deg); opacity: 0.9; }
+}
+
+.streak-counter {
+    text-align: center;
+}
+
+.streak-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+}
+
+.streak-label {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: var(--space-xs);
+}
+
+/* ============================================
+   LEVEL CARD (Уровни)
+   ============================================ */
+.level-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.level-card h2 {
+    color: white;
+    margin-bottom: var(--space-md);
+}
+
+.level-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.level-icon {
+    font-size: 64px;
+}
+
+.level-info {
+    flex: 1;
+}
+
+.level-name {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: var(--space-xs);
+}
+
+.level-progress-text {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.level-description {
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   WEEKLY BADGES (Значки за недели)
+   ============================================ */
+.weekly-badges h2 {
+    color: var(--color-text-dark);
+    margin-bottom: var(--space-md);
+}
+
+.weekly-badge-count {
+    font-size: 18px;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.weekly-badge-count span {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.weekly-badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-md);
+}
+
+.weekly-badge-item {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    padding: var(--space-md);
+    border-radius: var(--radius);
+    text-align: center;
+    color: white;
+    transition: transform var(--transition-fast);
+}
+
+.weekly-badge-item:hover {
+    transform: translateY(-5px);
+}
+
+.week-number {
+    font-size: 14px;
+    margin-bottom: var(--space-sm);
+    opacity: 0.9;
+}
+
+.week-badges {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+
+.badge-icon {
+    font-size: 28px;
+}
+
+.no-badges {
+    text-align: center;
+    color: var(--color-text-light);
+    padding: var(--space-lg);
+}
+
+/* ============================================
+   SHARE PROGRESS (Поделиться)
+   ============================================ */
+.share-progress h2 {
+    color: var(--color-text-dark);
+    margin-bottom: var(--space-md);
+}
+
+.share-buttons {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.share-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.share-btn.whatsapp {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+}
+
+.share-btn.telegram {
+    background: linear-gradient(135deg, #0088cc 0%, #005580 100%);
+    color: white;
+}
+
+.share-icon {
+    font-size: 24px;
+}
+
+/* ============================================
    SETTINGS VIEW
    ============================================ */
 .setting-item {

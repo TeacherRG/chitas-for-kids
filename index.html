@@ -66,6 +66,33 @@
                 <div id="authContainer"></div>
             </div>
 
+            <!-- Стрик (Огонёк) - КРИТИЧНО -->
+            <div class="card streak-card">
+                <h2>🔥 Твой стрик</h2>
+                <div class="streak-display">
+                    <div class="streak-flame" id="streakIcon">🔥</div>
+                    <div class="streak-counter">
+                        <div class="streak-value" id="currentStreak">0</div>
+                        <div class="streak-label">дней подряд</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Уровень пользователя -->
+            <div class="card level-card">
+                <h2>📚 Твой уровень</h2>
+                <div class="level-display">
+                    <div class="level-icon" id="levelIcon">📚</div>
+                    <div class="level-info">
+                        <div class="level-name" id="userLevel">Талмид</div>
+                        <div class="level-progress-text" id="levelProgress">0/7</div>
+                    </div>
+                </div>
+                <div class="level-description">
+                    Талмид → Бакки → Ламдан → Рав → Гаон
+                </div>
+            </div>
+
             <div class="card profile-header">
                 <h2>👤 Мой профиль</h2>
                 <div class="profile-stats">
@@ -79,44 +106,77 @@
                     </div>
                     <div class="profile-stat">
                         <div class="value" id="totalDays">0</div>
-                        <div class="label">📅 Дней подряд</div>
+                        <div class="label">📅 Всего дней</div>
                     </div>
                 </div>
             </div>
 
+            <!-- Достижения - 5 уровней -->
             <div class="card achievements">
                 <h2>🎯 Достижения</h2>
                 <div class="achievement-item">
                     <div class="achievement-icon">🥇</div>
                     <div class="achievement-info">
-                        <h3>Первая неделя</h3>
-                        <p>Изучай 7 дней подряд</p>
+                        <h3>Талмид</h3>
+                        <p>7 дней подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement1">🔒</div>
                 </div>
                 <div class="achievement-item">
                     <div class="achievement-icon">🔥</div>
                     <div class="achievement-info">
-                        <h3>В огне</h3>
+                        <h3>Бакки</h3>
                         <p>14 дней подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement2">🔒</div>
                 </div>
                 <div class="achievement-item">
-                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-icon">🎓</div>
                     <div class="achievement-info">
-                        <h3>Звёздный</h3>
-                        <p>Собери 30 звёзд</p>
+                        <h3>Ламдан</h3>
+                        <p>21 день подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement3">🔒</div>
                 </div>
                 <div class="achievement-item">
-                    <div class="achievement-icon">🏆</div>
+                    <div class="achievement-icon">👨‍🏫</div>
                     <div class="achievement-info">
-                        <h3>Чемпион</h3>
-                        <p>500 баллов</p>
+                        <h3>Рав</h3>
+                        <p>30 дней подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement4">🔒</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-info">
+                        <h3>Гаон</h3>
+                        <p>50 дней подряд</p>
+                    </div>
+                    <div class="achievement-status" id="achievement5">🔒</div>
+                </div>
+            </div>
+
+            <!-- Значки за недели -->
+            <div class="card weekly-badges">
+                <h2>🏅 Значки за недели</h2>
+                <div class="weekly-badge-count">
+                    <span id="weeklyBadgesCount">0</span> недель завершено
+                </div>
+                <div id="weeklyBadgesContainer"></div>
+            </div>
+
+            <!-- Поделиться успехами -->
+            <div class="card share-progress">
+                <h2>📤 Поделиться успехами</h2>
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" id="shareWhatsAppBtn">
+                        <span class="share-icon">💬</span>
+                        WhatsApp
+                    </button>
+                    <button class="share-btn telegram" id="shareTelegramBtn">
+                        <span class="share-icon">✈️</span>
+                        Telegram
+                    </button>
                 </div>
             </div>
         </div>
@@ -144,6 +204,18 @@
                     <p>Режим для вечера</p>
                 </div>
                 <div class="toggle-switch" id="darkModeToggle"></div>
+            </div>
+            <div class="card setting-item" id="syncProgressBtn">
+                <div class="setting-info">
+                    <h3>☁️ Синхронизация</h3>
+                    <p>Сохранить прогресс в облако</p>
+                </div>
+            </div>
+            <div class="card setting-item" id="loadProgressBtn">
+                <div class="setting-info">
+                    <h3>📥 Загрузить из облака</h3>
+                    <p>Восстановить прогресс</p>
+                </div>
             </div>
             <div class="card setting-item" id="resetBtn">
                 <div class="setting-info">
@@ -241,6 +313,9 @@
     <script src="games/match.js"></script>
     <script src="games/reflection.js"></script>
     <script src="games/wheel.js"></script>
+
+    <!-- Achievements Manager -->
+    <script src="achievements-manager.js"></script>
 
     <!-- Main App -->
     <script src="app.js"></script>

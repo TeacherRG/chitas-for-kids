@@ -60,6 +60,10 @@ class ChitasApp {
         this.speechSynthesis = window.speechSynthesis;
         this.gameInstances = new Map(); // Use Map instead of object for better key management
         this.gameFactory = new GameFactory();
+
+        // Инициализируем менеджер достижений
+        this.achievementsManager = new AchievementsManager(this);
+
         this.init();
     }
 
@@ -77,6 +81,14 @@ class ChitasApp {
         this.addClickHandler('speakBtn', () => this.speakContent());
         this.addClickHandler('resetBtn', () => this.resetProgress());
         this.addClickHandler('printBtn', () => this.printPage());
+
+        // Новые обработчики для функции "Поделиться"
+        this.addClickHandler('shareWhatsAppBtn', () => this.achievementsManager.shareProgress('whatsapp'));
+        this.addClickHandler('shareTelegramBtn', () => this.achievementsManager.shareProgress('telegram'));
+
+        // Обработчики для синхронизации с Firebase
+        this.addClickHandler('syncProgressBtn', () => this.achievementsManager.syncToFirebase());
+        this.addClickHandler('loadProgressBtn', () => this.achievementsManager.loadFromFirebase());
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -193,7 +205,7 @@ class ChitasApp {
         this.renderMazelTov();
         this.renderTiles();
         this.updateProgress();
-        this.updateAchievements();
+        this.achievementsManager.updateAchievements();
     }
 
     updateDateDisplay() {
@@ -456,7 +468,7 @@ class ChitasApp {
 
     addScore(points, sectionId) {
         const dateKey = this.currentDate;
-        
+
         if (!this.state.completed[dateKey]) {
             this.state.completed[dateKey] = {};
         }
@@ -465,10 +477,10 @@ class ChitasApp {
             this.state.score += points;
             this.state.stars += 1;
             this.state.completed[dateKey][sectionId] = true;
-            
+
             this.saveProgress();
             this.updateProgress();
-            this.updateAchievements();
+            this.achievementsManager.updateAchievements();
             this.renderTiles();
         }
     }
@@ -482,25 +494,12 @@ class ChitasApp {
         this.setTextContent('scoreValue', this.state.score);
         this.setTextContent('starsValue', this.state.stars);
         this.setTextContent('completedValue', `${completedCount}/${totalSections}`);
-        
+
         const progressBar = document.getElementById('progressBar');
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
             progressBar.textContent = `${percentage}%`;
         }
-    }
-
-    updateAchievements() {
-        const totalDays = Object.keys(this.state.completed).length;
-        
-        this.setTextContent('totalScore', this.state.score);
-        this.setTextContent('totalStars', this.state.stars);
-        this.setTextContent('totalDays', totalDays);
-
-        this.setTextContent('achievement1', totalDays >= 7 ? '✅' : '🔒');
-        this.setTextContent('achievement2', totalDays >= 14 ? '✅' : '🔒');
-        this.setTextContent('achievement3', this.state.stars >= 30 ? '✅' : '🔒');
-        this.setTextContent('achievement4', this.state.score >= 500 ? '✅' : '🔒');
     }
 
     switchView(viewId) {
@@ -573,7 +572,7 @@ class ChitasApp {
             this.saveProgress();
             this.applySettings();
             this.updateProgress();
-            this.updateAchievements();
+            this.achievementsManager.updateAchievements();
             this.renderTiles();
             alert('✅ Прогресс сброшен!');
         }
@@ -627,6 +626,10 @@ class ChitasApp {
     saveProgress() {
         try {
             localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.state));
+            // Автоматическая синхронизация с Firebase (если пользователь авторизован)
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                this.achievementsManager.syncToFirebase(true); // silent mode
+            }
         } catch (e) {
             console.error('Error saving progress:', e);
         }
