@@ -65,13 +65,7 @@ class ChitasApp {
 
     async init() {
         this.setupEventListeners();
-        this.setupLanguageSelector();
         this.applySettings();
-
-        // Initialize language first (UI translation happens in background)
-        await this.initLanguage();
-
-        // Load data after language is set
         this.loadData();
     }
 
@@ -107,115 +101,6 @@ class ChitasApp {
     addClickHandler(elementId, handler) {
         const element = document.getElementById(elementId);
         if (element) element.addEventListener('click', handler);
-    }
-
-    setupLanguageSelector() {
-        const langBtn = document.getElementById('currentLangBtn');
-        const langSelector = document.getElementById('languageSelector');
-        const langOptions = document.querySelectorAll('.lang-option');
-
-        if (langBtn) {
-            langBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                langSelector.classList.toggle('active');
-            });
-        }
-
-        langOptions.forEach(option => {
-            option.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const lang = option.dataset.lang;
-                await this.changeLanguage(lang);
-                langSelector.classList.remove('active');
-            });
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-            langSelector.classList.remove('active');
-        });
-
-        // Update current language display
-        this.updateLanguageDisplay();
-    }
-
-    updateLanguageDisplay() {
-        const currentLang = window.i18n.getCurrentLanguage();
-        const langBtn = document.getElementById('currentLangBtn');
-        const langOptions = document.querySelectorAll('.lang-option');
-
-        if (langBtn && window.i18n.LANGUAGES[currentLang]) {
-            langBtn.textContent = window.i18n.LANGUAGES[currentLang].flag;
-        }
-
-        langOptions.forEach(option => {
-            if (option.dataset.lang === currentLang) {
-                option.classList.add('active');
-            } else {
-                option.classList.remove('active');
-            }
-        });
-    }
-
-    async initLanguage() {
-        if (!window.i18n) {
-            console.warn('i18n module not loaded');
-            return;
-        }
-
-        const currentLang = window.i18n.getCurrentLanguage();
-        window.i18n.setLanguage(currentLang);
-        this.updateLanguageDisplay();
-
-        // Translate static UI elements (in background for non-Russian)
-        if (currentLang !== 'ru') {
-            this.translateUI(); // Don't await - let it run in background
-        }
-    }
-
-    async changeLanguage(lang) {
-        if (!window.i18n) return;
-
-        window.i18n.setLanguage(lang);
-        this.updateLanguageDisplay();
-
-        // Translate UI
-        await this.translateUI();
-
-        // Reload data to translate content
-        if (this.contentData && this.gamesData) {
-            await this.loadData();
-        }
-    }
-
-    async translateUI() {
-        if (!window.i18n) return;
-
-        const lang = window.i18n.getCurrentLanguage();
-
-        // For Russian, no translation needed - just save originals
-        if (lang === 'ru') {
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(element => {
-                if (!element.getAttribute('data-i18n-original')) {
-                    element.setAttribute('data-i18n-original', element.textContent);
-                }
-            });
-            return;
-        }
-
-        const elements = document.querySelectorAll('[data-i18n]');
-
-        for (const element of elements) {
-            const originalText = element.getAttribute('data-i18n-original') || element.textContent;
-
-            // Save original if not saved
-            if (!element.getAttribute('data-i18n-original')) {
-                element.setAttribute('data-i18n-original', originalText);
-            }
-
-            await window.i18n.translateElement(element, originalText);
-        }
     }
 
     getTodayDate() {
@@ -268,8 +153,7 @@ class ChitasApp {
 
             if (!dateEntry) {
                 console.warn('Date not found in index');
-                const errorMsg = await this.translateText('Нет данных для этой даты');
-                this.showError(errorMsg);
+                this.showError('Нет данных для этой даты');
                 return;
             }
 
@@ -282,9 +166,6 @@ class ChitasApp {
                 this.contentData = await contentResponse.json();
                 this.gamesData = await gamesResponse.json();
 
-                // Translate content and games data
-                await this.translateContentData();
-
                 this.mergeData();
                 this.renderPage();
             } else {
@@ -292,109 +173,8 @@ class ChitasApp {
             }
         } catch (error) {
             console.error('Error loading data:', error);
-            const errorMsg = await this.translateText('Ошибка загрузки данных');
-            this.showError(errorMsg);
+            this.showError('Ошибка загрузки данных');
         }
-    }
-
-    async translateText(text) {
-        if (!window.i18n) return text;
-        const lang = window.i18n.getCurrentLanguage();
-        return await window.i18n.translateWithGemini(text, lang);
-    }
-
-    async translateContentData() {
-        if (!window.i18n) return;
-
-        const lang = window.i18n.getCurrentLanguage();
-        if (lang === 'ru') return; // No translation needed
-
-        // Translate content sections
-        if (this.contentData && this.contentData.sections) {
-            for (const section of this.contentData.sections) {
-                if (section.title) {
-                    section.title = await window.i18n.translateWithGemini(section.title, lang);
-                }
-                if (section.content) {
-                    section.content = await window.i18n.translateWithGemini(section.content, lang);
-                }
-                if (section.dedication) {
-                    section.dedication = await window.i18n.translateWithGemini(section.dedication, lang);
-                }
-            }
-        }
-
-        // Translate dedication
-        if (this.contentData && this.contentData.dedication) {
-            this.contentData.dedication = await window.i18n.translateWithGemini(this.contentData.dedication, lang);
-        }
-
-        // Translate games data
-        if (this.gamesData && this.gamesData.games) {
-            for (const sectionKey in this.gamesData.games) {
-                const games = this.gamesData.games[sectionKey];
-                for (const game of games) {
-                    await this.translateGameData(game, lang);
-                }
-            }
-        }
-    }
-
-    async translateGameData(game, lang) {
-        if (!game || lang === 'ru') return game;
-
-        // Translate common fields
-        if (game.title) {
-            game.title = await window.i18n.translateWithGemini(game.title, lang);
-        }
-        if (game.question) {
-            game.question = await window.i18n.translateWithGemini(game.question, lang);
-        }
-        if (game.explanation) {
-            game.explanation = await window.i18n.translateWithGemini(game.explanation, lang);
-        }
-        if (game.instruction) {
-            game.instruction = await window.i18n.translateWithGemini(game.instruction, lang);
-        }
-        if (game.prompt) {
-            game.prompt = await window.i18n.translateWithGemini(game.prompt, lang);
-        }
-
-        // Translate quiz options
-        if (game.options && Array.isArray(game.options)) {
-            game.options = await Promise.all(
-                game.options.map(opt => window.i18n.translateWithGemini(opt, lang))
-            );
-        }
-
-        // Translate true/false questions
-        if (game.questions && Array.isArray(game.questions)) {
-            for (const q of game.questions) {
-                if (q.statement) {
-                    q.statement = await window.i18n.translateWithGemini(q.statement, lang);
-                }
-                if (q.explanation) {
-                    q.explanation = await window.i18n.translateWithGemini(q.explanation, lang);
-                }
-                if (q.text) {
-                    q.text = await window.i18n.translateWithGemini(q.text, lang);
-                }
-            }
-        }
-
-        // Translate match pairs (keep Hebrew in parentheses)
-        if (game.pairs && Array.isArray(game.pairs)) {
-            for (const pair of game.pairs) {
-                if (pair.left) {
-                    pair.left = await window.i18n.translateWithGemini(pair.left, lang);
-                }
-                if (pair.right) {
-                    pair.right = await window.i18n.translateWithGemini(pair.right, lang);
-                }
-            }
-        }
-
-        return game;
     }
 
     mergeData() {
@@ -866,10 +646,9 @@ class ChitasApp {
     }
 }
 
-let app;
-
+// Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
-    app = new ChitasApp();
+    window.chitasApp = new ChitasApp();
 });
 
 if (typeof module !== 'undefined' && module.exports) {
