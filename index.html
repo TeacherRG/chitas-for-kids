@@ -12,14 +12,24 @@
 <body>
     <header class="app-header">
         <div class="bh-corner">ב״ה</div>
-        <h1>📖 Хитас для детей</h1>
-        <p>Жить в ногу со временем!</p>
+        <div class="language-selector" id="languageSelector">
+            <div class="current-lang" id="currentLangBtn">🌐</div>
+            <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-option" data-lang="ru">🇷🇺 Русский</div>
+                <div class="lang-option" data-lang="en">🇬🇧 English</div>
+                <div class="lang-option" data-lang="uk">🇺🇦 Українська</div>
+                <div class="lang-option" data-lang="de">🇩🇪 Deutsch</div>
+                <div class="lang-option" data-lang="he">🇮🇱 עברית</div>
+            </div>
+        </div>
+        <h1 data-i18n="app-title">📖 Хитас для детей</h1>
+        <p data-i18n="app-subtitle">Жить в ногу со временем!</p>
     </header>
 
     <div class="view active" id="homeView">
         <div class="container">
             <div class="card date-card">
-                <h2 id="hebrewDate">Загрузка...</h2>
+                <h2 id="hebrewDate" data-i18n="loading">Загрузка...</h2>
                 <div class="dedication" id="dedication"></div>
             </div>
 
@@ -29,15 +39,15 @@
                 <div class="progress-stats">
                     <div class="progress-stat">
                         <div class="value" id="scoreValue">0</div>
-                        <div class="label">📊 Баллы</div>
+                        <div class="label" data-i18n="points">📊 Баллы</div>
                     </div>
                     <div class="progress-stat">
                         <div class="value" id="starsValue">0</div>
-                        <div class="label">⭐ Звёзды</div>
+                        <div class="label" data-i18n="stars">⭐ Звёзды</div>
                     </div>
                     <div class="progress-stat">
                         <div class="value" id="completedValue">0/6</div>
-                        <div class="label">✅ Пройдено</div>
+                        <div class="label" data-i18n="completed">✅ Пройдено</div>
                     </div>
                 </div>
                 <div class="progress-bar-container">
@@ -46,14 +56,14 @@
             </div>
 
             <div class="tiles-grid" id="tilesGrid">
-                <div class="loading">Загрузка данных</div>
+                <div class="loading" data-i18n="loading-data">Загрузка данных</div>
             </div>
 
             <!-- Date Navigation moved to bottom -->
             <nav class="date-navigation-bottom">
-                <button class="btn" id="prevDayBtn">◀ Пред</button>
-                <button class="btn" id="todayBtn">📅 Сегодня</button>
-                <button class="btn" id="nextDayBtn">След ▶</button>
+                <button class="btn" id="prevDayBtn" data-i18n="prev">◀ Пред</button>
+                <button class="btn" id="todayBtn" data-i18n="today">📅 Сегодня</button>
+                <button class="btn" id="nextDayBtn" data-i18n="next">След ▶</button>
             </nav>
         </div>
     </div>
@@ -61,54 +71,54 @@
     <div class="view" id="profileView">
         <div class="container">
             <div class="card profile-header">
-                <h2>👤 Мой профиль</h2>
+                <h2 data-i18n="my-profile">👤 Мой профиль</h2>
                 <div class="profile-stats">
                     <div class="profile-stat">
                         <div class="value" id="totalScore">0</div>
-                        <div class="label">🏆 Всего баллов</div>
+                        <div class="label" data-i18n="total-points">🏆 Всего баллов</div>
                     </div>
                     <div class="profile-stat">
                         <div class="value" id="totalStars">0</div>
-                        <div class="label">⭐ Всего звёзд</div>
+                        <div class="label" data-i18n="total-stars">⭐ Всего звёзд</div>
                     </div>
                     <div class="profile-stat">
                         <div class="value" id="totalDays">0</div>
-                        <div class="label">📅 Дней подряд</div>
+                        <div class="label" data-i18n="days-streak">📅 Дней подряд</div>
                     </div>
                 </div>
             </div>
 
             <div class="card achievements">
-                <h2>🎯 Достижения</h2>
+                <h2 data-i18n="achievements">🎯 Достижения</h2>
                 <div class="achievement-item">
                     <div class="achievement-icon">🥇</div>
                     <div class="achievement-info">
-                        <h3>Первая неделя</h3>
-                        <p>Изучай 7 дней подряд</p>
+                        <h3 data-i18n="first-week">Первая неделя</h3>
+                        <p data-i18n="study-7-days">Изучай 7 дней подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement1">🔒</div>
                 </div>
                 <div class="achievement-item">
                     <div class="achievement-icon">🔥</div>
                     <div class="achievement-info">
-                        <h3>В огне</h3>
-                        <p>14 дней подряд</p>
+                        <h3 data-i18n="on-fire">В огне</h3>
+                        <p data-i18n="study-14-days">14 дней подряд</p>
                     </div>
                     <div class="achievement-status" id="achievement2">🔒</div>
                 </div>
                 <div class="achievement-item">
                     <div class="achievement-icon">⭐</div>
                     <div class="achievement-info">
-                        <h3>Звёздный</h3>
-                        <p>Собери 30 звёзд</p>
+                        <h3 data-i18n="starry">Звёздный</h3>
+                        <p data-i18n="collect-30-stars">Собери 30 звёзд</p>
                     </div>
                     <div class="achievement-status" id="achievement3">🔒</div>
                 </div>
                 <div class="achievement-item">
                     <div class="achievement-icon">🏆</div>
                     <div class="achievement-info">
-                        <h3>Чемпион</h3>
-                        <p>500 баллов</p>
+                        <h3 data-i18n="champion">Чемпион</h3>
+                        <p data-i18n="earn-500-points">500 баллов</p>
                     </div>
                     <div class="achievement-status" id="achievement4">🔒</div>
                 </div>
@@ -120,29 +130,29 @@
         <div class="container">
             <div class="card setting-item" data-setting="sound">
                 <div class="setting-info">
-                    <h3>🔊 Звук</h3>
-                    <p>Звуковые эффекты</p>
+                    <h3 data-i18n="sound">🔊 Звук</h3>
+                    <p data-i18n="sound-effects">Звуковые эффекты</p>
                 </div>
                 <div class="toggle-switch active" id="soundToggle"></div>
             </div>
             <div class="card setting-item" data-setting="animations">
                 <div class="setting-info">
-                    <h3>✨ Анимации</h3>
-                    <p>Плавные переходы</p>
+                    <h3 data-i18n="animations">✨ Анимации</h3>
+                    <p data-i18n="smooth-transitions">Плавные переходы</p>
                 </div>
                 <div class="toggle-switch active" id="animationsToggle"></div>
             </div>
             <div class="card setting-item" data-setting="darkMode">
                 <div class="setting-info">
-                    <h3>🌙 Тёмная тема</h3>
-                    <p>Режим для вечера</p>
+                    <h3 data-i18n="dark-mode">🌙 Тёмная тема</h3>
+                    <p data-i18n="evening-mode">Режим для вечера</p>
                 </div>
                 <div class="toggle-switch" id="darkModeToggle"></div>
             </div>
             <div class="card setting-item" id="resetBtn">
                 <div class="setting-info">
-                    <h3>🗑️ Сбросить прогресс</h3>
-                    <p>Начать заново</p>
+                    <h3 data-i18n="reset-progress">🗑️ Сбросить прогресс</h3>
+                    <p data-i18n="start-over">Начать заново</p>
                 </div>
             </div>
         </div>
@@ -150,7 +160,7 @@
 
     <div class="section-view" id="sectionView">
         <div class="section-header">
-            <button class="btn" id="closeSectionBtn">← Назад</button>
+            <button class="btn" id="closeSectionBtn" data-i18n="back">← Назад</button>
             <h2 id="sectionTitle">Раздел</h2>
             <button class="btn" id="speakBtn">🔊</button>
         </div>
@@ -160,22 +170,23 @@
     <nav class="bottom-nav">
         <div class="nav-item active" data-view="homeView">
             <div class="nav-icon">🏠</div>
-            <div class="nav-label">Главная</div>
+            <div class="nav-label" data-i18n="home">Главная</div>
         </div>
         <div class="nav-item" data-view="profileView">
             <div class="nav-icon">👤</div>
-            <div class="nav-label">Профиль</div>
+            <div class="nav-label" data-i18n="profile">Профиль</div>
         </div>
         <div class="nav-item" id="printBtn">
             <div class="nav-icon">🖨️</div>
-            <div class="nav-label">Печать</div>
+            <div class="nav-label" data-i18n="print">Печать</div>
         </div>
         <div class="nav-item" data-view="settingsView">
             <div class="nav-icon">⚙️</div>
-            <div class="nav-label">Настройки</div>
+            <div class="nav-label" data-i18n="settings">Настройки</div>
         </div>
     </nav>
 
+    <script src="i18n.js"></script>
     <script src="games/quiz.js"></script>
     <script src="games/truefalse.js"></script>
     <script src="games/match.js"></script>
