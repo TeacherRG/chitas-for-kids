@@ -15,13 +15,32 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log('🔥 Firebase app initialized successfully');
 
-// Экспорт сервисов
-const auth = firebase.auth();
-const db = firebase.firestore();
+  // Экспорт сервисов
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-// Настройка Google провайдера
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+  // Настройка Google провайдера
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-console.log('🔥 Firebase initialized successfully');
+  // Проверка подключения к Firestore
+  db.enablePersistence({ synchronizeTabs: true })
+    .then(() => {
+      console.log('✅ Firestore persistence enabled');
+    })
+    .catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('⚠️ Persistence failed: Multiple tabs open');
+      } else if (err.code === 'unimplemented') {
+        console.warn('⚠️ Persistence not available in this browser');
+      }
+    });
+
+  console.log('🔥 Firebase initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase initialization failed:', error);
+  alert('❌ Ошибка инициализации Firebase. Проверьте консоль для деталей.');
+}
