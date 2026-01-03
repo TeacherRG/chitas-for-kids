@@ -209,8 +209,13 @@ class AchievementsManager {
             // Используем Firebase Firestore из firebase-config.js
             if (typeof db === 'undefined') {
                 console.error('Firebase Firestore not initialized');
+                if (!silent) {
+                    alert('❌ Firebase не инициализирован');
+                }
                 return;
             }
+
+            console.log('Syncing progress to Firebase for user:', userId);
 
             // Сохраняем прогресс в Firestore
             await db.collection('userProgress').doc(userId).set({
@@ -224,11 +229,25 @@ class AchievementsManager {
             if (!silent) {
                 alert('✅ Прогресс синхронизирован с облаком!');
             }
-            console.log('Progress synced to Firebase');
+            console.log('✅ Progress synced to Firebase successfully');
         } catch (e) {
-            console.error('Error syncing to Firebase:', e);
+            console.error('❌ Error syncing to Firebase:', e);
+            console.error('Error code:', e.code);
+            console.error('Error message:', e.message);
+
             if (!silent) {
-                alert('❌ Ошибка синхронизации с облаком');
+                let errorMessage = '❌ Ошибка синхронизации с облаком';
+
+                // Детальные сообщения об ошибках
+                if (e.code === 'permission-denied') {
+                    errorMessage = '❌ Нет прав доступа к базе данных.\n\nНеобходимо настроить правила безопасности в Firebase Console:\n1. Откройте Firebase Console\n2. Firestore Database → Rules\n3. Установите правила доступа';
+                } else if (e.code === 'unavailable') {
+                    errorMessage = '❌ Нет подключения к интернету';
+                } else if (e.message) {
+                    errorMessage += '\n\n' + e.message;
+                }
+
+                alert(errorMessage);
             }
         }
     }
@@ -248,8 +267,11 @@ class AchievementsManager {
 
             if (typeof db === 'undefined') {
                 console.error('Firebase Firestore not initialized');
+                alert('❌ Firebase не инициализирован');
                 return;
             }
+
+            console.log('Loading progress from Firebase for user:', userId);
 
             const doc = await db.collection('userProgress').doc(userId).get();
 
@@ -273,13 +295,28 @@ class AchievementsManager {
                 this.app.renderTiles();
 
                 alert('✅ Прогресс загружен из облака!');
-                console.log('Progress loaded from Firebase');
+                console.log('✅ Progress loaded from Firebase successfully');
             } else {
                 alert('В облаке нет сохранённого прогресса');
+                console.log('No saved progress found in Firebase');
             }
         } catch (e) {
-            console.error('Error loading from Firebase:', e);
-            alert('❌ Ошибка загрузки из облака');
+            console.error('❌ Error loading from Firebase:', e);
+            console.error('Error code:', e.code);
+            console.error('Error message:', e.message);
+
+            let errorMessage = '❌ Ошибка загрузки из облака';
+
+            // Детальные сообщения об ошибках
+            if (e.code === 'permission-denied') {
+                errorMessage = '❌ Нет прав доступа к базе данных.\n\nНеобходимо настроить правила безопасности в Firebase Console:\n1. Откройте Firebase Console\n2. Firestore Database → Rules\n3. Установите правила доступа';
+            } else if (e.code === 'unavailable') {
+                errorMessage = '❌ Нет подключения к интернету';
+            } else if (e.message) {
+                errorMessage += '\n\n' + e.message;
+            }
+
+            alert(errorMessage);
         }
     }
 }
