@@ -97,6 +97,19 @@ class ChitasApp {
         this.addClickHandler('syncProgressBtn', () => this.achievementsManager.syncToFirebase());
         this.addClickHandler('loadProgressBtn', () => this.achievementsManager.loadFromFirebase());
 
+        // Обработчики для модального окна помощи
+        this.addClickHandler('helpBtn', () => this.openHelpModal());
+        this.addClickHandler('closeHelpModal', () => this.closeHelpModal());
+        this.addClickHandler('helpBackBtn', () => this.showHelpMenu());
+
+        // Обработчики для пунктов меню помощи
+        document.querySelectorAll('.help-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                if (section) this.showHelpSection(section);
+            });
+        });
+
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 if (item.dataset.view) {
@@ -741,6 +754,64 @@ class ChitasApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Открывает модальное окно помощи
+     */
+    openHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.showHelpMenu();
+        }
+    }
+
+    /**
+     * Закрывает модальное окно помощи
+     */
+    closeHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'none';
+            this.showHelpMenu();
+        }
+    }
+
+    /**
+     * Показывает главное меню помощи
+     */
+    showHelpMenu() {
+        const menu = document.querySelector('.help-menu');
+        const content = document.getElementById('helpContent');
+
+        if (menu) menu.style.display = 'flex';
+        if (content) content.style.display = 'none';
+
+        // Скрываем все секции
+        document.querySelectorAll('.help-section').forEach(section => {
+            section.style.display = 'none';
+        });
+    }
+
+    /**
+     * Показывает конкретную секцию помощи
+     */
+    showHelpSection(sectionId) {
+        const menu = document.querySelector('.help-menu');
+        const content = document.getElementById('helpContent');
+        const section = document.getElementById(`${sectionId}Section`);
+
+        if (menu) menu.style.display = 'none';
+        if (content) content.style.display = 'block';
+
+        // Скрываем все секции
+        document.querySelectorAll('.help-section').forEach(s => {
+            s.style.display = 'none';
+        });
+
+        // Показываем нужную секцию
+        if (section) section.style.display = 'block';
     }
 
     showError(message) {
