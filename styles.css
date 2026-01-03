@@ -195,6 +195,17 @@ body {
     flex-wrap: wrap;
 }
 
+/* TEMPORARY: Styles for disabled navigation buttons */
+.date-navigation .btn:disabled,
+.date-navigation .btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}
+
 /* ============================================
    MAZEL TOV SECTION
    ============================================ */
@@ -2102,6 +2113,98 @@ body {
     border-radius: var(--radius-sm);
     margin-bottom: var(--space-md);
     border-left: 4px solid #c62828;
+}
+
+/* Help Modal Styles */
+.help-modal-content {
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.help-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.help-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.help-menu-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.help-icon {
+    font-size: 32px;
+    min-width: 40px;
+}
+
+.help-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.help-content {
+    margin-top: var(--space-md);
+}
+
+.help-back-btn {
+    margin-bottom: var(--space-lg);
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.help-back-btn:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.help-section {
+    animation: fadeIn var(--transition-base);
+}
+
+.help-section h3 {
+    color: var(--color-primary);
+    font-size: 24px;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.help-section p {
+    margin-bottom: var(--space-md);
+    line-height: 1.6;
+    color: var(--color-text-dark);
+}
+
+.help-section ul,
+.help-section ol {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+}
+
+.help-section li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
+}
+
+.help-section strong {
+    color: var(--color-primary);
+    font-weight: 600;
 }
 
 @keyframes slideUp {

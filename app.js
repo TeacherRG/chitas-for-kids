@@ -61,6 +61,10 @@ class ChitasApp {
         this.gameInstances = new Map(); // Use Map instead of object for better key management
         this.gameFactory = new GameFactory();
 
+        // TEMPORARY: Store available dates from index for navigation control
+        this.availableDates = null;
+        this.dateIndex = null;
+
         // Инициализируем менеджер достижений
         this.achievementsManager = new AchievementsManager(this);
 
@@ -92,6 +96,19 @@ class ChitasApp {
         // Обработчики для синхронизации с Firebase
         this.addClickHandler('syncProgressBtn', () => this.achievementsManager.syncToFirebase());
         this.addClickHandler('loadProgressBtn', () => this.achievementsManager.loadFromFirebase());
+
+        // Обработчики для модального окна помощи
+        this.addClickHandler('helpBtn', () => this.openHelpModal());
+        this.addClickHandler('closeHelpModal', () => this.closeHelpModal());
+        this.addClickHandler('helpBackBtn', () => this.showHelpMenu());
+
+        // Обработчики для пунктов меню помощи
+        document.querySelectorAll('.help-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                if (section) this.showHelpSection(section);
+            });
+        });
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -159,17 +176,103 @@ class ChitasApp {
         window.history.pushState({}, '', url);
     }
 
+    /**
+     * TEMPORARY: Check if a specific date has available data
+     */
+    isDateAvailable(dateString) {
+        if (!this.availableDates) return false;
+        return this.availableDates.includes(dateString);
+    }
+
+    /**
+     * TEMPORARY: Find the most recent available date before the given date
+     */
+    findPreviousAvailableDate(dateString) {
+        if (!this.availableDates || this.availableDates.length === 0) return null;
+
+        // Filter dates that are before or equal to the given date
+        const previousDates = this.availableDates.filter(d => d <= dateString);
+
+        // Return the most recent one (last in sorted array)
+        return previousDates.length > 0 ? previousDates[previousDates.length - 1] : null;
+    }
+
+    /**
+     * TEMPORARY: Find the next available date after the given date
+     */
+    findNextAvailableDate(dateString) {
+        if (!this.availableDates || this.availableDates.length === 0) return null;
+
+        // Filter dates that are after the given date
+        const nextDates = this.availableDates.filter(d => d > dateString);
+
+        // Return the earliest one (first in sorted array)
+        return nextDates.length > 0 ? nextDates[0] : null;
+    }
+
+    /**
+     * TEMPORARY: Update navigation buttons state based on available dates
+     */
+    updateNavigationButtons() {
+        const prevBtn = document.getElementById('prevDayBtn');
+        const nextBtn = document.getElementById('nextDayBtn');
+        const todayBtn = document.getElementById('todayBtn');
+
+        if (!prevBtn || !nextBtn || !todayBtn) return;
+
+        // Check if previous day has data
+        const prevDate = new Date(this.currentDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        const hasPrevData = this.isDateAvailable(this.formatDate(prevDate));
+
+        // Check if next day has data
+        const nextDate = new Date(this.currentDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        const hasNextData = this.isDateAvailable(this.formatDate(nextDate));
+
+        // Check if today has data
+        const today = this.formatDate(new Date());
+        const hasTodayData = this.isDateAvailable(today);
+        const isToday = this.currentDate === today;
+
+        // Update button states
+        prevBtn.disabled = !hasPrevData;
+        nextBtn.disabled = !hasNextData;
+        todayBtn.disabled = !hasTodayData || isToday;
+
+        // Add/remove visual classes for better UX
+        prevBtn.classList.toggle('disabled', !hasPrevData);
+        nextBtn.classList.toggle('disabled', !hasNextData);
+        todayBtn.classList.toggle('disabled', !hasTodayData || isToday);
+    }
+
     async loadData() {
         try {
             const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
             const index = await indexResponse.json();
 
-            const dateEntry = index.dates.find(d => d.date === this.currentDate);
+            // TEMPORARY: Store index and available dates for navigation control
+            this.dateIndex = index;
+            this.availableDates = index.dates.map(d => d.date).sort();
 
+            let dateEntry = index.dates.find(d => d.date === this.currentDate);
+
+            // TEMPORARY: If current date not found, try to find previous available date
             if (!dateEntry) {
-                console.warn('Date not found in index');
-                this.showError('Нет данных для этой даты');
-                return;
+                console.warn('Date not found in index, searching for previous available date');
+                const previousDate = this.findPreviousAvailableDate(this.currentDate);
+
+                if (previousDate) {
+                    console.log(`Using previous available date: ${previousDate}`);
+                    this.currentDate = previousDate;
+                    this.updateURL();
+                    dateEntry = index.dates.find(d => d.date === this.currentDate);
+                } else {
+                    console.warn('No previous date available');
+                    this.showError('Нет данных для этой даты');
+                    this.updateNavigationButtons();
+                    return;
+                }
             }
 
             const [contentResponse, gamesResponse] = await Promise.all([
@@ -183,6 +286,9 @@ class ChitasApp {
 
                 this.mergeData();
                 this.renderPage();
+
+                // TEMPORARY: Update navigation buttons state after loading
+                this.updateNavigationButtons();
             } else {
                 throw new Error('Failed to load data files');
             }
@@ -648,6 +754,64 @@ class ChitasApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Открывает модальное окно помощи
+     */
+    openHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.showHelpMenu();
+        }
+    }
+
+    /**
+     * Закрывает модальное окно помощи
+     */
+    closeHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'none';
+            this.showHelpMenu();
+        }
+    }
+
+    /**
+     * Показывает главное меню помощи
+     */
+    showHelpMenu() {
+        const menu = document.querySelector('.help-menu');
+        const content = document.getElementById('helpContent');
+
+        if (menu) menu.style.display = 'flex';
+        if (content) content.style.display = 'none';
+
+        // Скрываем все секции
+        document.querySelectorAll('.help-section').forEach(section => {
+            section.style.display = 'none';
+        });
+    }
+
+    /**
+     * Показывает конкретную секцию помощи
+     */
+    showHelpSection(sectionId) {
+        const menu = document.querySelector('.help-menu');
+        const content = document.getElementById('helpContent');
+        const section = document.getElementById(`${sectionId}Section`);
+
+        if (menu) menu.style.display = 'none';
+        if (content) content.style.display = 'block';
+
+        // Скрываем все секции
+        document.querySelectorAll('.help-section').forEach(s => {
+            s.style.display = 'none';
+        });
+
+        // Показываем нужную секцию
+        if (section) section.style.display = 'block';
     }
 
     showError(message) {
