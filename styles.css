@@ -195,6 +195,17 @@ body {
     flex-wrap: wrap;
 }
 
+/* TEMPORARY: Styles for disabled navigation buttons */
+.date-navigation .btn:disabled,
+.date-navigation .btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}
+
 /* ============================================
    MAZEL TOV SECTION
    ============================================ */
