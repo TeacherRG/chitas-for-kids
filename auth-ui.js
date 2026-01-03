@@ -112,10 +112,9 @@ async function handleEmailSignIn() {
   
   if (result.success) {
     closeAuthModal();
-    // Синхронизируем прогресс
-    if (window.chitasApp) {
-      await window.progressManager.syncProgress();
-      window.chitasApp.loadProgressFromManager();
+    // Загружаем прогресс из облака
+    if (window.chitasApp && window.chitasApp.achievementsManager) {
+      await window.chitasApp.achievementsManager.loadFromFirebase();
     }
   } else {
     showError(result.error);
@@ -148,8 +147,8 @@ async function handleEmailSignUp() {
   if (result.success) {
     closeAuthModal();
     // Загружаем локальный прогресс в облако
-    if (window.chitasApp) {
-      await window.progressManager.syncProgress();
+    if (window.chitasApp && window.chitasApp.achievementsManager) {
+      await window.chitasApp.achievementsManager.syncToFirebase();
     }
   } else {
     showError(result.error);
@@ -167,10 +166,9 @@ async function handleGoogleSignIn() {
   
   if (result.success) {
     closeAuthModal();
-    // Синхронизируем прогресс
-    if (window.chitasApp) {
-      await window.progressManager.syncProgress();
-      window.chitasApp.loadProgressFromManager();
+    // Загружаем прогресс из облака
+    if (window.chitasApp && window.chitasApp.achievementsManager) {
+      await window.chitasApp.achievementsManager.loadFromFirebase();
     }
   } else {
     if (result.error !== 'Окно входа было закрыто') {
@@ -220,13 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.authManager) {
     window.authManager.onAuthStateChanged((user) => {
       renderAuthUI();
-      
-      // Синхронизация при входе
-      if (user && window.chitasApp) {
-        window.progressManager.syncProgress().then(progress => {
-          if (progress) {
-            window.chitasApp.loadProgressFromManager();
-          }
+
+      // Загружаем прогресс при входе
+      if (user && window.chitasApp && window.chitasApp.achievementsManager) {
+        window.chitasApp.achievementsManager.loadFromFirebase().catch(err => {
+          console.log('Could not load progress from Firebase:', err);
         });
       }
     });
