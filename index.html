@@ -265,8 +265,8 @@
             <div id="signInForm">
                 <input type="email" id="emailInput" placeholder="Email" class="modal-input">
                 <input type="password" id="passwordInput" placeholder="Пароль" class="modal-input">
-                <button onclick="handleEmailSignIn()" class="modal-btn primary">Войти</button>
-                <button onclick="handleGoogleSignIn()" class="modal-btn google">
+                <button onclick="handleEmailSignIn(event)" class="modal-btn primary">Войти</button>
+                <button onclick="handleGoogleSignIn(event)" class="modal-btn google">
                     <span>🔐</span> Войти через Google
                 </button>
                 <div class="modal-links">
@@ -280,7 +280,7 @@
                 <input type="text" id="nameInput" placeholder="Имя" class="modal-input">
                 <input type="email" id="signUpEmail" placeholder="Email" class="modal-input">
                 <input type="password" id="signUpPassword" placeholder="Пароль (мин. 6 символов)" class="modal-input">
-                <button onclick="handleEmailSignUp()" class="modal-btn primary">Зарегистрироваться</button>
+                <button onclick="handleEmailSignUp(event)" class="modal-btn primary">Зарегистрироваться</button>
                 <div class="modal-links">
                     <a href="#" onclick="showSignInForm(); return false;">Уже есть аккаунт? Войти</a>
                 </div>
@@ -289,7 +289,7 @@
             <!-- Reset Password Form -->
             <div id="resetPasswordForm" style="display:none;">
                 <input type="email" id="resetEmail" placeholder="Email" class="modal-input">
-                <button onclick="handlePasswordReset()" class="modal-btn primary">Отправить ссылку</button>
+                <button onclick="handlePasswordReset(event)" class="modal-btn primary">Отправить ссылку</button>
                 <div class="modal-links">
                     <a href="#" onclick="showSignInForm(); return false;">Назад ко входу</a>
                 </div>

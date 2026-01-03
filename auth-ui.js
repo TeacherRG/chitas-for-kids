@@ -94,22 +94,24 @@ function hideLoading(button) {
 }
 
 // Обработчик входа через email
-async function handleEmailSignIn() {
+async function handleEmailSignIn(event) {
+  event.preventDefault();
+
   const email = document.getElementById('emailInput').value.trim();
   const password = document.getElementById('passwordInput').value;
-  
+
   if (!email || !password) {
     showError('Заполните все поля');
     return;
   }
-  
+
   const button = event.target;
   showLoading(button, 'Вход...');
-  
+
   const result = await window.authManager.signInWithEmail(email, password);
-  
+
   hideLoading(button);
-  
+
   if (result.success) {
     closeAuthModal();
     // Загружаем прогресс из облака
@@ -122,28 +124,30 @@ async function handleEmailSignIn() {
 }
 
 // Обработчик регистрации через email
-async function handleEmailSignUp() {
+async function handleEmailSignUp(event) {
+  event.preventDefault();
+
   const name = document.getElementById('nameInput').value.trim();
   const email = document.getElementById('signUpEmail').value.trim();
   const password = document.getElementById('signUpPassword').value;
-  
+
   if (!name || !email || !password) {
     showError('Заполните все поля');
     return;
   }
-  
+
   if (password.length < 6) {
     showError('Пароль должен быть не менее 6 символов');
     return;
   }
-  
+
   const button = event.target;
   showLoading(button, 'Регистрация...');
-  
+
   const result = await window.authManager.signUpWithEmail(email, password, name);
-  
+
   hideLoading(button);
-  
+
   if (result.success) {
     closeAuthModal();
     // Загружаем локальный прогресс в облако
@@ -156,14 +160,16 @@ async function handleEmailSignUp() {
 }
 
 // Обработчик входа через Google
-async function handleGoogleSignIn() {
+async function handleGoogleSignIn(event) {
+  event.preventDefault();
+
   const button = event.target;
   showLoading(button, 'Вход через Google...');
-  
+
   const result = await window.authManager.signInWithGoogle();
-  
+
   hideLoading(button);
-  
+
   if (result.success) {
     closeAuthModal();
     // Загружаем прогресс из облака
@@ -178,21 +184,23 @@ async function handleGoogleSignIn() {
 }
 
 // Обработчик сброса пароля
-async function handlePasswordReset() {
+async function handlePasswordReset(event) {
+  event.preventDefault();
+
   const email = document.getElementById('resetEmail').value.trim();
-  
+
   if (!email) {
     showError('Введите email');
     return;
   }
-  
+
   const button = event.target;
   showLoading(button, 'Отправка...');
-  
+
   const result = await window.authManager.resetPassword(email);
-  
+
   hideLoading(button);
-  
+
   if (result.success) {
     alert('Ссылка для сброса пароля отправлена на ' + email);
     showSignInForm();
