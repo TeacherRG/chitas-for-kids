@@ -104,6 +104,7 @@ class ChitasApp {
         this.addClickHandler('closeSectionBtn', () => this.closeSection());
         this.addClickHandler('speakBtn', () => this.speakContent());
         this.addClickHandler('resetBtn', () => this.resetProgress());
+        this.addClickHandler('printBtn', () => this.printPage());
 
         // Новые обработчики для функции "Поделиться"
         this.addClickHandler('shareWhatsAppBtn', () => this.achievementsManager.shareProgress('whatsapp'));
