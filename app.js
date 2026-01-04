@@ -336,6 +336,13 @@ class ChitasApp {
 
                 // Update navigation buttons state after loading
                 this.updateNavigationButtons();
+
+                // Initialize text-to-speech module
+                setTimeout(() => {
+                    if (typeof initTextToSpeech === 'function') {
+                        initTextToSpeech();
+                    }
+                }, 500);
             } else {
                 throw new Error('Failed to load data files');
             }
