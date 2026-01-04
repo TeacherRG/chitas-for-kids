@@ -15,16 +15,19 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
+// Глобальные переменные для использования в других файлах
+var auth, db, googleProvider;
+
 try {
   firebase.initializeApp(firebaseConfig);
   console.log('🔥 Firebase app initialized successfully');
 
-  // Экспорт сервисов
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  // Экспорт сервисов (глобальные переменные)
+  auth = firebase.auth();
+  db = firebase.firestore();
 
   // Настройка Google провайдера
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  googleProvider = new firebase.auth.GoogleAuthProvider();
 
   // Проверка подключения к Firestore
   db.enablePersistence({ synchronizeTabs: true })
