@@ -479,6 +479,9 @@ class ChitasApp {
         if (window.responsiveVoice && responsiveVoice.isPlaying()) {
             responsiveVoice.cancel();
         }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
         this.isPlaying = false;
         this.isPaused = false;
 
@@ -777,12 +780,33 @@ class ChitasApp {
             return;
         }
 
-        // Проверяем, доступен ли ResponsiveVoice
-        if (!window.responsiveVoice) {
-            alert('Система озвучивания загружается...');
+        // Собираем текст из параграфов
+        const text = this.currentSection.content.paragraphs
+            .filter(p => p.text)
+            .map(p => p.text)
+            .join('. ');
+
+        const cleanText = this.cleanTextForSpeech(text);
+
+        if (!cleanText) {
+            alert('Нет текста для озвучивания');
             return;
         }
 
+        // Пытаемся использовать ResponsiveVoice, если доступен
+        if (window.responsiveVoice && responsiveVoice.voiceSupport()) {
+            this.speakWithResponsiveVoice(cleanText, speakBtn);
+        }
+        // Fallback на встроенный Web Speech API
+        else if (window.speechSynthesis) {
+            this.speakWithWebSpeech(cleanText, speakBtn);
+        }
+        else {
+            alert('Озвучивание не поддерживается в вашем браузере');
+        }
+    }
+
+    speakWithResponsiveVoice(text, speakBtn) {
         // Если уже играет - пауза/возобновление
         if (this.isPlaying) {
             if (this.isPaused) {
@@ -797,48 +821,69 @@ class ChitasApp {
             return;
         }
 
-        // Собираем текст из параграфов
-        const text = this.currentSection.content.paragraphs
-            .filter(p => p.text)
-            .map(p => p.text)
-            .join('. ');
-
-        // Очищаем текст от эмодзи и специальных символов
-        const cleanText = this.cleanTextForSpeech(text);
-
-        if (!cleanText) {
-            alert('Нет текста для озвучивания');
-            return;
-        }
-
         this.isPlaying = true;
         if (speakBtn) speakBtn.innerHTML = "⏸";
 
-        // Параметры озвучивания
         const params = {
             pitch: 1.0,
             rate: 0.9,
             volume: 1.0,
             onstart: () => {
-                console.log('✅ Speech started');
+                console.log('✅ ResponsiveVoice started');
                 if (speakBtn) speakBtn.innerHTML = "⏸";
             },
             onend: () => {
-                console.log('✅ Speech ended');
+                console.log('✅ ResponsiveVoice ended');
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
             },
             onerror: (error) => {
-                console.error('❌ Speech error:', error);
+                console.error('❌ ResponsiveVoice error:', error);
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
             }
         };
 
-        // Используем Russian Female голос
-        responsiveVoice.speak(cleanText, "Russian Female", params);
+        responsiveVoice.speak(text, "Russian Female", params);
+    }
+
+    speakWithWebSpeech(text, speakBtn) {
+        // Если уже играет - останавливаем
+        if (this.isPlaying) {
+            window.speechSynthesis.cancel();
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+            return;
+        }
+
+        this.isPlaying = true;
+        if (speakBtn) speakBtn.innerHTML = "⏸";
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => {
+            console.log('✅ Web Speech started');
+            if (speakBtn) speakBtn.innerHTML = "⏸";
+        };
+
+        utterance.onend = () => {
+            console.log('✅ Web Speech ended');
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+        };
+
+        utterance.onerror = (error) => {
+            console.error('❌ Web Speech error:', error);
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+        };
+
+        window.speechSynthesis.speak(utterance);
     }
 
     printPage() {
