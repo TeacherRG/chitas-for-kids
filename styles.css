@@ -2129,32 +2129,9 @@ body {
     margin-top: var(--space-md);
 }
 
-.help-menu-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-lg);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    border-radius: var(--radius-lg);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-}
-
-.help-menu-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.help-icon {
-    font-size: 32px;
-    min-width: 40px;
-}
-
-.help-text {
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
+.help-menu .help-menu-item {
+    /* Используем стили от .card и .setting-item */
+    /* Удалены старые стили с градиентом */
 }
 
 .help-content {
