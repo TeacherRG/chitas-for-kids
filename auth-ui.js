@@ -114,9 +114,9 @@ async function handleEmailSignIn(event) {
 
   if (result.success) {
     closeAuthModal();
-    // Загружаем прогресс из облака
+    // Загружаем прогресс из облака (тихо, без сообщений для новых пользователей)
     if (window.chitasApp && window.chitasApp.achievementsManager) {
-      await window.chitasApp.achievementsManager.loadFromFirebase();
+      await window.chitasApp.achievementsManager.loadFromFirebase(true);
     }
   } else {
     showError(result.error);
@@ -172,9 +172,9 @@ async function handleGoogleSignIn(event) {
 
   if (result.success) {
     closeAuthModal();
-    // Загружаем прогресс из облака
+    // Загружаем прогресс из облака (тихо, без сообщений для новых пользователей)
     if (window.chitasApp && window.chitasApp.achievementsManager) {
-      await window.chitasApp.achievementsManager.loadFromFirebase();
+      await window.chitasApp.achievementsManager.loadFromFirebase(true);
     }
   } else {
     if (result.error !== 'Окно входа было закрыто') {
@@ -227,9 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.authManager.onAuthStateChanged((user) => {
       renderAuthUI();
 
-      // Загружаем прогресс при входе
+      // Загружаем прогресс при входе (тихо, без сообщений)
       if (user && window.chitasApp && window.chitasApp.achievementsManager) {
-        window.chitasApp.achievementsManager.loadFromFirebase().catch(err => {
+        window.chitasApp.achievementsManager.loadFromFirebase(true).catch(err => {
           console.log('Could not load progress from Firebase:', err);
         });
       }

@@ -255,9 +255,11 @@ class AchievementsManager {
     /**
      * Загрузка прогресса из Firebase Firestore
      */
-    async loadFromFirebase() {
+    async loadFromFirebase(silent = false) {
         if (!window.authManager || !window.authManager.getCurrentUser()) {
-            alert('Войдите в систему, чтобы загрузить прогресс');
+            if (!silent) {
+                alert('Войдите в систему, чтобы загрузить прогресс');
+            }
             return;
         }
 
@@ -294,11 +296,16 @@ class AchievementsManager {
                 this.updateAchievements();
                 this.app.renderTiles();
 
-                alert('✅ Прогресс загружен из облака!');
+                if (!silent) {
+                    alert('✅ Прогресс загружен из облака!');
+                }
                 console.log('✅ Progress loaded from Firebase successfully');
             } else {
-                alert('В облаке нет сохранённого прогресса');
-                console.log('No saved progress found in Firebase');
+                // Нет сохранённого прогресса - это нормально для новых пользователей
+                if (!silent) {
+                    alert('ℹ️ В облаке нет сохранённого прогресса');
+                }
+                console.log('ℹ️ No saved progress found in Firebase (new user)');
             }
         } catch (e) {
             console.error('❌ Error loading from Firebase:', e);
