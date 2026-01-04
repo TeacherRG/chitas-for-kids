@@ -459,11 +459,8 @@ class ChitasApp {
 
         await this.renderSectionContent(section);
 
-        // Проверяем доступность ResponsiveVoice
-        console.log('ResponsiveVoice available:', typeof responsiveVoice !== 'undefined');
-        if (window.responsiveVoice) {
-            console.log('ResponsiveVoice voices:', responsiveVoice.getVoices());
-        }
+        // Обновляем иконку кнопки озвучки в зависимости от доступности RV
+        this.updateSpeakButtonStatus();
 
         window.scrollTo(0, 0);
     }
@@ -478,6 +475,9 @@ class ChitasApp {
         // Останавливаем озвучивание
         if (window.responsiveVoice && responsiveVoice.isPlaying()) {
             responsiveVoice.cancel();
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
         }
         this.isPlaying = false;
         this.isPaused = false;
@@ -777,33 +777,12 @@ class ChitasApp {
             return;
         }
 
-        // Проверяем, доступен ли ResponsiveVoice
-        if (!window.responsiveVoice) {
-            alert('Система озвучивания загружается...');
-            return;
-        }
-
-        // Если уже играет - пауза/возобновление
-        if (this.isPlaying) {
-            if (this.isPaused) {
-                responsiveVoice.resume();
-                this.isPaused = false;
-                if (speakBtn) speakBtn.innerHTML = "⏸";
-            } else {
-                responsiveVoice.pause();
-                this.isPaused = true;
-                if (speakBtn) speakBtn.innerHTML = "▶";
-            }
-            return;
-        }
-
         // Собираем текст из параграфов
         const text = this.currentSection.content.paragraphs
             .filter(p => p.text)
             .map(p => p.text)
             .join('. ');
 
-        // Очищаем текст от эмодзи и специальных символов
         const cleanText = this.cleanTextForSpeech(text);
 
         if (!cleanText) {
@@ -811,34 +790,142 @@ class ChitasApp {
             return;
         }
 
+        // Пытаемся использовать ResponsiveVoice, если доступен
+        if (window.responsiveVoice && responsiveVoice.voiceSupport()) {
+            this.speakWithResponsiveVoice(cleanText, speakBtn);
+        }
+        // Fallback на встроенный Web Speech API
+        else if (window.speechSynthesis) {
+            this.speakWithWebSpeech(cleanText, speakBtn);
+        }
+        else {
+            alert('Озвучивание не поддерживается в вашем браузере');
+        }
+    }
+
+    speakWithResponsiveVoice(text, speakBtn) {
+        console.log('🎤 Attempting to use ResponsiveVoice');
+        console.log('📊 Text length:', text.length);
+
+        // Если уже играет - пауза/возобновление
+        if (this.isPlaying) {
+            if (this.isPaused) {
+                responsiveVoice.resume();
+                this.isPaused = false;
+                if (speakBtn) speakBtn.innerHTML = "⏸";
+                console.log('▶️ Resumed');
+            } else {
+                responsiveVoice.pause();
+                this.isPaused = true;
+                if (speakBtn) speakBtn.innerHTML = "▶";
+                console.log('⏸ Paused');
+            }
+            return;
+        }
+
+        // Проверяем доступные голоса
+        const voices = responsiveVoice.getVoices();
+        const russianVoice = voices.find(v => v.name === "Russian Female");
+
+        if (!russianVoice) {
+            console.warn('⚠️ Russian Female voice not found, available voices:', voices.map(v => v.name));
+        } else {
+            console.log('✅ Using voice:', russianVoice.name);
+        }
+
         this.isPlaying = true;
         if (speakBtn) speakBtn.innerHTML = "⏸";
 
-        // Параметры озвучивания
         const params = {
             pitch: 1.0,
             rate: 0.9,
             volume: 1.0,
             onstart: () => {
-                console.log('✅ Speech started');
+                console.log('✅ ResponsiveVoice speech started');
                 if (speakBtn) speakBtn.innerHTML = "⏸";
             },
             onend: () => {
-                console.log('✅ Speech ended');
+                console.log('✅ ResponsiveVoice speech completed');
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
             },
             onerror: (error) => {
-                console.error('❌ Speech error:', error);
+                console.error('❌ ResponsiveVoice error:', error);
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
+
+                // Fallback на Web Speech API при ошибке
+                console.log('↩️ Falling back to Web Speech API');
+                this.speakWithWebSpeech(text, speakBtn);
             }
         };
 
-        // Используем Russian Female голос
-        responsiveVoice.speak(cleanText, "Russian Female", params);
+        console.log('🔊 Starting speech with ResponsiveVoice...');
+        try {
+            responsiveVoice.speak(text, "Russian Female", params);
+        } catch (error) {
+            console.error('❌ Exception when calling responsiveVoice.speak:', error);
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+            // Fallback
+            this.speakWithWebSpeech(text, speakBtn);
+        }
+    }
+
+    speakWithWebSpeech(text, speakBtn) {
+        // Если уже играет - останавливаем
+        if (this.isPlaying) {
+            window.speechSynthesis.cancel();
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+            return;
+        }
+
+        this.isPlaying = true;
+        if (speakBtn) speakBtn.innerHTML = "⏸";
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => {
+            console.log('✅ Web Speech started');
+            if (speakBtn) speakBtn.innerHTML = "⏸";
+        };
+
+        utterance.onend = () => {
+            console.log('✅ Web Speech ended');
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+        };
+
+        utterance.onerror = (error) => {
+            console.error('❌ Web Speech error:', error);
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    updateSpeakButtonStatus() {
+        const speakBtn = document.getElementById('speakBtn');
+        if (!speakBtn) return;
+
+        // Проверяем доступность ResponsiveVoice
+        if (window.responsiveVoice && responsiveVoice.voiceSupport()) {
+            console.log('🎤 ResponsiveVoice готов для озвучки');
+            speakBtn.title = "Озвучить текст (ResponsiveVoice)";
+        } else if (window.speechSynthesis) {
+            console.log('🎤 Web Speech API готов для озвучки');
+            speakBtn.title = "Озвучить текст (Web Speech API)";
+        } else {
+            console.warn('⚠️ Озвучка недоступна');
+            speakBtn.title = "Озвучка недоступна";
+        }
     }
 
     printPage() {

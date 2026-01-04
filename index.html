@@ -344,6 +344,52 @@
     <!-- To get your own API key, visit: https://responsivevoice.org/register/ -->
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=fJJxVj8T"></script>
 
+    <!-- ResponsiveVoice Initialization Handler -->
+    <script>
+        // Проверка загрузки ResponsiveVoice
+        let rvCheckCount = 0;
+        const maxChecks = 50; // 5 секунд максимум
+
+        function checkResponsiveVoice() {
+            rvCheckCount++;
+
+            if (window.responsiveVoice) {
+                console.log('✅ ResponsiveVoice loaded successfully!');
+                console.log('📊 ResponsiveVoice info:', {
+                    version: responsiveVoice.version || 'unknown',
+                    voiceSupport: responsiveVoice.voiceSupport(),
+                    voices: responsiveVoice.getVoices().length
+                });
+
+                // Выводим доступные русские голоса
+                const russianVoices = responsiveVoice.getVoices().filter(v =>
+                    v.name.includes('Russian') || v.lang.includes('ru')
+                );
+                console.log('🎤 Russian voices available:', russianVoices.map(v => v.name));
+
+                // Уведомляем пользователя
+                if (responsiveVoice.voiceSupport()) {
+                    console.log('🔊 Озвучка готова! ResponsiveVoice работает.');
+                } else {
+                    console.warn('⚠️ ResponsiveVoice загружен, но голосовая поддержка недоступна');
+                }
+            } else if (rvCheckCount < maxChecks) {
+                // Продолжаем проверять
+                setTimeout(checkResponsiveVoice, 100);
+            } else {
+                console.error('❌ ResponsiveVoice не загрузился после ' + (maxChecks * 100 / 1000) + ' секунд');
+                console.log('ℹ️ Будет использован встроенный Web Speech API');
+            }
+        }
+
+        // Начинаем проверку после загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkResponsiveVoice);
+        } else {
+            checkResponsiveVoice();
+        }
+    </script>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
