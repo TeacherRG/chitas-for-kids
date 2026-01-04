@@ -9,6 +9,7 @@
     <title>ב״ה | Хитас для вундеркиндов</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="audio-styles.css">
 </head>
 <body>
     <header class="app-header">
@@ -54,6 +55,7 @@
             <nav class="date-navigation-bottom">
                 <button class="btn" id="prevDayBtn">◀ Пред</button>
                 <button class="btn" id="todayBtn">📅 Сегодня</button>
+                <button class="btn sound-toggle" id="soundToggleBtn" onclick="toggleSound(this)">🔊 Звук ВКЛ</button>
                 <button class="btn" id="nextDayBtn">След ▶</button>
             </nav>
         </div>
@@ -338,6 +340,10 @@
         </div>
     </div>
 
+    <!-- ResponsiveVoice API - Free Non-Commercial License -->
+    <!-- To get your own API key, visit: https://responsivevoice.org/register/ -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=fJJxVj8T"></script>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -347,6 +353,9 @@
     <script src="firebase-config.js"></script>
     <script src="auth-manager.js"></script>
     <script src="auth-ui.js"></script>
+
+    <!-- Audio Reader -->
+    <script src="audio-reader.js"></script>
 
     <!-- Games -->
     <script src="games/quiz.js"></script>

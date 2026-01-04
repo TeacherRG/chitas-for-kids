@@ -58,6 +58,8 @@ class ChitasApp {
         this.currentSection = null;
         this.state = this.loadProgress();
         this.speechSynthesis = window.speechSynthesis;
+        this.isPlaying = false;
+        this.isPaused = false;
         this.gameInstances = new Map(); // Use Map instead of object for better key management
         this.gameFactory = new GameFactory();
 
@@ -457,6 +459,12 @@ class ChitasApp {
 
         await this.renderSectionContent(section);
 
+        // Проверяем доступность ResponsiveVoice
+        console.log('ResponsiveVoice available:', typeof responsiveVoice !== 'undefined');
+        if (window.responsiveVoice) {
+            console.log('ResponsiveVoice voices:', responsiveVoice.getVoices());
+        }
+
         window.scrollTo(0, 0);
     }
 
@@ -467,9 +475,16 @@ class ChitasApp {
         this.currentSection = null;
         this.gameInstances.clear(); // Clear Map entries instead of reassigning
 
-        if (this.speechSynthesis) {
-            this.speechSynthesis.cancel();
+        // Останавливаем озвучивание
+        if (window.responsiveVoice && responsiveVoice.isPlaying()) {
+            responsiveVoice.cancel();
         }
+        this.isPlaying = false;
+        this.isPaused = false;
+
+        // Сбрасываем иконку кнопки
+        const speakBtn = document.getElementById('speakBtn');
+        if (speakBtn) speakBtn.innerHTML = "🔊";
     }
 
     async renderSectionContent(section) {
@@ -732,25 +747,98 @@ class ChitasApp {
         }
     }
 
+    cleanTextForSpeech(text) {
+        return text
+            // Убираем эмодзи
+            .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+            // Убираем специальные символы (сохраняем только буквы, цифры, пробелы, основные знаки)
+            .replace(/[^\u0400-\u04FF\w\s.,!?—–-]/g, ' ')
+            // Заменяем двоеточия и точки с запятой на паузы
+            .replace(/[:;]/g, ',')
+            // Заменяем кавычки на пробелы
+            .replace(/[«»""'']/g, ' ')
+            // Заменяем тире на паузу
+            .replace(/[—–]/g, ' - ')
+            // Убираем множественные пробелы
+            .replace(/\s+/g, ' ')
+            // Убираем пробелы перед знаками препинания
+            .replace(/\s+([.,!?])/g, '$1')
+            .trim();
+    }
+
     speakContent() {
         if (!this.currentSection) return;
 
-        if (this.speechSynthesis) {
-            this.speechSynthesis.cancel();
+        const speakBtn = document.getElementById('speakBtn');
 
-            const text = this.currentSection.content.paragraphs
-                .map(p => p.text)
-                .join('. ');
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = CONFIG.SPEECH_LANG;
-            utterance.rate = CONFIG.SPEECH_RATE;
-            utterance.pitch = 1;
-
-            this.speechSynthesis.speak(utterance);
-        } else {
-            alert('Озвучивание не поддерживается в вашем браузере');
+        // Проверяем, включен ли звук (из audio-reader.js)
+        if (typeof soundEnabled !== 'undefined' && !soundEnabled) {
+            alert('Звук выключен! Включите звук кнопкой в нижней навигации.');
+            return;
         }
+
+        // Проверяем, доступен ли ResponsiveVoice
+        if (!window.responsiveVoice) {
+            alert('Система озвучивания загружается...');
+            return;
+        }
+
+        // Если уже играет - пауза/возобновление
+        if (this.isPlaying) {
+            if (this.isPaused) {
+                responsiveVoice.resume();
+                this.isPaused = false;
+                if (speakBtn) speakBtn.innerHTML = "⏸";
+            } else {
+                responsiveVoice.pause();
+                this.isPaused = true;
+                if (speakBtn) speakBtn.innerHTML = "▶";
+            }
+            return;
+        }
+
+        // Собираем текст из параграфов
+        const text = this.currentSection.content.paragraphs
+            .filter(p => p.text)
+            .map(p => p.text)
+            .join('. ');
+
+        // Очищаем текст от эмодзи и специальных символов
+        const cleanText = this.cleanTextForSpeech(text);
+
+        if (!cleanText) {
+            alert('Нет текста для озвучивания');
+            return;
+        }
+
+        this.isPlaying = true;
+        if (speakBtn) speakBtn.innerHTML = "⏸";
+
+        // Параметры озвучивания
+        const params = {
+            pitch: 1.0,
+            rate: 0.9,
+            volume: 1.0,
+            onstart: () => {
+                console.log('✅ Speech started');
+                if (speakBtn) speakBtn.innerHTML = "⏸";
+            },
+            onend: () => {
+                console.log('✅ Speech ended');
+                this.isPlaying = false;
+                this.isPaused = false;
+                if (speakBtn) speakBtn.innerHTML = "🔊";
+            },
+            onerror: (error) => {
+                console.error('❌ Speech error:', error);
+                this.isPlaying = false;
+                this.isPaused = false;
+                if (speakBtn) speakBtn.innerHTML = "🔊";
+            }
+        };
+
+        // Используем Russian Female голос
+        responsiveVoice.speak(cleanText, "Russian Female", params);
     }
 
     printPage() {
