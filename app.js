@@ -125,6 +125,21 @@ class ChitasApp {
             }
         });
 
+        // Обработчики для информационных секций помощи
+        document.querySelectorAll('[data-help-section]').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.helpSection;
+                if (section === 'about') this.switchView('aboutView');
+                if (section === 'howto') this.switchView('howtoView');
+                if (section === 'privacy') this.switchView('privacyView');
+            });
+        });
+
+        // Кнопки "Назад" для возврата в helpView
+        this.addClickHandler('backToHelpFromAbout', () => this.switchView('helpView'));
+        this.addClickHandler('backToHelpFromHowto', () => this.switchView('helpView'));
+        this.addClickHandler('backToHelpFromPrivacy', () => this.switchView('helpView'));
+
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 if (item.dataset.view) {
