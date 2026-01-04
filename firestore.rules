@@ -3,14 +3,104 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Правила для коллекции userProgress
-    // Каждый пользователь может читать и писать только свои данные
-    match /userProgress/{userId} {
-      // Пользователь может читать и изменять только свой документ
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // ========================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ВАЛИДАЦИИ
+    // ========================================
+
+    // Проверка, что пользователь аутентифицирован и это его документ
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    // Запретить доступ ко всем остальным коллекциям по умолчанию
+    // Проверка валидности структуры settings
+    function isValidSettings(settings) {
+      return settings is map &&
+             settings.size() >= 3 &&
+             settings.size() <= 10 &&
+             settings.keys().hasAll(['sound', 'animations', 'darkMode']) &&
+             settings.sound is bool &&
+             settings.animations is bool &&
+             settings.darkMode is bool;
+    }
+
+    // Проверка валидности структуры completed (дата -> разделы)
+    function isValidCompleted(completed) {
+      return completed is map &&
+             completed.size() <= 1000;  // Максимум 1000 дней
+    }
+
+    // Проверка валидности всей структуры userProgress
+    function isValidUserProgress() {
+      let data = request.resource.data;
+
+      return (
+        // Проверка обязательных полей
+        data.keys().hasAll(['score', 'stars', 'completed', 'settings']) &&
+
+        // Ограничение количества полей (максимум 10)
+        data.size() <= 10 &&
+
+        // Проверка типов и диапазонов для score
+        data.score is int &&
+        data.score >= 0 &&
+        data.score <= 10000000 &&  // Максимум 10 миллионов баллов
+
+        // Проверка типов и диапазонов для stars
+        data.stars is int &&
+        data.stars >= 0 &&
+        data.stars <= 1000000 &&  // Максимум 1 миллион звезд
+
+        // Проверка структуры completed
+        isValidCompleted(data.completed) &&
+
+        // Проверка структуры settings
+        isValidSettings(data.settings) &&
+
+        // Проверка lastSync (если присутствует)
+        (!('lastSync' in data) || data.lastSync is string)
+      );
+    }
+
+    // Проверка, что score и stars только увеличиваются (не уменьшаются)
+    function isProgressIncreasing() {
+      return !resource.data.keys().hasAll(['score', 'stars']) ||
+             (request.resource.data.score >= resource.data.score &&
+              request.resource.data.stars >= resource.data.stars);
+    }
+
+    // Проверка разумного увеличения за одну операцию
+    function isReasonableUpdate() {
+      return !resource.data.keys().hasAll(['score', 'stars']) ||
+             (request.resource.data.score - resource.data.score <= 1000 &&  // Макс +1000 баллов
+              request.resource.data.stars - resource.data.stars <= 100);     // Макс +100 звезд
+    }
+
+    // ========================================
+    // ПРАВИЛА ДЛЯ КОЛЛЕКЦИИ userProgress
+    // ========================================
+
+    match /userProgress/{userId} {
+      // Чтение: только авторизованный владелец
+      allow read: if isOwner(userId);
+
+      // Создание: только если данные валидны
+      allow create: if isOwner(userId) &&
+                       isValidUserProgress();
+
+      // Обновление: только если данные валидны и прогресс не уменьшается
+      allow update: if isOwner(userId) &&
+                       isValidUserProgress() &&
+                       isProgressIncreasing() &&
+                       isReasonableUpdate();
+
+      // Удаление: разрешено владельцу
+      allow delete: if isOwner(userId);
+    }
+
+    // ========================================
+    // ЗАПРЕТ ДОСТУПА К ОСТАЛЬНЫМ КОЛЛЕКЦИЯМ
+    // ========================================
+
     match /{document=**} {
       allow read, write: if false;
     }
