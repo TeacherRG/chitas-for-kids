@@ -182,6 +182,41 @@
         </div>
     </div>
 
+    <div class="view" id="helpView">
+        <div class="container">
+            <div class="card setting-item" data-help-section="about">
+                <div class="setting-info">
+                    <h3>📖 О проекте</h3>
+                    <p>Узнайте больше о приложении</p>
+                </div>
+            </div>
+            <div class="card setting-item" data-help-section="howto">
+                <div class="setting-info">
+                    <h3>🎮 Как играть</h3>
+                    <p>Инструкция по использованию</p>
+                </div>
+            </div>
+            <div class="card setting-item" data-help-section="privacy">
+                <div class="setting-info">
+                    <h3>🔒 Конфиденциальность</h3>
+                    <p>Политика защиты данных</p>
+                </div>
+            </div>
+            <div class="card setting-item" id="contactEmailBtn">
+                <div class="setting-info">
+                    <h3>✉️ Обратная связь</h3>
+                    <p>Пишите на office@mychitas.app</p>
+                </div>
+            </div>
+            <div class="card setting-item" id="shareAppBtn">
+                <div class="setting-info">
+                    <h3>📤 Поделиться</h3>
+                    <p>www.mychitas.app</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="view" id="settingsView">
         <div class="container">
             <div class="card setting-item" data-setting="sound">
@@ -250,7 +285,7 @@
             <div class="nav-icon">👤</div>
             <div class="nav-label">Профиль</div>
         </div>
-        <div class="nav-item" id="helpBtn">
+        <div class="nav-item" data-view="helpView">
             <div class="nav-icon">❓</div>
             <div class="nav-label">Помощь</div>
         </div>
@@ -298,137 +333,6 @@
                 <button onclick="handlePasswordReset(event)" class="modal-btn primary">Отправить ссылку</button>
                 <div class="modal-links">
                     <a href="#" onclick="showSignInForm(); return false;">Назад ко входу</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Help Modal -->
-    <div id="helpModal" class="modal">
-        <div class="modal-content help-modal-content">
-            <span class="modal-close" id="closeHelpModal">&times;</span>
-            <h2>❓ Помощь</h2>
-
-            <div class="help-menu">
-                <div class="card setting-item help-menu-item" data-section="about">
-                    <div class="setting-info">
-                        <h3>📖 О проекте</h3>
-                        <p>Узнайте больше о приложении</p>
-                    </div>
-                </div>
-                <div class="card setting-item help-menu-item" data-section="howto">
-                    <div class="setting-info">
-                        <h3>🎮 Как играть</h3>
-                        <p>Инструкция по использованию</p>
-                    </div>
-                </div>
-                <div class="card setting-item help-menu-item" data-section="privacy">
-                    <div class="setting-info">
-                        <h3>🔒 Конфиденциальность</h3>
-                        <p>Политика защиты данных</p>
-                    </div>
-                </div>
-                <div class="card setting-item help-menu-item" data-section="contact">
-                    <div class="setting-info">
-                        <h3>✉️ Обратная связь</h3>
-                        <p>Ваши замечания и пожелания пишите по адресу kosherletter@gmail.com</p>
-                    </div>
-                </div>
-                <div class="card setting-item help-menu-item" data-section="share">
-                    <div class="setting-info">
-                        <h3>📤 Поделиться</h3>
-                        <p>www.mychitas.app</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="helpContent" class="help-content" style="display: none;">
-                <button class="btn help-back-btn" id="helpBackBtn">← Назад</button>
-
-                <div class="help-section" id="aboutSection" style="display: none;">
-                    <h3>📖 О проекте</h3>
-                    <p><strong>Хитас для вундеркиндов</strong> — образовательное приложение для ежедневного изучения еврейских текстов.</p>
-                    <p>Мы помогаем детям изучать:</p>
-                    <ul>
-                        <li>📖 Хумаш (Недельная глава)</li>
-                        <li>🙏 Теилим (Псалмы)</li>
-                        <li>📘 Тания (Хасидская философия)</li>
-                        <li>☀️ Hayom Yom (Ежедневные уроки)</li>
-                        <li>⚖️ Рамбам (Еврейский закон)</li>
-                        <li>💡 Геула у-Мошиах (О приходе Мошиаха)</li>
-                    </ul>
-                    <p>Приложение создано с любовью для еврейских детей всего мира! 💙</p>
-                </div>
-
-                <div class="help-section" id="howtoSection" style="display: none;">
-                    <h3>🎮 Как играть</h3>
-                    <p><strong>Каждый день:</strong></p>
-                    <ol>
-                        <li>Выбери раздел (Хумаш, Тания и т.д.)</li>
-                        <li>Прочитай урок дня</li>
-                        <li>Играй в игры для закрепления материала</li>
-                        <li>Получай звёзды и баллы за правильные ответы</li>
-                    </ol>
-                    <p><strong>Типы игр:</strong></p>
-                    <ul>
-                        <li>🎯 <strong>Викторина</strong> — выбери правильный ответ</li>
-                        <li>✓ <strong>Правда или Ложь</strong> — оцени утверждение</li>
-                        <li>🔗 <strong>Соедини пары</strong> — найди соответствия</li>
-                        <li>🎡 <strong>Колесо фортуны</strong> — крути и отвечай</li>
-                        <li>🤔 <strong>Размышления</strong> — напиши свои мысли</li>
-                    </ul>
-                    <p><strong>Поддерживай стрик!</strong> Учись каждый день подряд и получай особые достижения! 🔥</p>
-                </div>
-
-                <div class="help-section" id="privacySection" style="display: none;">
-                    <h3>🔒 Политика конфиденциальности</h3>
-                    <p><strong>Мы уважаем вашу приватность.</strong></p>
-                    <p><strong>Собираемые данные:</strong></p>
-                    <ul>
-                        <li>Email (при регистрации)</li>
-                        <li>Прогресс обучения (баллы, звёзды, стрик)</li>
-                        <li>Статистика достижений</li>
-                    </ul>
-                    <p><strong>Использование данных:</strong></p>
-                    <ul>
-                        <li>Сохранение прогресса</li>
-                        <li>Синхронизация между устройствами</li>
-                        <li>Отображение достижений</li>
-                    </ul>
-                    <p><strong>Безопасность:</strong></p>
-                    <p>Все данные хранятся в защищённой базе Firebase и не передаются третьим лицам.</p>
-                    <p>Мы НЕ продаём и НЕ передаём ваши личные данные.</p>
-                </div>
-
-                <div class="help-section" id="contactSection" style="display: none;">
-                    <h3>✉️ Обратная связь</h3>
-                    <p><strong>Мы рады вашим отзывам!</strong></p>
-                    <p>Ваши замечания и пожелания помогают нам сделать приложение лучше.</p>
-                    <p><strong>Напишите нам:</strong></p>
-                    <p style="font-size: 18px; margin: 20px 0;">
-                        <a href="mailto:kosherletter@gmail.com" style="color: var(--color-primary); text-decoration: none; font-weight: 600;">
-                            📧 kosherletter@gmail.com
-                        </a>
-                    </p>
-                    <p>Мы ответим вам как можно скорее!</p>
-                </div>
-
-                <div class="help-section" id="shareSection" style="display: none;">
-                    <h3>📤 Поделиться приложением</h3>
-                    <p><strong>Расскажите друзьям о нашем приложении!</strong></p>
-                    <p>Помогите другим детям изучать Хитас каждый день.</p>
-                    <p><strong>Адрес приложения:</strong></p>
-                    <p style="font-size: 20px; margin: 20px 0; padding: 15px; background: var(--color-bg-secondary); border-radius: var(--radius-md); text-align: center;">
-                        <a href="https://www.mychitas.app" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 700;">
-                            🌐 www.mychitas.app
-                        </a>
-                    </p>
-                    <p>Скопируйте ссылку и отправьте друзьям!</p>
-                    <div style="margin-top: 20px;">
-                        <button class="btn" onclick="navigator.clipboard.writeText('www.mychitas.app'); alert('Ссылка скопирована!');" style="width: 100%; padding: 15px; font-size: 16px;">
-                            📋 Скопировать ссылку
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
