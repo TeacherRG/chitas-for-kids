@@ -349,6 +349,7 @@
         // Проверка загрузки ResponsiveVoice
         let rvCheckCount = 0;
         const maxChecks = 50; // 5 секунд максимум
+        let audioPermissionGranted = false;
 
         function checkResponsiveVoice() {
             rvCheckCount++;
@@ -381,6 +382,69 @@
                 console.log('ℹ️ Будет использован встроенный Web Speech API');
             }
         }
+
+        // Функция для инициализации аудио разрешений
+        async function initializeAudioPermissions() {
+            if (audioPermissionGranted) return true;
+
+            try {
+                // Создаем AudioContext для запроса разрешений
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const audioContext = new AudioContext();
+
+                    // Проверяем состояние контекста
+                    if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                    }
+
+                    console.log('🔊 Аудио контекст инициализирован:', audioContext.state);
+                    audioPermissionGranted = true;
+
+                    // Закрываем контекст, он нам больше не нужен
+                    audioContext.close();
+                    return true;
+                }
+            } catch (error) {
+                console.warn('⚠️ Ошибка при инициализации аудио:', error);
+            }
+
+            // Fallback: пробуем воспроизвести тихий звук для активации
+            try {
+                if (window.responsiveVoice) {
+                    // Воспроизводим очень короткий тихий звук
+                    responsiveVoice.speak('', 'Russian Female', {
+                        volume: 0,
+                        onend: () => {
+                            console.log('🔊 Аудио разрешения получены');
+                            audioPermissionGranted = true;
+                        }
+                    });
+                } else if (window.speechSynthesis) {
+                    const utterance = new SpeechSynthesisUtterance('');
+                    utterance.volume = 0;
+                    window.speechSynthesis.speak(utterance);
+                    audioPermissionGranted = true;
+                }
+            } catch (error) {
+                console.warn('⚠️ Не удалось получить аудио разрешения:', error);
+            }
+
+            return audioPermissionGranted;
+        }
+
+        // Глобальная функция для получения разрешения перед озвучкой
+        window.requestAudioPermission = initializeAudioPermissions;
+
+        // Автоматическая инициализация при первом клике
+        let firstInteraction = true;
+        document.addEventListener('click', async function handleFirstClick() {
+            if (firstInteraction) {
+                firstInteraction = false;
+                console.log('👆 Первое взаимодействие пользователя - инициализация аудио');
+                await initializeAudioPermissions();
+            }
+        }, { once: false });
 
         // Начинаем проверку после загрузки DOM
         if (document.readyState === 'loading') {

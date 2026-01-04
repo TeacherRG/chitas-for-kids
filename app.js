@@ -803,7 +803,7 @@ class ChitasApp {
         }
     }
 
-    speakWithResponsiveVoice(text, speakBtn) {
+    async speakWithResponsiveVoice(text, speakBtn) {
         console.log('🎤 Attempting to use ResponsiveVoice');
         console.log('📊 Text length:', text.length);
 
@@ -821,6 +821,16 @@ class ChitasApp {
                 console.log('⏸ Paused');
             }
             return;
+        }
+
+        // Запрашиваем разрешение на воспроизведение аудио
+        if (window.requestAudioPermission) {
+            try {
+                await window.requestAudioPermission();
+                console.log('🔓 Аудио разрешения получены');
+            } catch (error) {
+                console.warn('⚠️ Не удалось получить разрешение на аудио:', error);
+            }
         }
 
         // Проверяем доступные голоса
@@ -874,13 +884,25 @@ class ChitasApp {
         }
     }
 
-    speakWithWebSpeech(text, speakBtn) {
+    async speakWithWebSpeech(text, speakBtn) {
+        console.log('🎤 Using Web Speech API');
+
         // Если уже играет - останавливаем
         if (this.isPlaying) {
             window.speechSynthesis.cancel();
             this.isPlaying = false;
             if (speakBtn) speakBtn.innerHTML = "🔊";
             return;
+        }
+
+        // Запрашиваем разрешение на воспроизведение аудио
+        if (window.requestAudioPermission) {
+            try {
+                await window.requestAudioPermission();
+                console.log('🔓 Аудио разрешения получены');
+            } catch (error) {
+                console.warn('⚠️ Не удалось получить разрешение на аудио:', error);
+            }
         }
 
         this.isPlaying = true;
