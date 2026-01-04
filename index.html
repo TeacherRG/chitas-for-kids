@@ -310,17 +310,35 @@
             <h2>❓ Помощь</h2>
 
             <div class="help-menu">
-                <div class="help-menu-item" data-section="about">
-                    <div class="help-icon">📖</div>
-                    <div class="help-text">О проекте</div>
+                <div class="card setting-item help-menu-item" data-section="about">
+                    <div class="setting-info">
+                        <h3>📖 О проекте</h3>
+                        <p>Узнайте больше о приложении</p>
+                    </div>
                 </div>
-                <div class="help-menu-item" data-section="howto">
-                    <div class="help-icon">🎮</div>
-                    <div class="help-text">Как играть</div>
+                <div class="card setting-item help-menu-item" data-section="howto">
+                    <div class="setting-info">
+                        <h3>🎮 Как играть</h3>
+                        <p>Инструкция по использованию</p>
+                    </div>
                 </div>
-                <div class="help-menu-item" data-section="privacy">
-                    <div class="help-icon">🔒</div>
-                    <div class="help-text">Конфиденциальность</div>
+                <div class="card setting-item help-menu-item" data-section="privacy">
+                    <div class="setting-info">
+                        <h3>🔒 Конфиденциальность</h3>
+                        <p>Политика защиты данных</p>
+                    </div>
+                </div>
+                <div class="card setting-item help-menu-item" data-section="contact">
+                    <div class="setting-info">
+                        <h3>✉️ Обратная связь</h3>
+                        <p>Ваши замечания и пожелания пишите по адресу kosherletter@gmail.com</p>
+                    </div>
+                </div>
+                <div class="card setting-item help-menu-item" data-section="share">
+                    <div class="setting-info">
+                        <h3>📤 Поделиться</h3>
+                        <p>www.mychitas.app</p>
+                    </div>
                 </div>
             </div>
 
@@ -380,6 +398,37 @@
                     <p><strong>Безопасность:</strong></p>
                     <p>Все данные хранятся в защищённой базе Firebase и не передаются третьим лицам.</p>
                     <p>Мы НЕ продаём и НЕ передаём ваши личные данные.</p>
+                </div>
+
+                <div class="help-section" id="contactSection" style="display: none;">
+                    <h3>✉️ Обратная связь</h3>
+                    <p><strong>Мы рады вашим отзывам!</strong></p>
+                    <p>Ваши замечания и пожелания помогают нам сделать приложение лучше.</p>
+                    <p><strong>Напишите нам:</strong></p>
+                    <p style="font-size: 18px; margin: 20px 0;">
+                        <a href="mailto:kosherletter@gmail.com" style="color: var(--color-primary); text-decoration: none; font-weight: 600;">
+                            📧 kosherletter@gmail.com
+                        </a>
+                    </p>
+                    <p>Мы ответим вам как можно скорее!</p>
+                </div>
+
+                <div class="help-section" id="shareSection" style="display: none;">
+                    <h3>📤 Поделиться приложением</h3>
+                    <p><strong>Расскажите друзьям о нашем приложении!</strong></p>
+                    <p>Помогите другим детям изучать Хитас каждый день.</p>
+                    <p><strong>Адрес приложения:</strong></p>
+                    <p style="font-size: 20px; margin: 20px 0; padding: 15px; background: var(--color-bg-secondary); border-radius: var(--radius-md); text-align: center;">
+                        <a href="https://www.mychitas.app" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 700;">
+                            🌐 www.mychitas.app
+                        </a>
+                    </p>
+                    <p>Скопируйте ссылку и отправьте друзьям!</p>
+                    <div style="margin-top: 20px;">
+                        <button class="btn" onclick="navigator.clipboard.writeText('www.mychitas.app'); alert('Ссылка скопирована!');" style="width: 100%; padding: 15px; font-size: 16px;">
+                            📋 Скопировать ссылку
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
