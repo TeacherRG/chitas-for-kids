@@ -77,6 +77,23 @@ class ChitasApp {
     async init() {
         this.setupEventListeners();
         this.applySettings();
+
+        // Загружаем индекс для определения доступных дат
+        await this.loadIndex();
+
+        // Определяем начальную дату только если нет параметра в URL
+        const url = new URL(window.location.href);
+        const dateParam = url.searchParams.get('date');
+
+        if (!dateParam) {
+            // Ищем ближайшую доступную дату
+            const nearestDate = this.findNearestAvailableDate(this.formatDate(new Date()));
+            if (nearestDate) {
+                this.currentDate = nearestDate;
+                this.updateURL();
+            }
+        }
+
         this.loadData();
     }
 
@@ -177,6 +194,38 @@ class ChitasApp {
     }
 
     /**
+     * Load index.json to get available dates
+     */
+    async loadIndex() {
+        try {
+            const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
+            const index = await indexResponse.json();
+
+            this.dateIndex = index;
+            this.availableDates = index.dates.map(d => d.date).sort();
+        } catch (error) {
+            console.error('Error loading index:', error);
+            this.availableDates = [];
+            this.dateIndex = null;
+        }
+    }
+
+    /**
+     * Find the nearest available date (current date or earlier)
+     */
+    findNearestAvailableDate(targetDate) {
+        if (!this.availableDates || this.availableDates.length === 0) return null;
+
+        // First, check if target date itself has data
+        if (this.availableDates.includes(targetDate)) {
+            return targetDate;
+        }
+
+        // If not, find the most recent available date before target date
+        return this.findPreviousAvailableDate(targetDate);
+    }
+
+    /**
      * TEMPORARY: Check if a specific date has available data
      */
     isDateAvailable(dateString) {
@@ -248,16 +297,14 @@ class ChitasApp {
 
     async loadData() {
         try {
-            const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
-            const index = await indexResponse.json();
+            // Если индекс еще не загружен, загружаем его
+            if (!this.dateIndex || !this.availableDates) {
+                await this.loadIndex();
+            }
 
-            // TEMPORARY: Store index and available dates for navigation control
-            this.dateIndex = index;
-            this.availableDates = index.dates.map(d => d.date).sort();
+            let dateEntry = this.dateIndex.dates.find(d => d.date === this.currentDate);
 
-            let dateEntry = index.dates.find(d => d.date === this.currentDate);
-
-            // TEMPORARY: If current date not found, try to find previous available date
+            // If current date not found, try to find previous available date
             if (!dateEntry) {
                 console.warn('Date not found in index, searching for previous available date');
                 const previousDate = this.findPreviousAvailableDate(this.currentDate);
@@ -266,7 +313,7 @@ class ChitasApp {
                     console.log(`Using previous available date: ${previousDate}`);
                     this.currentDate = previousDate;
                     this.updateURL();
-                    dateEntry = index.dates.find(d => d.date === this.currentDate);
+                    dateEntry = this.dateIndex.dates.find(d => d.date === this.currentDate);
                 } else {
                     console.warn('No previous date available');
                     this.showError('Нет данных для этой даты');
@@ -287,7 +334,7 @@ class ChitasApp {
                 this.mergeData();
                 this.renderPage();
 
-                // TEMPORARY: Update navigation buttons state after loading
+                // Update navigation buttons state after loading
                 this.updateNavigationButtons();
             } else {
                 throw new Error('Failed to load data files');
