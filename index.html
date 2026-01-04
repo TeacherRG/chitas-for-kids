@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="audio-styles.css">
 </head>
 <body>
+    <!-- Скрытый audio элемент для активации разрешений звука в браузере -->
+    <audio id="audioPermissionTrigger" style="display: none;" preload="auto">
+        <!-- Используем data URI с тихим звуком -->
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+
     <header class="app-header">
         <div class="bh-corner">ב״ה</div>
         <h1>📖 Хитас для вундеркиндов</h1>
@@ -387,8 +393,29 @@
         async function initializeAudioPermissions() {
             if (audioPermissionGranted) return true;
 
+            console.log('🔊 Инициализация аудио разрешений...');
+
             try {
-                // Создаем AudioContext для запроса разрешений
+                // 1. Попытка воспроизвести HTML5 audio элемент
+                // Это вызовет появление разрешения звука в настройках браузера
+                const audioElement = document.getElementById('audioPermissionTrigger');
+                if (audioElement) {
+                    audioElement.volume = 0.01; // Очень тихий звук
+                    try {
+                        const playPromise = audioElement.play();
+                        if (playPromise !== undefined) {
+                            await playPromise;
+                            console.log('✅ HTML5 Audio активирован');
+                            // Останавливаем сразу после запуска
+                            audioElement.pause();
+                            audioElement.currentTime = 0;
+                        }
+                    } catch (playError) {
+                        console.log('ℹ️ HTML5 Audio требует взаимодействия пользователя:', playError.message);
+                    }
+                }
+
+                // 2. Создаем AudioContext для запроса разрешений
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (AudioContext) {
                     const audioContext = new AudioContext();
@@ -409,14 +436,14 @@
                 console.warn('⚠️ Ошибка при инициализации аудио:', error);
             }
 
-            // Fallback: пробуем воспроизвести тихий звук для активации
+            // 3. Fallback: пробуем воспроизвести тихий звук через ResponsiveVoice/WebSpeech
             try {
                 if (window.responsiveVoice) {
                     // Воспроизводим очень короткий тихий звук
                     responsiveVoice.speak('', 'Russian Female', {
                         volume: 0,
                         onend: () => {
-                            console.log('🔊 Аудио разрешения получены');
+                            console.log('🔊 Аудио разрешения получены через ResponsiveVoice');
                             audioPermissionGranted = true;
                         }
                     });
@@ -425,6 +452,7 @@
                     utterance.volume = 0;
                     window.speechSynthesis.speak(utterance);
                     audioPermissionGranted = true;
+                    console.log('🔊 Аудио разрешения получены через Web Speech API');
                 }
             } catch (error) {
                 console.warn('⚠️ Не удалось получить аудио разрешения:', error);
