@@ -7,16 +7,93 @@ class AuthManager {
   constructor() {
     this.currentUser = null;
     this.onAuthStateChangedCallback = null;
-    
+
+    // Rate limiting для защиты от brute force
+    this.loginAttempts = new Map(); // email -> {count, timestamp, blockedUntil}
+    this.MAX_ATTEMPTS = 5; // Максимум попыток
+    this.BLOCK_DURATION = 15 * 60 * 1000; // 15 минут блокировки
+    this.ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 минут для сброса счетчика
+
     // Слушаем изменения состояния аутентификации
     auth.onAuthStateChanged((user) => {
       this.currentUser = user;
-      console.log('Auth state changed:', user ? user.email : 'No user');
-      
+      console.log('Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
+
       if (this.onAuthStateChangedCallback) {
         this.onAuthStateChangedCallback(user);
       }
     });
+  }
+
+  /**
+   * Проверка rate limit для email
+   */
+  checkRateLimit(email) {
+    const now = Date.now();
+    const attempts = this.loginAttempts.get(email);
+
+    if (!attempts) {
+      return { allowed: true };
+    }
+
+    // Проверка блокировки
+    if (attempts.blockedUntil && now < attempts.blockedUntil) {
+      const remainingMinutes = Math.ceil((attempts.blockedUntil - now) / 60000);
+      return {
+        allowed: false,
+        reason: `Слишком много попыток входа. Повторите через ${remainingMinutes} мин.`
+      };
+    }
+
+    // Сброс счетчика если прошло достаточно времени
+    if (now - attempts.timestamp > this.ATTEMPT_WINDOW) {
+      this.loginAttempts.delete(email);
+      return { allowed: true };
+    }
+
+    // Проверка количества попыток
+    if (attempts.count >= this.MAX_ATTEMPTS) {
+      const blockedUntil = now + this.BLOCK_DURATION;
+      this.loginAttempts.set(email, {
+        ...attempts,
+        blockedUntil
+      });
+      return {
+        allowed: false,
+        reason: 'Слишком много попыток входа. Повторите через 15 минут.'
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  /**
+   * Регистрация неудачной попытки входа
+   */
+  registerFailedAttempt(email) {
+    const now = Date.now();
+    const attempts = this.loginAttempts.get(email);
+
+    if (!attempts) {
+      this.loginAttempts.set(email, {
+        count: 1,
+        timestamp: now,
+        blockedUntil: null
+      });
+    } else {
+      this.loginAttempts.set(email, {
+        count: attempts.count + 1,
+        timestamp: now,
+        blockedUntil: attempts.blockedUntil
+      });
+    }
+  }
+
+  /**
+   * Сброс счетчика при успешном входе
+   */
+  resetAttempts(email) {
+    this.loginAttempts.delete(email);
   }
 
   /**
@@ -42,15 +119,29 @@ class AuthManager {
   }
 
   /**
-   * Вход с email и паролем
+   * Вход с email и паролем (с защитой от brute force)
    */
   async signInWithEmail(email, password) {
+    // Проверка rate limit
+    const rateLimitCheck = this.checkRateLimit(email);
+    if (!rateLimitCheck.allowed) {
+      return { success: false, error: rateLimitCheck.reason };
+    }
+
     try {
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      console.log('User signed in:', userCredential.user.email);
+      console.log('User signed in successfully');
+
+      // Сброс счетчика при успешном входе
+      this.resetAttempts(email);
+
       return { success: true, user: userCredential.user };
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Sign in error:', error.code);
+
+      // Регистрация неудачной попытки
+      this.registerFailedAttempt(email);
+
       return { success: false, error: this.getErrorMessage(error) };
     }
   }

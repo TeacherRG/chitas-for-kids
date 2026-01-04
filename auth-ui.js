@@ -3,19 +3,28 @@
  * Функции для управления UI аутентификации
  */
 
+// Функция экранирования HTML для защиты от XSS
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // Отображение кнопки входа или информации о пользователе
 function renderAuthUI() {
   const container = document.getElementById('authContainer');
-  
+
   if (window.authManager && window.authManager.isSignedIn()) {
     const user = window.authManager.getCurrentUser();
     const userName = window.authManager.getUserName();
     const initial = userName ? userName.charAt(0).toUpperCase() : '?';
-    
+
+    // ИСПРАВЛЕНО: Экранирование userName и initial для защиты от XSS
     container.innerHTML = `
       <div class="user-info">
-        <div class="user-avatar">${initial}</div>
-        <div class="user-name">${userName}</div>
+        <div class="user-avatar">${escapeHtml(initial)}</div>
+        <div class="user-name">${escapeHtml(userName)}</div>
         <button class="logout-btn" onclick="handleSignOut()">Выйти</button>
       </div>
     `;
@@ -65,9 +74,10 @@ function showResetPassword() {
   hideError();
 }
 
-// Показать ошибку
+// Показать ошибку (безопасно через textContent)
 function showError(message) {
   const errorDiv = document.getElementById('modalError');
+  // БЕЗОПАСНО: Используем textContent вместо innerHTML
   errorDiv.textContent = message;
   errorDiv.style.display = 'block';
 }
