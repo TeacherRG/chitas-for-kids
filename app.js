@@ -459,11 +459,8 @@ class ChitasApp {
 
         await this.renderSectionContent(section);
 
-        // Проверяем доступность ResponsiveVoice
-        console.log('ResponsiveVoice available:', typeof responsiveVoice !== 'undefined');
-        if (window.responsiveVoice) {
-            console.log('ResponsiveVoice voices:', responsiveVoice.getVoices());
-        }
+        // Обновляем иконку кнопки озвучки в зависимости от доступности RV
+        this.updateSpeakButtonStatus();
 
         window.scrollTo(0, 0);
     }
@@ -807,18 +804,33 @@ class ChitasApp {
     }
 
     speakWithResponsiveVoice(text, speakBtn) {
+        console.log('🎤 Attempting to use ResponsiveVoice');
+        console.log('📊 Text length:', text.length);
+
         // Если уже играет - пауза/возобновление
         if (this.isPlaying) {
             if (this.isPaused) {
                 responsiveVoice.resume();
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "⏸";
+                console.log('▶️ Resumed');
             } else {
                 responsiveVoice.pause();
                 this.isPaused = true;
                 if (speakBtn) speakBtn.innerHTML = "▶";
+                console.log('⏸ Paused');
             }
             return;
+        }
+
+        // Проверяем доступные голоса
+        const voices = responsiveVoice.getVoices();
+        const russianVoice = voices.find(v => v.name === "Russian Female");
+
+        if (!russianVoice) {
+            console.warn('⚠️ Russian Female voice not found, available voices:', voices.map(v => v.name));
+        } else {
+            console.log('✅ Using voice:', russianVoice.name);
         }
 
         this.isPlaying = true;
@@ -829,11 +841,11 @@ class ChitasApp {
             rate: 0.9,
             volume: 1.0,
             onstart: () => {
-                console.log('✅ ResponsiveVoice started');
+                console.log('✅ ResponsiveVoice speech started');
                 if (speakBtn) speakBtn.innerHTML = "⏸";
             },
             onend: () => {
-                console.log('✅ ResponsiveVoice ended');
+                console.log('✅ ResponsiveVoice speech completed');
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
@@ -843,10 +855,23 @@ class ChitasApp {
                 this.isPlaying = false;
                 this.isPaused = false;
                 if (speakBtn) speakBtn.innerHTML = "🔊";
+
+                // Fallback на Web Speech API при ошибке
+                console.log('↩️ Falling back to Web Speech API');
+                this.speakWithWebSpeech(text, speakBtn);
             }
         };
 
-        responsiveVoice.speak(text, "Russian Female", params);
+        console.log('🔊 Starting speech with ResponsiveVoice...');
+        try {
+            responsiveVoice.speak(text, "Russian Female", params);
+        } catch (error) {
+            console.error('❌ Exception when calling responsiveVoice.speak:', error);
+            this.isPlaying = false;
+            if (speakBtn) speakBtn.innerHTML = "🔊";
+            // Fallback
+            this.speakWithWebSpeech(text, speakBtn);
+        }
     }
 
     speakWithWebSpeech(text, speakBtn) {
@@ -884,6 +909,23 @@ class ChitasApp {
         };
 
         window.speechSynthesis.speak(utterance);
+    }
+
+    updateSpeakButtonStatus() {
+        const speakBtn = document.getElementById('speakBtn');
+        if (!speakBtn) return;
+
+        // Проверяем доступность ResponsiveVoice
+        if (window.responsiveVoice && responsiveVoice.voiceSupport()) {
+            console.log('🎤 ResponsiveVoice готов для озвучки');
+            speakBtn.title = "Озвучить текст (ResponsiveVoice)";
+        } else if (window.speechSynthesis) {
+            console.log('🎤 Web Speech API готов для озвучки');
+            speakBtn.title = "Озвучить текст (Web Speech API)";
+        } else {
+            console.warn('⚠️ Озвучка недоступна');
+            speakBtn.title = "Озвучка недоступна";
+        }
     }
 
     printPage() {
