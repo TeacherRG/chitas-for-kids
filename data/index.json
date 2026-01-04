@@ -44,6 +44,14 @@
       "specialDay": "Шаббат Хазак",
       "content": "2026-01-03-content.json",
       "games": "2026-01-03-games.json"
+    },
+    {
+      "date": "2026-01-04",
+      "hebrew": "ט״ו טבת ה׳תשפ״ו",
+      "parsha": "Шмот",
+      "specialDay": "",
+      "content": "2026-01-04-content.json",
+      "games": "2026-01-04-games.json"
     }
   ]
 }
