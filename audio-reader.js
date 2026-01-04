@@ -46,9 +46,19 @@ function toggleSound(btn) {
   btn.innerText = soundEnabled ? "🔊 Звук ВКЛ" : "🔇 Звук ВЫКЛ";
 
   if (!soundEnabled) {
+    // Останавливаем ResponsiveVoice
     if (window.responsiveVoice && responsiveVoice.isPlaying()) {
       responsiveVoice.cancel();
     }
+
+    // Сбрасываем состояние в основном приложении
+    if (window.chitasApp) {
+      window.chitasApp.isPlaying = false;
+      window.chitasApp.isPaused = false;
+      const speakBtn = document.getElementById('speakBtn');
+      if (speakBtn) speakBtn.innerHTML = "🔊";
+    }
+
     clearHighlights();
     currentButton = null;
     isPaused = false;
