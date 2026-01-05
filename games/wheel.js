@@ -1,6 +1,6 @@
 /**
  * WHEEL OF FORTUNE GAME ENGINE - УЛУЧШЕННАЯ ВЕРСИЯ
- * Колесо фортуны с системой баллов и интерактивными вопросами
+ * Колесо фортуны с системой баллов и динамическими секторами
  */
 
 class WheelGame {
@@ -12,10 +12,20 @@ class WheelGame {
         this.isSpinning = false;
         this.totalScore = 0;
         this.currentRound = 0;
-        this.answeredQuestions = new Set();
         this.correctAnswers = 0;
         this.wrongAnswers = 0;
         this.currentMultiplier = 1;
+
+        // Счетчики для отслеживания прогресса
+        this.mainQuestionsAnswered = 0; // Только основные вопросы (не отвлечённые)
+        this.totalQuestionsCount = 12; // Всего основных вопросов
+
+        // Состояние специальных секторов
+        this.specialSectors = {
+            bankrupt: { used: false, active: true },
+            double: { used: false, active: true },
+            distraction: { used: false, active: true }
+        };
 
         // Инициализация сегментов колеса
         this.initializeSegments();
@@ -29,10 +39,12 @@ class WheelGame {
         questions.forEach((question, index) => {
             const points = this.calculatePoints(index, questions.length);
             this.segments.push({
+                id: index,
                 type: 'question',
                 question: question,
                 points: points,
-                index: index
+                index: index,
+                active: true // Все сектора изначально активны
             });
         });
 
@@ -51,9 +63,9 @@ class WheelGame {
     insertSpecialSegments() {
         // Вставляем специальные сегменты между обычными
         const specialSegments = [
-            { type: 'bankrupt', points: 0, label: '💥 БАНКРОТ', color: '#2C3E50' },
-            { type: 'double', points: 0, label: '✖️2 УДВОЕНИЕ', color: '#27AE60' },
-            { type: 'bonus', points: 50, label: '🎁 БОНУС 50', color: '#F39C12' }
+            { id: 'bankrupt', type: 'bankrupt', points: 0, label: '💥 БАНКРОТ', color: '#2C3E50', active: true },
+            { id: 'double', type: 'double', points: 0, label: '✖️2 УДВОЕНИЕ', color: '#27AE60', active: true },
+            { id: 'distraction', type: 'distraction', points: 0, label: '🎭 ОТВЛЕЧЁННЫЙ', color: '#9B59B6', active: true }
         ];
 
         // Вставляем специальные сегменты в случайные позиции
@@ -141,6 +153,9 @@ class WheelGame {
         const centerY = canvas.height / 2;
         const radius = 220;
 
+        // Очищаем canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         const segmentAngle = (2 * Math.PI) / this.segments.length;
 
         this.segments.forEach((segment, i) => {
@@ -149,11 +164,17 @@ class WheelGame {
 
             // Определяем цвет сегмента
             let color;
-            if (segment.type === 'question') {
+            if (segment.type === 'question' || segment.type === 'distraction-question') {
                 const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DFE6E9', '#A29BFE', '#FD79A8'];
                 color = colors[segment.index % colors.length];
             } else {
                 color = segment.color;
+            }
+
+            // ЗАТЕМНЯЕМ неактивные сектора
+            const isActive = segment.active !== false;
+            if (!isActive) {
+                color = '#555555'; // Темно-серый для неактивных
             }
 
             // Рисуем сегмент
@@ -164,15 +185,17 @@ class WheelGame {
 
             ctx.fillStyle = color;
             ctx.fill();
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = isActive ? '#fff' : '#333';
             ctx.lineWidth = 4;
             ctx.stroke();
 
-            // Добавляем тень для глубины
-            ctx.shadowColor = 'rgba(0,0,0,0.2)';
-            ctx.shadowBlur = 5;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
+            // Добавляем тень для глубины (только для активных)
+            if (isActive) {
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+            }
 
             // Рисуем текст
             ctx.save();
@@ -180,19 +203,23 @@ class WheelGame {
             ctx.translate(centerX, centerY);
             ctx.rotate(startAngle + segmentAngle / 2);
             ctx.textAlign = 'right';
+
+            // Делаем текст полупрозрачным для неактивных секторов
+            ctx.globalAlpha = isActive ? 1.0 : 0.3;
+
             ctx.fillStyle = '#fff';
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 3;
             ctx.font = 'bold 18px Arial';
 
-            if (segment.type === 'question') {
+            if (segment.type === 'question' || segment.type === 'distraction-question') {
                 const text = `${segment.points}`;
                 ctx.strokeText(text, radius - 30, 7);
                 ctx.fillText(text, radius - 30, 7);
 
                 // Маленькая иконка вопроса
                 ctx.font = 'bold 14px Arial';
-                const questionIcon = '❓';
+                const questionIcon = isActive ? '❓' : '✓'; // Галочка для отвеченных
                 ctx.strokeText(questionIcon, radius - 70, 7);
                 ctx.fillText(questionIcon, radius - 70, 7);
             } else {
@@ -204,6 +231,13 @@ class WheelGame {
                     ctx.strokeText(line, radius - 30, y);
                     ctx.fillText(line, radius - 30, y);
                 });
+
+                // Для неактивных специальных секторов - добавляем галочку
+                if (!isActive) {
+                    ctx.font = 'bold 24px Arial';
+                    ctx.strokeText('✓', radius - 100, 7);
+                    ctx.fillText('✓', radius - 100, 7);
+                }
             }
 
             ctx.restore();
@@ -232,11 +266,25 @@ class WheelGame {
     spin() {
         if (this.isSpinning) return;
 
-        // Проверяем, не закончились ли вопросы
-        if (this.answeredQuestions.size >= this.data.questions.length) {
+        // Проверяем, не закончились ли основные вопросы
+        if (this.mainQuestionsAnswered >= this.totalQuestionsCount) {
             this.showGameComplete();
             return;
         }
+
+        // Получаем только активные сектора
+        const activeSectors = this.segments.filter(s => s.active);
+        if (activeSectors.length === 0) {
+            this.showGameComplete();
+            return;
+        }
+
+        // ШАГ 1: СНАЧАЛА случайно выбираем из активных секторов
+        const randomIndex = Math.floor(Math.random() * activeSectors.length);
+        this.selectedSector = activeSectors[randomIndex];
+
+        // Находим индекс выбранного сектора в полном массиве
+        const targetIndex = this.segments.indexOf(this.selectedSector);
 
         this.isSpinning = true;
         this.currentRound++;
@@ -255,8 +303,14 @@ class WheelGame {
             spinBtn.classList.add('spinning');
         }
 
-        const spins = 5 + Math.random() * 3; // 5-8 оборотов
-        const finalRotation = this.currentRotation + (spins * 2 * Math.PI);
+        // ШАГ 2: Рассчитываем финальный угол для попадания на выбранный сектор
+        const segmentAngle = (2 * Math.PI) / this.segments.length;
+        const targetAngle = targetIndex * segmentAngle;
+
+        // Добавляем несколько полных оборотов (5-8)
+        const fullSpins = 5 + Math.random() * 3;
+        const finalRotation = this.currentRotation + (fullSpins * 2 * Math.PI) + targetAngle;
+
         const duration = 4000; // 4 секунды
         const startTime = Date.now();
 
@@ -271,6 +325,7 @@ class WheelGame {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
+                this.currentRotation = finalRotation;
                 this.isSpinning = false;
                 if (spinBtn) {
                     spinBtn.classList.remove('spinning');
@@ -284,11 +339,13 @@ class WheelGame {
     }
 
     showSelectedSegment() {
-        const segmentAngle = (2 * Math.PI) / this.segments.length;
-        const normalizedRotation = (2 * Math.PI - (this.currentRotation % (2 * Math.PI))) % (2 * Math.PI);
-        const selectedIndex = Math.floor(normalizedRotation / segmentAngle) % this.segments.length;
+        // Используем предварительно выбранный сектор из метода spin()
+        const segment = this.selectedSector;
 
-        const segment = this.segments[selectedIndex];
+        if (!segment) {
+            console.error('Не выбран сектор!');
+            return;
+        }
 
         if (segment.type === 'question') {
             this.showQuestion(segment);
@@ -298,12 +355,6 @@ class WheelGame {
     }
 
     showQuestion(segment) {
-        // Проверяем, не был ли уже отвечен этот вопрос
-        if (this.answeredQuestions.has(segment.index)) {
-            this.showMessage('Этот вопрос уже был отвечен! Крутите еще раз.', 'info');
-            return;
-        }
-
         const question = segment.question;
         const questionContainer = document.getElementById('wheelQuestionContainer');
         const segmentInfo = document.getElementById('wheelSegmentInfo');
@@ -358,8 +409,14 @@ class WheelGame {
         const question = segment.question;
         const isCorrect = selectedIndex === question.correctIndex;
 
-        // Отмечаем вопрос как отвеченный
-        this.answeredQuestions.add(segment.index);
+        // ДЕАКТИВИРУЕМ СЕКТОР - он больше не может выпасть
+        segment.active = false;
+
+        // Увеличиваем счетчик ТОЛЬКО для обычных вопросов
+        // (не для отвлечённых)
+        if (segment.type === 'question') {
+            this.mainQuestionsAnswered++;
+        }
 
         // Отключаем все кнопки
         const options = document.querySelectorAll('.wheel-option');
@@ -412,8 +469,11 @@ class WheelGame {
         this.updateStats();
         this.updateProgress();
 
-        // Проверяем, закончилась ли игра
-        if (this.answeredQuestions.size >= this.data.questions.length) {
+        // Перерисовываем колесо для отображения неактивных секторов
+        this.drawWheel();
+
+        // Проверяем, закончилась ли игра (12 основных вопросов)
+        if (this.mainQuestionsAnswered >= this.totalQuestionsCount) {
             setTimeout(() => {
                 this.showGameComplete();
             }, 2000);
@@ -426,6 +486,11 @@ class WheelGame {
         const questionContent = document.getElementById('wheelQuestionContent');
 
         if (!questionContainer || !segmentInfo || !questionContent) return;
+
+        // ДЕАКТИВИРУЕМ специальный сектор - он используется только ОДИН РАЗ
+        segment.active = false;
+        this.specialSectors[segment.type].used = true;
+        this.specialSectors[segment.type].active = false;
 
         questionContainer.style.display = 'block';
         questionContent.innerHTML = '';
@@ -457,19 +522,38 @@ class WheelGame {
                 this.showMessage('✖️2 Удвоение! Следующий ответ принесет двойные очки!', 'success');
                 break;
 
-            case 'bonus':
+            case 'distraction':
+                // Отвлечённый вопрос - показываем вопрос, но НЕ увеличиваем счетчик основных вопросов
                 segmentInfo.innerHTML = `
-                    <div class="segment-info-card bonus">
-                        <span class="segment-icon">🎁</span>
-                        <span class="segment-title">БОНУС!</span>
-                        <span class="segment-text">+50 очков!</span>
+                    <div class="segment-info-card distraction">
+                        <span class="segment-icon">🎭</span>
+                        <span class="segment-title">ОТВЛЕЧЁННЫЙ ВОПРОС!</span>
+                        <span class="segment-text">Бонусный вопрос! Не влияет на основной прогресс.</span>
                     </div>
                 `;
-                this.totalScore += 50;
-                this.animateScoreIncrease(50);
-                this.showMessage('🎁 Бонус! +50 очков!', 'success');
+
+                // Если есть вопросы, показываем случайный отвлечённый вопрос
+                if (this.data.questions && this.data.questions.length > 0) {
+                    const randomQuestion = this.data.questions[Math.floor(Math.random() * this.data.questions.length)];
+                    const distractionSegment = {
+                        type: 'distraction-question',
+                        question: randomQuestion,
+                        points: 5, // Небольшие очки за отвлечённый вопрос
+                        active: false
+                    };
+
+                    // Показываем вопрос через небольшую задержку
+                    setTimeout(() => {
+                        this.showQuestion(distractionSegment);
+                    }, 2000);
+                } else {
+                    this.showMessage('🎭 Отвлечённый момент! Крутите дальше!', 'info');
+                }
                 break;
         }
+
+        // Перерисовываем колесо для отображения неактивного сектора
+        this.drawWheel();
 
         questionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -498,8 +582,10 @@ class WheelGame {
 
         if (!questionContainer || !segmentInfo || !questionContent) return;
 
-        const accuracy = this.data.questions.length > 0
-            ? Math.round((this.correctAnswers / this.data.questions.length) * 100)
+        // Точность считается от общего количества ответов (включая отвлечённые)
+        const totalAnswers = this.correctAnswers + this.wrongAnswers;
+        const accuracy = totalAnswers > 0
+            ? Math.round((this.correctAnswers / totalAnswers) * 100)
             : 0;
 
         let resultEmoji = '🏆';
@@ -527,9 +613,12 @@ class WheelGame {
                         <div class="stat-label">Точность</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value">${this.correctAnswers}/${this.data.questions.length}</div>
+                        <div class="stat-value">${this.correctAnswers}/${totalAnswers}</div>
                         <div class="stat-label">Правильно</div>
                     </div>
+                </div>
+                <div class="complete-info" style="margin-top: 20px; font-size: 14px; color: #666;">
+                    Пройдено ${this.mainQuestionsAnswered} из ${this.totalQuestionsCount} основных вопросов
                 </div>
             </div>
         `;
@@ -618,12 +707,12 @@ class WheelGame {
         const progressText = document.getElementById('wheelProgressText');
 
         if (progressFill && progressText) {
-            const total = this.data.questions?.length || 0;
-            const answered = this.answeredQuestions.size;
+            const total = this.totalQuestionsCount; // 12 основных вопросов
+            const answered = this.mainQuestionsAnswered;
             const percentage = total > 0 ? (answered / total) * 100 : 0;
 
             progressFill.style.width = `${percentage}%`;
-            progressText.textContent = `${answered} из ${total} вопросов`;
+            progressText.textContent = `${answered} из ${total} основных вопросов`;
         }
     }
 
