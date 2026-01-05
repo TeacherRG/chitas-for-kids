@@ -58,6 +58,16 @@ class TrueFalseGame {
 
         if (isCorrect) {
             buttonEl.classList.add('correct');
+
+            // Конфетти при правильном ответе! 🎉
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 60,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#FFD700', '#4CAF50', '#667eea', '#FF6B9D', '#4ECDC4']
+                });
+            }
         } else {
             buttonEl.classList.add('incorrect');
             const correctBtn = itemEl.querySelector(`[data-answer="${question.correct}"]`);
@@ -70,8 +80,21 @@ class TrueFalseGame {
 
         // Check if all answered
         this.answeredCount++;
-        if (this.answeredCount === this.totalQuestions && this.onComplete) {
-            this.onComplete(true);
+        if (this.answeredCount === this.totalQuestions) {
+            // Большое празднование при завершении всех вопросов! 🎊
+            if (typeof confetti !== 'undefined') {
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 150,
+                        spread: 100,
+                        origin: { y: 0.5 },
+                        colors: ['#FFD700', '#4CAF50', '#667eea', '#FF6B9D', '#4ECDC4']
+                    });
+                }, 400);
+            }
+            if (this.onComplete) {
+                this.onComplete(true);
+            }
         }
     }
 
