@@ -723,17 +723,32 @@ body {
 }
 
 .truefalse-item {
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-md);
-    padding: var(--space-lg);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+                0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.truefalse-item:hover {
+    border-color: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1),
+                0 3px 6px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
 }
 
 .truefalse-statement {
-    font-size: 16px;
+    font-size: 17px;
     margin-bottom: var(--space-md);
     color: var(--color-text-dark);
-    line-height: 1.6;
+    line-height: 1.7;
     font-weight: 500;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
 }
 
 .truefalse-buttons {
@@ -743,29 +758,67 @@ body {
 
 .truefalse-button {
     flex: 1;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-sm);
+    padding: 15px 20px;
+    border: 3px solid transparent;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
     cursor: pointer;
-    transition: all var(--transition-base);
-    font-size: 16px;
-    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 17px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+                0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.truefalse-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.15), transparent);
+    transition: left 0.5s;
+}
+
+.truefalse-button:hover::before {
+    left: 100%;
 }
 
 .truefalse-button:hover:not(.disabled) {
-    border-color: var(--color-primary);
-    transform: scale(1.05);
+    border-color: #667eea;
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25),
+                0 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .truefalse-button.correct {
-    background: #e8f5e9;
-    border-color: var(--color-success);
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    border-width: 3px;
+    color: #155724;
+    animation: trueBounce 0.6s ease-out;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.35),
+                0 0 20px rgba(40, 167, 69, 0.2);
+}
+
+@keyframes trueBounce {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.1) rotate(2deg); }
+    50% { transform: scale(1.15) rotate(-2deg); }
+    75% { transform: scale(1.05) rotate(1deg); }
 }
 
 .truefalse-button.incorrect {
-    background: #ffebee;
-    border-color: var(--color-error);
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-color: #dc3545;
+    border-width: 3px;
+    color: #721c24;
+    animation: shake 0.5s ease-out;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.35);
 }
 
 .truefalse-button.disabled {
@@ -774,18 +827,32 @@ body {
 }
 
 .truefalse-explanation {
-    margin-top: var(--space-sm);
-    padding: var(--space-sm);
-    background: var(--color-bg-secondary);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    color: var(--color-text-light);
+    margin-top: var(--space-md);
+    padding: 15px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+    border-radius: 10px;
+    border-left: 4px solid #2196F3;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-text-dark);
     display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .truefalse-explanation.show {
     display: block;
-    animation: fadeIn var(--transition-base);
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ============================================
