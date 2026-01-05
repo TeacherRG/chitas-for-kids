@@ -43,8 +43,8 @@ class WheelGame {
     }
 
     calculatePoints(index, total) {
-        // Различные значения баллов для разнообразия
-        const pointValues = [100, 200, 300, 400, 500, 150, 250, 350, 450, 600];
+        // Различные значения баллов для разнообразия (уменьшено в 10 раз для баланса)
+        const pointValues = [10, 20, 30, 40, 50, 15, 25, 35, 45, 60];
         return pointValues[index % pointValues.length];
     }
 
@@ -53,7 +53,7 @@ class WheelGame {
         const specialSegments = [
             { type: 'bankrupt', points: 0, label: '💥 БАНКРОТ', color: '#2C3E50' },
             { type: 'double', points: 0, label: '✖️2 УДВОЕНИЕ', color: '#27AE60' },
-            { type: 'bonus', points: 500, label: '🎁 БОНУС 500', color: '#F39C12' }
+            { type: 'bonus', points: 50, label: '🎁 БОНУС 50', color: '#F39C12' }
         ];
 
         // Вставляем специальные сегменты в случайные позиции
@@ -462,12 +462,12 @@ class WheelGame {
                     <div class="segment-info-card bonus">
                         <span class="segment-icon">🎁</span>
                         <span class="segment-title">БОНУС!</span>
-                        <span class="segment-text">+500 очков!</span>
+                        <span class="segment-text">+50 очков!</span>
                     </div>
                 `;
-                this.totalScore += 500;
-                this.animateScoreIncrease(500);
-                this.showMessage('🎁 Бонус! +500 очков!', 'success');
+                this.totalScore += 50;
+                this.animateScoreIncrease(50);
+                this.showMessage('🎁 Бонус! +50 очков!', 'success');
                 break;
         }
 
