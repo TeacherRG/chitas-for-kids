@@ -82,9 +82,30 @@ class MatchGame {
                     first.element.classList.add('matched');
                     second.element.classList.add('matched');
                     this.matched.push(first.pairId);
-                    
+
+                    // Конфетти для каждой правильной пары! 🎉
+                    if (typeof confetti !== 'undefined') {
+                        confetti({
+                            particleCount: 50,
+                            spread: 60,
+                            origin: { y: 0.6 },
+                            colors: ['#FFD700', '#667eea', '#38ef7d', '#FF6B9D']
+                        });
+                    }
+
                     // Check if all matched
                     if (this.matched.length === this.data.pairs.length) {
+                        // Большое празднование при завершении всей игры! 🎊
+                        if (typeof confetti !== 'undefined') {
+                            setTimeout(() => {
+                                confetti({
+                                    particleCount: 150,
+                                    spread: 100,
+                                    origin: { y: 0.5 },
+                                    colors: ['#FFD700', '#667eea', '#38ef7d', '#FF6B9D', '#4ECDC4']
+                                });
+                            }, 300);
+                        }
                         if (this.onComplete) this.onComplete(true);
                     }
                 } else {

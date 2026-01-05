@@ -58,6 +58,17 @@ class QuizGame {
         
         if (isCorrect) {
             options[optionIndex].classList.add('correct');
+
+            // Конфетти при правильном ответе! 🎉
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#FFD700', '#4CAF50', '#667eea', '#FF6B9D']
+                });
+            }
+
             this.showFeedback(true, this.data.explanation);
             if (this.onComplete) this.onComplete(true);
         } else {
