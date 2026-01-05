@@ -538,20 +538,45 @@ class ChitasApp {
     async renderGamesContainer(section) {
         if (!section.games || section.games.length === 0) return '';
 
+        const isCompleted = this.isSectionCompleted(section.id);
         let html = '<div class="game-container">';
 
         if (section.games.length > 1) {
             html += `
                 <div class="game-menu" id="gameMenu">
-                    <h3>🎮 Выбери игру!</h3>
+                    <h3>🎮 ${isCompleted ? 'Секция пройдена! ✅' : 'Выбери игру!'}</h3>
                     <div class="game-buttons">
             `;
 
             for (let index = 0; index < section.games.length; index++) {
                 const game = section.games[index];
-                html += `<button class="game-button" data-game-index="${index}">${this.getGameIcon(game.type)} ${this.escapeHtml(game.title)}</button>`;
+                const completedClass = isCompleted ? 'completed-game' : '';
+                const completedIcon = isCompleted ? '✅' : this.getGameIcon(game.type);
+                html += `<button class="game-button ${completedClass}" data-game-index="${index}">${completedIcon} ${this.escapeHtml(game.title)}</button>`;
             }
             html += '</div></div>';
+        } else if (section.games.length === 1 && isCompleted) {
+            // Для одиночной игры, если секция пройдена, показываем сообщение сразу
+            html += `
+                <div class="game-completed-message" style="
+                    text-align: center;
+                    padding: 40px 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    color: white;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    margin-top: 20px;
+                ">
+                    <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                    <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту секцию!</h3>
+                    <p style="font-size: 16px; opacity: 0.9; margin-bottom: 20px;">
+                        Отличная работа! Вы уже заработали баллы за эту секцию.
+                    </p>
+                    <p style="font-size: 14px; opacity: 0.8;">
+                        Попробуйте другие разделы, чтобы заработать больше баллов!
+                    </p>
+                </div>
+            `;
         }
 
         section.games.forEach((game, index) => {
@@ -630,6 +655,13 @@ class ChitasApp {
     }
 
     showGame(section, gameIndex) {
+        // Проверяем, не пройдена ли уже секция
+        if (this.isSectionCompleted(section.id)) {
+            // Показываем сообщение вместо игры
+            this.showCompletedMessage(section, gameIndex);
+            return;
+        }
+
         // Clear all game wrappers
         document.querySelectorAll('.game-wrapper').forEach(wrapper => {
             wrapper.innerHTML = '';
@@ -644,6 +676,36 @@ class ChitasApp {
         }
 
         // Keep game menu visible - don't hide it
+    }
+
+    showCompletedMessage(section, gameIndex) {
+        // Clear all game wrappers
+        document.querySelectorAll('.game-wrapper').forEach(wrapper => {
+            wrapper.innerHTML = '';
+        });
+
+        const container = document.querySelector(`.game-wrapper[data-game-index="${gameIndex}"]`);
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="game-completed-message" style="
+                text-align: center;
+                padding: 40px 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 15px;
+                color: white;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            ">
+                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту викторину!</h3>
+                <p style="font-size: 16px; opacity: 0.9; margin-bottom: 20px;">
+                    Отличная работа! Вы уже заработали баллы за эту секцию.
+                </p>
+                <p style="font-size: 14px; opacity: 0.8;">
+                    Попробуйте другие разделы, чтобы заработать больше баллов!
+                </p>
+            </div>
+        `;
     }
 
     isSectionCompleted(sectionId) {

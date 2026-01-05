@@ -578,6 +578,20 @@ body {
     transform: scale(1.05);
 }
 
+.game-button.completed-game {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+    opacity: 0.9;
+}
+
+.game-button.completed-game:hover {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    opacity: 1;
+    transform: scale(1.02);
+}
+
 /* ============================================
    QUIZ GAME
    ============================================ */
