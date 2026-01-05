@@ -20,6 +20,7 @@ class AchievementsManager {
     /**
      * Подсчёт текущего стрика (серии дней подряд)
      * КРИТИЧНО для визуализации огонька
+     * ВАЖНО: Пропуск в субботу не сбрасывает стрик (достаточно 6 дней в неделю)
      */
     calculateStreak() {
         const completedDates = Object.keys(this.app.state.completed)
@@ -41,7 +42,15 @@ class AchievementsManager {
             if (completedDates.includes(checkDateStr)) {
                 streak++;
             } else {
-                break;
+                // Проверяем, является ли пропущенный день субботой (6 = суббота)
+                const dayOfWeek = checkDate.getDay();
+                if (dayOfWeek === 6) {
+                    // Суббота - пропускаем без сброса стрика
+                    continue;
+                } else {
+                    // Любой другой день - сбрасываем стрик
+                    break;
+                }
             }
         }
 
