@@ -174,9 +174,17 @@ class AchievementsManager {
     }
 
     /**
-     * Функция "Поделиться успехами" в WhatsApp/Telegram
+     * Проверка, является ли устройство мобильным
      */
-    shareProgress(platform) {
+    isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    /**
+     * Функция "Поделиться успехами" в WhatsApp/Telegram
+     * С поддержкой Web Share API для правильного отображения эмодзи на десктопе
+     */
+    async shareProgress(platform) {
         const currentStreak = this.calculateStreak();
         const level = this.calculateLevel();
         const weeklyBadges = this.getWeeklyBadges();
@@ -190,10 +198,29 @@ class AchievementsManager {
             `Присоединяйся! 📖\n` +
             `www.mychitas.app`;
 
+        // Проверяем, доступен ли Web Share API (для правильного отображения эмодзи на десктопе)
+        if (navigator.share && !this.isMobileDevice()) {
+            try {
+                await navigator.share({
+                    title: 'Мой прогресс в Хитас для вундеркиндов!',
+                    text: message
+                });
+                return;
+            } catch (err) {
+                // Если пользователь отменил или произошла ошибка, продолжаем с обычным методом
+                console.log('Web Share cancelled or failed:', err);
+            }
+        }
+
+        // Для мобильных устройств или если Web Share не доступен - используем прямые ссылки
         const encodedMessage = encodeURIComponent(message);
 
         if (platform === 'whatsapp') {
-            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            // На мобильных устройствах используем api.whatsapp.com для лучшей совместимости
+            const whatsappUrl = this.isMobileDevice()
+                ? `https://api.whatsapp.com/send?text=${encodedMessage}`
+                : `https://web.whatsapp.com/send?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
         } else if (platform === 'telegram') {
             window.open(`https://t.me/share/url?url=&text=${encodedMessage}`, '_blank');
         }
