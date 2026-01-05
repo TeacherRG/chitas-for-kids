@@ -52,6 +52,14 @@
       "specialDay": "",
       "content": "2026-01-04-content.json",
       "games": "2026-01-04-games.json"
+    },
+    {
+      "date": "2026-01-05",
+      "hebrew": "ט״ז טבת ה׳תשפ״ו",
+      "parsha": "Шмот",
+      "specialDay": "",
+      "content": "2026-01-05-content.json",
+      "games": "2026-01-05-games.json"
     }
   ]
 }
