@@ -538,25 +538,26 @@ class ChitasApp {
     async renderGamesContainer(section) {
         if (!section.games || section.games.length === 0) return '';
 
-        const isCompleted = this.isSectionCompleted(section.id);
+        const isSectionCompleted = this.isSectionCompleted(section.id);
         let html = '<div class="game-container">';
 
         if (section.games.length > 1) {
             html += `
                 <div class="game-menu" id="gameMenu">
-                    <h3>🎮 ${isCompleted ? 'Секция пройдена! ✅' : 'Выбери игру!'}</h3>
+                    <h3>🎮 ${isSectionCompleted ? 'Секция пройдена! ✅' : 'Выбери игру!'}</h3>
                     <div class="game-buttons">
             `;
 
             for (let index = 0; index < section.games.length; index++) {
                 const game = section.games[index];
-                const completedClass = isCompleted ? 'completed-game' : '';
-                const completedIcon = isCompleted ? '✅' : this.getGameIcon(game.type);
+                const isGameCompleted = this.isGameCompleted(section.id, index);
+                const completedClass = isGameCompleted ? 'completed-game' : '';
+                const completedIcon = isGameCompleted ? '✅' : this.getGameIcon(game.type);
                 html += `<button class="game-button ${completedClass}" data-game-index="${index}">${completedIcon} ${this.escapeHtml(game.title)}</button>`;
             }
             html += '</div></div>';
-        } else if (section.games.length === 1 && isCompleted) {
-            // Для одиночной игры, если секция пройдена, показываем сообщение сразу
+        } else if (section.games.length === 1 && this.isGameCompleted(section.id, 0)) {
+            // Для одиночной игры, если игра пройдена, показываем сообщение сразу
             html += `
                 <div class="game-completed-message" style="
                     text-align: center;
@@ -568,9 +569,9 @@ class ChitasApp {
                     margin-top: 20px;
                 ">
                     <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
-                    <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту секцию!</h3>
+                    <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту игру!</h3>
                     <p style="font-size: 16px; opacity: 0.9; margin-bottom: 20px;">
-                        Отличная работа! Вы уже заработали баллы за эту секцию.
+                        Отличная работа! Вы уже заработали баллы за эту игру.
                     </p>
                     <p style="font-size: 14px; opacity: 0.8;">
                         Попробуйте другие разделы, чтобы заработать больше баллов!
@@ -629,7 +630,7 @@ class ChitasApp {
         if (!container) return;
 
         const onComplete = (success) => {
-            if (success) this.addScore(section.points, section.id);
+            if (success) this.addScore(section.points, section.id, index);
         };
 
         const gameInstance = this.gameFactory.create(gameData, container, onComplete);
@@ -655,8 +656,8 @@ class ChitasApp {
     }
 
     showGame(section, gameIndex) {
-        // Проверяем, не пройдена ли уже секция
-        if (this.isSectionCompleted(section.id)) {
+        // Проверяем, не пройдена ли уже эта конкретная игра
+        if (this.isGameCompleted(section.id, gameIndex)) {
             // Показываем сообщение вместо игры
             this.showCompletedMessage(section, gameIndex);
             return;
@@ -697,22 +698,50 @@ class ChitasApp {
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             ">
                 <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
-                <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту викторину!</h3>
+                <h3 style="font-size: 24px; margin-bottom: 15px; color: white;">Вы уже прошли эту игру!</h3>
                 <p style="font-size: 16px; opacity: 0.9; margin-bottom: 20px;">
-                    Отличная работа! Вы уже заработали баллы за эту секцию.
+                    Отличная работа! Вы уже заработали баллы за эту игру.
                 </p>
                 <p style="font-size: 14px; opacity: 0.8;">
-                    Попробуйте другие разделы, чтобы заработать больше баллов!
+                    Попробуйте другие игры в этой секции или другие разделы!
                 </p>
             </div>
         `;
     }
 
-    isSectionCompleted(sectionId) {
-        return this.state.completed[this.currentDate]?.[sectionId] || false;
+    /**
+     * Check if a specific game is completed
+     */
+    isGameCompleted(sectionId, gameIndex) {
+        const dateKey = this.currentDate;
+        const sectionGames = this.state.completed[dateKey]?.[sectionId];
+
+        // Old format compatibility: if sectionGames is boolean (old format), return it
+        if (typeof sectionGames === 'boolean') {
+            return sectionGames;
+        }
+
+        // New format: check specific game
+        return sectionGames?.[gameIndex] || false;
     }
 
-    addScore(points, sectionId) {
+    /**
+     * Check if all games in a section are completed
+     */
+    isSectionCompleted(sectionId) {
+        const section = this.contentData?.sections?.find(s => s.id === sectionId);
+        if (!section || !section.games || section.games.length === 0) return false;
+
+        // Check if all games are completed
+        for (let i = 0; i < section.games.length; i++) {
+            if (!this.isGameCompleted(sectionId, i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    addScore(points, sectionId, gameIndex) {
         const dateKey = this.currentDate;
 
         if (!this.state.completed[dateKey]) {
@@ -720,9 +749,19 @@ class ChitasApp {
         }
 
         if (!this.state.completed[dateKey][sectionId]) {
-            this.state.score += points;
+            this.state.completed[dateKey][sectionId] = {};
+        }
+
+        // Check if this specific game is already completed
+        if (!this.state.completed[dateKey][sectionId][gameIndex]) {
+            // Calculate points per game (divide section points by number of games)
+            const section = this.contentData.sections.find(s => s.id === sectionId);
+            const gamesCount = section?.games?.length || 1;
+            const pointsPerGame = Math.round(points / gamesCount);
+
+            this.state.score += pointsPerGame;
             this.state.stars += 1;
-            this.state.completed[dateKey][sectionId] = true;
+            this.state.completed[dateKey][sectionId][gameIndex] = true;
 
             this.saveProgress();
             this.updateProgress();
