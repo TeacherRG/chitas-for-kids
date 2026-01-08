@@ -1,0 +1,111 @@
+{
+  "date": "YYYY-MM-DD",
+  "hebrewDate": "__ טבת ה׳תשפ״ו (__ Тевета 5786)",
+  "parsha": "Название недельной главы",
+  "dedication": "За безопасность и успех евреев в Земле Израиля и успех солдат, защищающих её",
+  "specialDay": null,
+  "mazalTov": [],
+  "sections": [
+    {
+      "id": "chumash",
+      "title": "ХУМАШ",
+      "subtitle": "Название главы - День X",
+      "icon": "📖",
+      "category": "chumash",
+      "color": "#FF6B6B",
+      "points": 50,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": [
+          {
+            "type": "text",
+            "text": "Основной текст урока..."
+          },
+          {
+            "type": "heading",
+            "text": "Заголовок раздела"
+          },
+          {
+            "type": "teaching",
+            "title": "Важное учение:",
+            "text": "Текст учения..."
+          },
+          {
+            "type": "example",
+            "title": "Пример:",
+            "text": "Текст примера..."
+          },
+          {
+            "type": "highlight",
+            "text": "Важная мысль для запоминания"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tehillim",
+      "title": "ТЕИЛИМ",
+      "subtitle": "Главы X-Y",
+      "icon": "📿",
+      "category": "tehillim",
+      "color": "#4ECDC4",
+      "points": 40,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": []
+      }
+    },
+    {
+      "id": "tanya",
+      "title": "ТАНИЯ",
+      "subtitle": "Ликутей Амарим - Глава X",
+      "icon": "📕",
+      "category": "tanya",
+      "color": "#45B7D1",
+      "points": 45,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": []
+      }
+    },
+    {
+      "id": "hayom-yom",
+      "title": "HAYOM YOM",
+      "subtitle": "__ Тевета",
+      "icon": "📅",
+      "category": "hayom-yom",
+      "color": "#FFEAA7",
+      "points": 35,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": []
+      }
+    },
+    {
+      "id": "rambam",
+      "title": "РАМБАМ",
+      "subtitle": "Законы XXX - Главы X-Y",
+      "icon": "⚖️",
+      "category": "rambam",
+      "color": "#96CEB4",
+      "points": 45,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": []
+      }
+    },
+    {
+      "id": "geula",
+      "title": "ГЕУЛА И МОШИАХ",
+      "subtitle": "Тема дня",
+      "icon": "👑",
+      "category": "geula",
+      "color": "#DFE6E9",
+      "points": 30,
+      "content": {
+        "title": "Заголовок урока",
+        "paragraphs": []
+      }
+    }
+  ]
+}
