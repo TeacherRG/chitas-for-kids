@@ -429,8 +429,9 @@ class ChitasApp {
         tile.className = 'tile';
         tile.dataset.category = section.category;
         tile.style.setProperty('color', section.color);
-        
-        const isCompleted = this.isSectionCompleted(section.id);
+
+        // Section is considered completed if at least one game is completed
+        const isCompleted = this.isSectionPartiallyCompleted(section.id);
         const preview = this.getPreviewText(section);
 
         tile.innerHTML = `
@@ -538,13 +539,22 @@ class ChitasApp {
     async renderGamesContainer(section) {
         if (!section.games || section.games.length === 0) return '';
 
-        const isSectionCompleted = this.isSectionCompleted(section.id);
+        const isPartiallyCompleted = this.isSectionPartiallyCompleted(section.id);
+        const isFullyCompleted = this.isSectionCompleted(section.id);
         let html = '<div class="game-container">';
 
         if (section.games.length > 1) {
+            // Определяем статус для заголовка
+            let statusText = 'Выбери игру!';
+            if (isFullyCompleted) {
+                statusText = 'Все игры пройдены! ✅';
+            } else if (isPartiallyCompleted) {
+                statusText = 'Продолжай играть! 🎯';
+            }
+
             html += `
                 <div class="game-menu" id="gameMenu">
-                    <h3>🎮 ${isSectionCompleted ? 'Секция пройдена! ✅' : 'Выбери игру!'}</h3>
+                    <h3>🎮 ${statusText}</h3>
                     <div class="game-buttons">
             `;
 
@@ -726,6 +736,22 @@ class ChitasApp {
     }
 
     /**
+     * Check if at least one game in a section is completed
+     */
+    isSectionPartiallyCompleted(sectionId) {
+        const section = this.contentData?.sections?.find(s => s.id === sectionId);
+        if (!section || !section.games || section.games.length === 0) return false;
+
+        // Check if at least one game is completed
+        for (let i = 0; i < section.games.length; i++) {
+            if (this.isGameCompleted(sectionId, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Check if all games in a section are completed
      */
     isSectionCompleted(sectionId) {
@@ -772,8 +798,16 @@ class ChitasApp {
 
     updateProgress() {
         const dateKey = this.currentDate;
-        const completedCount = Object.keys(this.state.completed[dateKey] || {}).length;
-        const totalSections = this.contentData.sections.length;
+
+        // Count only fully completed sections (all games in section completed)
+        let completedCount = 0;
+        if (this.contentData && this.contentData.sections) {
+            completedCount = this.contentData.sections.filter(section =>
+                this.isSectionCompleted(section.id)
+            ).length;
+        }
+
+        const totalSections = this.contentData?.sections?.length || 0;
         const percentage = totalSections > 0 ? Math.round((completedCount / totalSections) * 100) : 0;
 
         this.setTextContent('scoreValue', this.state.score);
