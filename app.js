@@ -127,6 +127,11 @@ class ChitasApp {
             }
         });
 
+        // Обработчик для кнопки email на странице спонсорства
+        this.addClickHandler('sponsorEmailBtn', () => {
+            window.location.href = 'mailto:office@mychitas.app?subject=Спонсорство проекта Хитас для вундеркиндов&body=Здравствуйте!%0A%0AЯ заинтересован(а) в спонсорстве проекта "Хитас для вундеркиндов".%0A%0AПожалуйста, предоставьте мне информацию о:%0A- Реквизитах для оплаты%0A- Деталях спонсорства%0A- Вариантах посвящений%0A%0AС уважением,';
+        });
+
         // Обработчики для информационных секций помощи
         document.querySelectorAll('[data-help-section]').forEach(item => {
             item.addEventListener('click', () => {
