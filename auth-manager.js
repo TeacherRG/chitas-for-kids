@@ -14,15 +14,20 @@ class AuthManager {
     this.BLOCK_DURATION = 15 * 60 * 1000; // 15 минут блокировки
     this.ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 минут для сброса счетчика
 
-    // Слушаем изменения состояния аутентификации
-    auth.onAuthStateChanged((user) => {
-      this.currentUser = user;
-      console.log('Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
+    // Проверяем доступность Firebase auth перед использованием
+    if (typeof auth !== 'undefined' && auth) {
+      // Слушаем изменения состояния аутентификации
+      auth.onAuthStateChanged((user) => {
+        this.currentUser = user;
+        console.log('Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
 
-      if (this.onAuthStateChangedCallback) {
-        this.onAuthStateChangedCallback(user);
-      }
-    });
+        if (this.onAuthStateChangedCallback) {
+          this.onAuthStateChangedCallback(user);
+        }
+      });
+    } else {
+      console.warn('⚠️ Firebase Auth not available - authentication features disabled');
+    }
   }
 
   /**
@@ -244,5 +249,12 @@ class AuthManager {
   }
 }
 
-// Глобальный экземпляр
-window.authManager = new AuthManager();
+// Глобальный экземпляр - обернут в try-catch для предотвращения сбоя приложения
+try {
+  window.authManager = new AuthManager();
+  console.log('✅ AuthManager initialized successfully');
+} catch (error) {
+  console.error('❌ Failed to initialize AuthManager:', error);
+  // Создаем пустой объект для предотвращения ошибок в других частях приложения
+  window.authManager = null;
+}

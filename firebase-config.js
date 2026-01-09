@@ -18,32 +18,47 @@ const firebaseConfig = {
 // Глобальные переменные для использования в других файлах
 var auth, db, googleProvider;
 
-try {
-  firebase.initializeApp(firebaseConfig);
-  console.log('🔥 Firebase app initialized successfully');
+// Проверяем доступность Firebase SDK
+if (typeof firebase === 'undefined') {
+  console.warn('⚠️ Firebase SDK not loaded - authentication features will be disabled');
+  console.log('ℹ️ This does not affect core app functionality');
+  // Устанавливаем переменные в undefined для корректной проверки в других модулях
+  auth = undefined;
+  db = undefined;
+  googleProvider = undefined;
+} else {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    console.log('🔥 Firebase app initialized successfully');
 
-  // Экспорт сервисов (глобальные переменные)
-  auth = firebase.auth();
-  db = firebase.firestore();
+    // Экспорт сервисов (глобальные переменные)
+    auth = firebase.auth();
+    db = firebase.firestore();
 
-  // Настройка Google провайдера
-  googleProvider = new firebase.auth.GoogleAuthProvider();
+    // Настройка Google провайдера
+    googleProvider = new firebase.auth.GoogleAuthProvider();
 
-  // Проверка подключения к Firestore
-  db.enablePersistence({ synchronizeTabs: true })
-    .then(() => {
-      console.log('✅ Firestore persistence enabled');
-    })
-    .catch((err) => {
-      if (err.code === 'failed-precondition') {
-        console.warn('⚠️ Persistence failed: Multiple tabs open');
-      } else if (err.code === 'unimplemented') {
-        console.warn('⚠️ Persistence not available in this browser');
-      }
-    });
+    // Проверка подключения к Firestore
+    db.enablePersistence({ synchronizeTabs: true })
+      .then(() => {
+        console.log('✅ Firestore persistence enabled');
+      })
+      .catch((err) => {
+        if (err.code === 'failed-precondition') {
+          console.warn('⚠️ Persistence failed: Multiple tabs open');
+        } else if (err.code === 'unimplemented') {
+          console.warn('⚠️ Persistence not available in this browser');
+        }
+      });
 
-  console.log('🔥 Firebase initialized successfully');
-} catch (error) {
-  console.error('❌ Firebase initialization failed:', error);
-  alert('❌ Ошибка инициализации Firebase. Проверьте консоль для деталей.');
+    console.log('🔥 Firebase initialized successfully');
+  } catch (error) {
+    console.error('❌ Firebase initialization failed:', error);
+    console.log('ℹ️ App will continue without authentication features');
+    // НЕ показываем alert, чтобы не пугать пользователя
+    // Устанавливаем переменные в undefined
+    auth = undefined;
+    db = undefined;
+    googleProvider = undefined;
+  }
 }

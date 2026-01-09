@@ -312,12 +312,16 @@ class ChitasApp {
 
     async loadData() {
         try {
+            console.log('🔄 loadData() started for date:', this.currentDate);
             // Если индекс еще не загружен, загружаем его
             if (!this.dateIndex || !this.availableDates) {
+                console.log('📥 Loading index...');
                 await this.loadIndex();
             }
 
+            console.log('🔍 Searching for date entry:', this.currentDate);
             let dateEntry = this.dateIndex.dates.find(d => d.date === this.currentDate);
+            console.log('📌 Date entry found:', dateEntry);
 
             // If current date not found, try to find previous available date
             if (!dateEntry) {
@@ -345,9 +349,14 @@ class ChitasApp {
             if (contentResponse.ok && gamesResponse.ok) {
                 this.contentData = await contentResponse.json();
                 this.gamesData = await gamesResponse.json();
+                console.log('✅ Data loaded successfully');
+                console.log('📊 contentData.hebrewDate:', this.contentData.hebrewDate);
+                console.log('📊 contentData.dedication:', this.contentData.dedication);
 
                 this.mergeData();
+                console.log('🔗 Data merged');
                 this.renderPage();
+                console.log('🎨 Page rendered');
 
                 // Update navigation buttons state after loading
                 this.updateNavigationButtons();
@@ -355,7 +364,7 @@ class ChitasApp {
                 throw new Error('Failed to load data files');
             }
         } catch (error) {
-            console.error('Error loading data:', error);
+            console.error('❌ Error loading data:', error);
             this.showError('Ошибка загрузки данных');
         }
     }
@@ -380,8 +389,24 @@ class ChitasApp {
     }
 
     updateDateDisplay() {
-        this.setTextContent('hebrewDate', this.contentData.hebrewDate);
-        this.setTextContent('dedication', this.contentData.dedication);
+        console.log('📅 updateDateDisplay() called');
+
+        if (!this.contentData) {
+            console.error('❌ contentData is not available!');
+            this.setTextContent('hebrewDate', 'Ошибка загрузки данных');
+            this.setTextContent('dedication', '');
+            return;
+        }
+
+        console.log('   hebrewDate value:', this.contentData.hebrewDate);
+        console.log('   dedication value:', this.contentData.dedication);
+
+        const hebrewDate = this.contentData.hebrewDate || 'Дата не указана';
+        const dedication = this.contentData.dedication || '';
+
+        this.setTextContent('hebrewDate', hebrewDate);
+        this.setTextContent('dedication', dedication);
+        console.log('   DOM updated with:', { hebrewDate, dedication });
     }
 
     renderMazelTov() {
@@ -1138,7 +1163,14 @@ class ChitasApp {
 
     setTextContent(elementId, text) {
         const element = document.getElementById(elementId);
-        if (element) element.textContent = text;
+        if (!element) {
+            console.warn(`⚠️  Element with id "${elementId}" not found`);
+            return;
+        }
+
+        // Convert null/undefined to empty string to avoid displaying "null" or "undefined"
+        const safeText = text == null ? '' : String(text);
+        element.textContent = safeText;
     }
 
     escapeHtml(text) {
