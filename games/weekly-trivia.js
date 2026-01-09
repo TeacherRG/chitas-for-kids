@@ -85,6 +85,15 @@ class WeeklyTriviaManager {
             match: true,
             truefalse: true
         };
+
+        // Таймер
+        this.timerDuration = 30; // 30 секунд
+        this.timeRemaining = 30;
+        this.timerInterval = null;
+        this.timerEnabled = true;
+
+        // Звуковой менеджер
+        this.soundManager = new TriviaSoundManager();
     }
 
     /**
@@ -405,6 +414,132 @@ class WeeklyTriviaManager {
     }
 
     /**
+     * Запускает таймер
+     */
+    startTimer() {
+        if (!this.timerEnabled) return;
+
+        this.stopTimer(); // Останавливаем предыдущий таймер если есть
+        this.timeRemaining = this.timerDuration;
+        this.updateTimerDisplay();
+
+        this.timerInterval = setInterval(() => {
+            this.timeRemaining--;
+            this.updateTimerDisplay();
+
+            // Звук тика каждую секунду в последние 5 секунд
+            if (this.timeRemaining <= 5 && this.timeRemaining > 0) {
+                this.soundManager.playTickSound();
+            }
+
+            // Предупреждение на 10 секундах
+            if (this.timeRemaining === 10) {
+                this.soundManager.playWarningSound();
+            }
+
+            // Время вышло
+            if (this.timeRemaining <= 0) {
+                this.stopTimer();
+                this.soundManager.playTimeUpSound();
+                this.handleTimeUp();
+            }
+        }, 1000);
+
+        // Звук начала
+        this.soundManager.playStartSound();
+    }
+
+    /**
+     * Останавливает таймер
+     */
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    /**
+     * Обновляет отображение таймера
+     */
+    updateTimerDisplay() {
+        const timerElement = document.getElementById('weeklyQuizTimer');
+        const timerBarElement = document.getElementById('weeklyQuizTimerBar');
+
+        if (timerElement) {
+            timerElement.textContent = this.timeRemaining;
+
+            // Меняем цвет при малом времени
+            if (this.timeRemaining <= 5) {
+                timerElement.style.color = '#f44336';
+                timerElement.style.animation = 'pulse-timer 0.5s infinite';
+            } else if (this.timeRemaining <= 10) {
+                timerElement.style.color = '#ff9800';
+            } else {
+                timerElement.style.color = 'white';
+                timerElement.style.animation = 'none';
+            }
+        }
+
+        if (timerBarElement) {
+            const percentage = (this.timeRemaining / this.timerDuration) * 100;
+            timerBarElement.style.width = `${percentage}%`;
+
+            // Меняем цвет полосы
+            if (this.timeRemaining <= 5) {
+                timerBarElement.style.background = '#f44336';
+            } else if (this.timeRemaining <= 10) {
+                timerBarElement.style.background = '#ff9800';
+            } else {
+                timerBarElement.style.background = 'white';
+            }
+        }
+    }
+
+    /**
+     * Обработчик истечения времени
+     */
+    handleTimeUp() {
+        // Автоматически засчитываем как неправильный ответ
+        this.answers.push({
+            gameIndex: this.currentQuestionIndex,
+            correct: false,
+            timeUp: true
+        });
+
+        // Показываем сообщение
+        const gameContainer = document.getElementById('weeklyGameContainer');
+        if (gameContainer) {
+            const timeUpMessage = document.createElement('div');
+            timeUpMessage.className = 'time-up-message';
+            timeUpMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; background: #f44336; color: white; border-radius: 10px; margin: 20px 0;">
+                    <div style="font-size: 48px;">⏰</div>
+                    <h3>Время вышло!</h3>
+                    <p>К сожалению, вы не успели ответить</p>
+                </div>
+            `;
+            gameContainer.appendChild(timeUpMessage);
+
+            // Отключаем все интерактивные элементы
+            gameContainer.querySelectorAll('.weekly-quiz-option, .truefalse-btn, .match-item, button').forEach(el => {
+                el.style.pointerEvents = 'none';
+                el.style.opacity = '0.5';
+            });
+        }
+
+        // Показываем кнопку "Далее"
+        const navContainer = document.getElementById('weeklyQuizNav');
+        if (navContainer) {
+            navContainer.style.display = 'flex';
+            const nextBtn = document.getElementById('weeklyQuizNextBtn');
+            if (nextBtn) {
+                nextBtn.onclick = () => this.nextGame();
+            }
+        }
+    }
+
+    /**
      * Рендерит текущую игру
      */
     renderCurrentGame() {
@@ -415,11 +550,18 @@ class WeeklyTriviaManager {
         const gameType = currentGame.type;
         const gameData = currentGame.gameData;
 
-        // Создаем обертку для игры
+        // Создаем обертку для игры с таймером
         container.innerHTML = `
             <div class="weekly-question-card">
                 <div class="weekly-question-day" style="background: ${this.currentSection.color};">
                     ${currentGame.day} • ${GAME_TYPES[gameType].icon} ${GAME_TYPES[gameType].title}
+                </div>
+                <div class="weekly-quiz-timer-container">
+                    <div class="timer-label">Время:</div>
+                    <div class="timer-display" id="weeklyQuizTimer">${this.timerDuration}</div>
+                    <div class="timer-bar-container">
+                        <div class="timer-bar" id="weeklyQuizTimerBar" style="width: 100%;"></div>
+                    </div>
                 </div>
                 <div id="weeklyGameContainer"></div>
                 <div class="weekly-quiz-nav" id="weeklyQuizNav" style="display: none;">
@@ -433,6 +575,9 @@ class WeeklyTriviaManager {
 
         // Обновляем прогресс
         this.updateProgress();
+
+        // Запускаем таймер
+        this.startTimer();
     }
 
     /**
@@ -608,6 +753,16 @@ class WeeklyTriviaManager {
      * Обработчик завершения игры
      */
     handleGameComplete(isCorrect, element, gameData) {
+        // Останавливаем таймер
+        this.stopTimer();
+
+        // Воспроизводим звук
+        if (isCorrect) {
+            this.soundManager.playCorrectSound();
+        } else {
+            this.soundManager.playIncorrectSound();
+        }
+
         // Отключаем все интерактивные элементы
         if (element) {
             const parent = element.closest('#weeklyGameContainer');
@@ -681,12 +836,20 @@ class WeeklyTriviaManager {
      * Показывает результаты
      */
     showResults() {
+        // Останавливаем таймер если он еще работает
+        this.stopTimer();
+
         const container = document.getElementById('weeklyQuizQuestionContainer');
         if (!container) return;
 
         const percentage = Math.round((this.score / this.currentQuiz.gamesCount) * 100);
         const passed = percentage >= 70;
         const bonusEarned = passed && !this.isWeeklyQuizCompleted(this.currentQuiz.sectionId);
+
+        // Воспроизводим звук завершения
+        if (passed) {
+            this.soundManager.playCompleteSound();
+        }
 
         container.innerHTML = `
             <div class="weekly-quiz-results">

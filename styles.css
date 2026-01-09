@@ -3177,6 +3177,76 @@ body {
     opacity: 0.7;
 }
 
+/* Weekly Quiz Timer */
+.weekly-quiz-timer-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.timer-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.timer-display {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    min-width: 60px;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 5px 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.timer-bar-container {
+    flex: 1;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.timer-bar {
+    height: 100%;
+    background: white;
+    border-radius: 6px;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+/* Timer pulse animation */
+@keyframes pulse-timer {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Time up message */
+.time-up-message {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 /* Responsive styles for weekly trivia games */
 @media (max-width: 768px) {
     .match-game-container {
@@ -3194,5 +3264,16 @@ body {
     .game-type-toggles {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .weekly-quiz-timer-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .timer-display {
+        font-size: 28px;
+        align-self: center;
     }
 }
