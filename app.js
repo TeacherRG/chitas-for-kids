@@ -73,6 +73,9 @@ class ChitasApp {
         // Инициализируем менеджер печати
         this.printManager = new PrintManager(this);
 
+        // Инициализируем менеджер недельной триvia
+        this.weeklyTrivia = new WeeklyTriviaManager(this);
+
         this.init();
     }
 
@@ -825,10 +828,15 @@ class ChitasApp {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         const targetView = document.getElementById(viewId);
         if (targetView) targetView.classList.add('active');
-        
+
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.view === viewId);
         });
+
+        // Инициализируем Weekly Trivia при открытии view
+        if (viewId === 'weeklyTriviaView') {
+            this.weeklyTrivia.init();
+        }
 
         window.scrollTo(0, 0);
     }
