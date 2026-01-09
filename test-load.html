@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Data Loading</title>
+</head>
+<body>
+    <h1>Testing Data Load</h1>
+    <div id="hebrewDate">Загрузка...</div>
+    <div id="dedication"></div>
+    <pre id="debug"></pre>
+
+    <script>
+        const CONFIG = {
+            DATA_PATH: 'data/',
+            STORAGE_KEY: 'chitasProgress',
+            SPEECH_LANG: 'ru-RU',
+            SPEECH_RATE: 0.9
+        };
+
+        async function testLoad() {
+            const debug = document.getElementById('debug');
+            try {
+                debug.textContent += 'Loading index...\n';
+                const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
+                const index = await indexResponse.json();
+                debug.textContent += `Index loaded: ${index.dates.length} dates\n`;
+
+                const currentDate = '2026-01-09';
+                const dateEntry = index.dates.find(d => d.date === currentDate);
+                debug.textContent += `Date entry: ${JSON.stringify(dateEntry, null, 2)}\n`;
+
+                debug.textContent += `Loading content from: ${CONFIG.DATA_PATH}${dateEntry.content}\n`;
+                const contentResponse = await fetch(`${CONFIG.DATA_PATH}${dateEntry.content}`);
+                const contentData = await contentResponse.json();
+
+                debug.textContent += `Content loaded!\n`;
+                debug.textContent += `hebrewDate: ${contentData.hebrewDate}\n`;
+                debug.textContent += `dedication: ${contentData.dedication}\n`;
+
+                // Update DOM
+                document.getElementById('hebrewDate').textContent = contentData.hebrewDate;
+                document.getElementById('dedication').textContent = contentData.dedication;
+                debug.textContent += '\nDOM updated successfully!\n';
+            } catch (error) {
+                debug.textContent += `ERROR: ${error.message}\n${error.stack}\n`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', testLoad);
+    </script>
+</body>
+</html>

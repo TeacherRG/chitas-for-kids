@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Without Firebase</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .pass { background: #d4edda; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        #hebrewDate { font-size: 24px; font-weight: bold; padding: 20px; background: white; border-radius: 10px; margin: 20px 0; }
+        #dedication { padding: 10px; font-style: italic; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test: App without Firebase</h1>
+    <div id="testResults"></div>
+
+    <h2>Date Display:</h2>
+    <div id="hebrewDate">Загрузка...</div>
+    <div id="dedication"></div>
+
+    <h2>Console Output:</h2>
+    <pre id="console"></pre>
+
+    <!-- NO Firebase SDK - simulating the failure scenario -->
+
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('console');
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        function appendConsole(type, ...args) {
+            const message = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+            consoleOutput.textContent += `[${type}] ${message}\n`;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            appendConsole('LOG', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            appendConsole('WARN', ...args);
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            appendConsole('ERROR', ...args);
+        };
+    </script>
+
+    <!-- Load our scripts WITHOUT Firebase -->
+    <script src="firebase-config.js"></script>
+    <script src="auth-manager.js"></script>
+
+    <script>
+        const CONFIG = {
+            DATA_PATH: 'data/',
+            STORAGE_KEY: 'chitasProgress',
+            SPEECH_LANG: 'ru-RU',
+            SPEECH_RATE: 0.9
+        };
+
+        async function runTests() {
+            const results = document.getElementById('testResults');
+
+            function addResult(title, passed, details) {
+                const div = document.createElement('div');
+                div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                div.innerHTML = `<strong>${passed ? '✅' : '❌'} ${title}</strong><br>${details || ''}`;
+                results.appendChild(div);
+            }
+
+            function addInfo(title, details) {
+                const div = document.createElement('div');
+                div.className = 'test-result info';
+                div.innerHTML = `<strong>ℹ️ ${title}</strong><br>${details || ''}`;
+                results.appendChild(div);
+            }
+
+            // Test 1: Firebase SDK should not be available
+            addInfo('Test 1: Firebase SDK', `typeof firebase = ${typeof firebase}`);
+
+            // Test 2: auth, db, googleProvider should be undefined
+            addResult('Test 2: Auth variables',
+                typeof auth === 'undefined' && typeof db === 'undefined',
+                `auth: ${typeof auth}, db: ${typeof db}, googleProvider: ${typeof googleProvider}`
+            );
+
+            // Test 3: AuthManager should be created (or null) without errors
+            try {
+                addResult('Test 3: AuthManager creation',
+                    window.authManager !== undefined,
+                    `authManager: ${window.authManager === null ? 'null (Firebase not available)' : 'created'}`
+                );
+            } catch (e) {
+                addResult('Test 3: AuthManager creation', false, e.message);
+            }
+
+            // Test 4: Load data and update display
+            try {
+                console.log('📥 Loading index...');
+                const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
+                const index = await indexResponse.json();
+                console.log(`✅ Index loaded: ${index.dates.length} dates`);
+
+                const currentDate = '2026-01-09';
+                const dateEntry = index.dates.find(d => d.date === currentDate);
+
+                const contentResponse = await fetch(`${CONFIG.DATA_PATH}${dateEntry.content}`);
+                const contentData = await contentResponse.json();
+
+                console.log(`📊 hebrewDate: ${contentData.hebrewDate}`);
+                console.log(`📊 dedication: ${contentData.dedication}`);
+
+                // Update display
+                document.getElementById('hebrewDate').textContent = contentData.hebrewDate || 'Дата не указана';
+                document.getElementById('dedication').textContent = contentData.dedication || '';
+
+                addResult('Test 4: Data loading and display',
+                    contentData.hebrewDate && contentData.dedication,
+                    `hebrewDate loaded: "${contentData.hebrewDate}"`
+                );
+
+                // Test 5: Verify DOM was updated
+                const hebrewDateEl = document.getElementById('hebrewDate');
+                const dedicationEl = document.getElementById('dedication');
+
+                addResult('Test 5: DOM update',
+                    hebrewDateEl.textContent !== 'Загрузка...' && hebrewDateEl.textContent.length > 0,
+                    `Display shows: "${hebrewDateEl.textContent.substring(0, 50)}..."`
+                );
+
+            } catch (error) {
+                addResult('Test 4: Data loading', false, error.message);
+            }
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>
