@@ -2728,3 +2728,299 @@ body {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
 }
+
+/* ============================================
+   WEEKLY TRIVIA STYLES
+   ============================================ */
+.weekly-trivia-header {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-trivia-header h2 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.weekly-trivia-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 15px;
+}
+
+.bonus-badge {
+    display: inline-block;
+    background: rgba(255, 215, 0, 0.3);
+    border: 2px solid gold;
+    color: gold;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px 10px rgba(255, 215, 0, 0);
+    }
+}
+
+.weekly-trivia-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.trivia-section-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.trivia-section-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--section-color, #667eea);
+}
+
+.trivia-section-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-color: var(--section-color, #667eea);
+}
+
+.trivia-section-card.completed {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.trivia-section-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.trivia-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.trivia-section-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.trivia-questions-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.trivia-bonus-points {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #333;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.trivia-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.trivia-status.completed {
+    background: #4CAF50;
+    color: white;
+}
+
+.trivia-status.pending {
+    background: #ff9800;
+    color: white;
+}
+
+/* Weekly Quiz Game View */
+.weekly-quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.weekly-quiz-header {
+    background: linear-gradient(135deg, var(--section-color, #667eea) 0%, var(--section-color-dark, #764ba2) 100%);
+    color: white;
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.weekly-quiz-header h2 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.weekly-quiz-progress {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+.weekly-quiz-progress-bar {
+    background: rgba(255, 255, 255, 0.3);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.weekly-quiz-progress-fill {
+    background: white;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.weekly-question-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.weekly-question-day {
+    display: inline-block;
+    background: var(--section-color, #667eea);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.weekly-question-text {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.weekly-quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.weekly-quiz-option {
+    background: #f5f7fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+}
+
+.weekly-quiz-option:hover {
+    background: #e8eaf6;
+    border-color: var(--section-color, #667eea);
+    transform: translateX(5px);
+}
+
+.weekly-quiz-option.selected {
+    background: var(--section-color, #667eea);
+    border-color: var(--section-color, #667eea);
+    color: white;
+}
+
+.weekly-quiz-option.correct {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+}
+
+.weekly-quiz-option.incorrect {
+    background: #f44336;
+    border-color: #f44336;
+    color: white;
+}
+
+.weekly-quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.weekly-quiz-nav .btn {
+    flex: 1;
+}
+
+.weekly-quiz-results {
+    background: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.weekly-quiz-results-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.weekly-quiz-results h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.weekly-quiz-results-score {
+    font-size: 24px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.weekly-quiz-results-bonus {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.weekly-quiz-results-bonus h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.weekly-quiz-results-bonus .bonus-amount {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ff6b00;
+}
