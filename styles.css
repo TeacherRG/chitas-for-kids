@@ -3024,3 +3024,175 @@ body {
     font-weight: bold;
     color: #ff6b00;
 }
+
+/* Game Type Filter */
+.game-type-filter {
+    margin-bottom: 20px;
+}
+
+.game-type-filter h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.game-type-toggles {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.game-type-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.game-type-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.game-type-toggle .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    background: #f5f7fa;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.game-type-toggle .toggle-icon {
+    font-size: 20px;
+}
+
+.game-type-toggle input[type="checkbox"]:checked + .toggle-label {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.game-type-toggle .toggle-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Match Game Styles for Weekly Trivia */
+.match-game-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.match-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.match-item {
+    padding: 15px;
+    background: #f5f7fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    text-align: center;
+}
+
+.match-item:hover {
+    background: #e8eaf6;
+    border-color: #667eea;
+    transform: translateX(5px);
+}
+
+.match-item.selected {
+    background: #ffd700;
+    border-color: #ffb700;
+    color: #333;
+}
+
+.match-item.matched {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+}
+
+.match-item.left.selected {
+    transform: translateX(5px);
+}
+
+.match-item.right:hover {
+    transform: translateX(-5px);
+}
+
+/* True/False Buttons for Weekly Trivia */
+.truefalse-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.truefalse-btn {
+    flex: 1;
+    max-width: 200px;
+    padding: 20px 30px;
+    font-size: 18px;
+    font-weight: 600;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.truefalse-btn.true-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+}
+
+.truefalse-btn.false-btn {
+    background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+    color: white;
+}
+
+.truefalse-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.truefalse-btn.correct {
+    border-color: #4CAF50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+}
+
+.truefalse-btn.incorrect {
+    border-color: #f44336;
+    box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
+    opacity: 0.7;
+}
+
+/* Responsive styles for weekly trivia games */
+@media (max-width: 768px) {
+    .match-game-container {
+        grid-template-columns: 1fr;
+    }
+
+    .truefalse-buttons {
+        flex-direction: column;
+    }
+
+    .truefalse-btn {
+        max-width: 100%;
+    }
+
+    .game-type-toggles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
