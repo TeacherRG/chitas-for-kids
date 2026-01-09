@@ -622,6 +622,12 @@ class WeeklyTriviaManager {
             option.addEventListener('click', (e) => {
                 const selectedIndex = parseInt(e.currentTarget.dataset.index);
                 const isCorrect = selectedIndex === gameData.correctIndex;
+
+                // Показываем правильный ответ при неправильном выборе
+                if (!isCorrect) {
+                    document.querySelectorAll('.weekly-quiz-option')[gameData.correctIndex].classList.add('correct');
+                }
+
                 this.handleGameComplete(isCorrect, e.currentTarget, gameData);
             });
         });
@@ -666,48 +672,124 @@ class WeeklyTriviaManager {
                     `).join('')}
                 </div>
             </div>
+            <div class="match-comparison-area" id="matchComparisonArea" style="display: none;">
+                <div class="comparison-label">Сравнить:</div>
+                <div class="comparison-items">
+                    <div class="comparison-item" id="comparisonLeft"></div>
+                    <div class="comparison-divider">⟷</div>
+                    <div class="comparison-item" id="comparisonRight"></div>
+                </div>
+                <button class="btn btn-confirm" id="confirmMatchBtn">✓ Подтвердить пару</button>
+                <button class="btn btn-cancel" id="cancelMatchBtn">✗ Отменить</button>
+            </div>
             <button class="btn" id="checkMatchBtn" style="width: 100%; margin-top: 15px;">
-                Проверить
+                Проверить (${0}/${gameData.pairs.length})
             </button>
         `;
 
         // Логика для соединения пар
         let selectedLeft = null;
+        let selectedRight = null;
         let matches = [];
+
+        const updateCheckButton = () => {
+            const btn = document.getElementById('checkMatchBtn');
+            if (btn) {
+                btn.textContent = `Проверить (${matches.length}/${gameData.pairs.length})`;
+                btn.disabled = matches.length !== gameData.pairs.length;
+            }
+        };
+
+        const showComparison = () => {
+            const comparisonArea = document.getElementById('matchComparisonArea');
+            const leftText = document.getElementById('comparisonLeft');
+            const rightText = document.getElementById('comparisonRight');
+
+            if (selectedLeft && selectedRight) {
+                leftText.textContent = selectedLeft.textContent;
+                rightText.textContent = selectedRight.textContent;
+                comparisonArea.style.display = 'block';
+            }
+        };
+
+        const hideComparison = () => {
+            const comparisonArea = document.getElementById('matchComparisonArea');
+            comparisonArea.style.display = 'none';
+
+            if (selectedLeft) {
+                selectedLeft.classList.remove('selected');
+                selectedLeft = null;
+            }
+            if (selectedRight) {
+                selectedRight.classList.remove('selected');
+                selectedRight = null;
+            }
+        };
 
         document.querySelectorAll('.match-item.left').forEach(item => {
             item.addEventListener('click', function() {
+                // Если элемент уже сопоставлен, не даём его выбрать
+                if (this.classList.contains('matched')) return;
+
                 document.querySelectorAll('.match-item.left').forEach(i => i.classList.remove('selected'));
                 this.classList.add('selected');
                 selectedLeft = this;
+
+                // Если уже выбран правый элемент, показываем сравнение
+                if (selectedRight) {
+                    showComparison();
+                } else {
+                    hideComparison();
+                }
             });
         });
 
         document.querySelectorAll('.match-item.right').forEach(item => {
             item.addEventListener('click', function() {
+                // Если элемент уже сопоставлен, не даём его выбрать
+                if (this.classList.contains('matched')) return;
+
                 if (!selectedLeft) {
-                    alert('Сначала выберите элемент слева');
+                    // Подсветка: нужно сначала выбрать слева
+                    const allLeft = document.querySelectorAll('.match-item.left');
+                    allLeft.forEach(el => el.classList.add('hint-pulse'));
+                    setTimeout(() => {
+                        allLeft.forEach(el => el.classList.remove('hint-pulse'));
+                    }, 1000);
                     return;
                 }
 
-                const leftIndex = selectedLeft.dataset.index;
-                const rightIndex = this.dataset.index;
+                document.querySelectorAll('.match-item.right').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedRight = this;
 
-                // Проверяем, не была ли уже сделана эта связь
-                const existingMatch = matches.find(m => m.left === leftIndex);
-                if (existingMatch) {
-                    const oldRight = document.querySelector(`.match-item.right[data-index="${existingMatch.right}"]`);
-                    oldRight.classList.remove('matched');
-                }
-
-                matches = matches.filter(m => m.left !== leftIndex);
-                matches.push({ left: leftIndex, right: rightIndex });
-
-                selectedLeft.classList.add('matched');
-                this.classList.add('matched');
-                selectedLeft.classList.remove('selected');
-                selectedLeft = null;
+                showComparison();
             });
+        });
+
+        // Кнопка подтверждения пары
+        document.getElementById('confirmMatchBtn').addEventListener('click', () => {
+            if (!selectedLeft || !selectedRight) return;
+
+            const leftIndex = selectedLeft.dataset.index;
+            const rightIndex = selectedRight.dataset.index;
+
+            // Удаляем старое сопоставление, если было
+            matches = matches.filter(m => m.left !== leftIndex && m.right !== rightIndex);
+
+            // Добавляем новое
+            matches.push({ left: leftIndex, right: rightIndex });
+
+            selectedLeft.classList.add('matched');
+            selectedRight.classList.add('matched');
+
+            hideComparison();
+            updateCheckButton();
+        });
+
+        // Кнопка отмены
+        document.getElementById('cancelMatchBtn').addEventListener('click', () => {
+            hideComparison();
         });
 
         document.getElementById('checkMatchBtn').addEventListener('click', () => {
@@ -720,16 +802,41 @@ class WeeklyTriviaManager {
             const correctMatches = matches.filter(m => m.left === m.right).length;
             const isCorrect = correctMatches === gameData.pairs.length;
 
+            // Показываем правильные/неправильные пары
+            matches.forEach(match => {
+                const leftEl = document.querySelector(`.match-item.left[data-index="${match.left}"]`);
+                const rightEl = document.querySelector(`.match-item.right[data-index="${match.right}"]`);
+
+                if (match.left === match.right) {
+                    leftEl.classList.add('correct');
+                    rightEl.classList.add('correct');
+                } else {
+                    leftEl.classList.add('incorrect');
+                    rightEl.classList.add('incorrect');
+                }
+            });
+
             this.handleGameComplete(isCorrect, null, gameData);
         });
+
+        updateCheckButton();
     }
 
     /**
      * Рендерит игру типа True/False
      */
     renderTrueFalseGame(container, gameData) {
+        // True/False игры имеют массив вопросов, выбираем случайный
+        const questions = gameData.questions || [];
+        if (questions.length === 0) {
+            container.innerHTML = '<p>Нет доступных вопросов</p>';
+            return;
+        }
+
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+
         container.innerHTML = `
-            <div class="weekly-question-text">${this.escapeHtml(gameData.statement)}</div>
+            <div class="weekly-question-text">${this.escapeHtml(randomQuestion.statement)}</div>
             <div class="truefalse-buttons">
                 <button class="truefalse-btn true-btn" data-answer="true">
                     ✓ Правда
@@ -738,12 +845,31 @@ class WeeklyTriviaManager {
                     ✗ Ложь
                 </button>
             </div>
+            ${randomQuestion.explanation ? `
+                <div class="truefalse-explanation" style="display: none; margin-top: 20px; padding: 15px; background: #f5f7fa; border-radius: 10px;">
+                    <strong>💡 Объяснение:</strong><br>
+                    ${this.escapeHtml(randomQuestion.explanation)}
+                </div>
+            ` : ''}
         `;
 
         document.querySelectorAll('.truefalse-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const answer = e.currentTarget.dataset.answer === 'true';
-                const isCorrect = answer === gameData.answer;
+                const isCorrect = answer === randomQuestion.correct;
+
+                // Показываем правильный ответ
+                const correctBtn = document.querySelector(`.truefalse-btn.${randomQuestion.correct ? 'true' : 'false'}-btn`);
+                if (correctBtn && !isCorrect) {
+                    correctBtn.classList.add('correct');
+                }
+
+                // Показываем объяснение
+                const explanation = document.querySelector('.truefalse-explanation');
+                if (explanation) {
+                    explanation.style.display = 'block';
+                }
+
                 this.handleGameComplete(isCorrect, e.currentTarget, gameData);
             });
         });
