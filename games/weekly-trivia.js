@@ -748,15 +748,15 @@ class WeeklyTriviaManager {
         };
 
         // Используем container для поиска элементов, чтобы избежать конфликтов
-        const leftItems = container.querySelectorAll('.match-item.left');
-        const rightItems = container.querySelectorAll('.match-item.right');
+        const leftElements = container.querySelectorAll('.match-item.left');
+        const rightElements = container.querySelectorAll('.match-item.right');
 
-        leftItems.forEach(item => {
+        leftElements.forEach(item => {
             item.addEventListener('click', function() {
                 // Если элемент уже сопоставлен, не даём его выбрать
                 if (this.classList.contains('matched')) return;
 
-                leftItems.forEach(i => i.classList.remove('selected'));
+                leftElements.forEach(i => i.classList.remove('selected'));
                 this.classList.add('selected');
                 selectedLeft = this;
 
@@ -769,21 +769,21 @@ class WeeklyTriviaManager {
             });
         });
 
-        rightItems.forEach(item => {
+        rightElements.forEach(item => {
             item.addEventListener('click', function() {
                 // Если элемент уже сопоставлен, не даём его выбрать
                 if (this.classList.contains('matched')) return;
 
                 if (!selectedLeft) {
                     // Подсветка: нужно сначала выбрать слева
-                    leftItems.forEach(el => el.classList.add('hint-pulse'));
+                    leftElements.forEach(el => el.classList.add('hint-pulse'));
                     setTimeout(() => {
-                        leftItems.forEach(el => el.classList.remove('hint-pulse'));
+                        leftElements.forEach(el => el.classList.remove('hint-pulse'));
                     }, 1000);
                     return;
                 }
 
-                rightItems.forEach(i => i.classList.remove('selected'));
+                rightElements.forEach(i => i.classList.remove('selected'));
                 this.classList.add('selected');
                 selectedRight = this;
 
