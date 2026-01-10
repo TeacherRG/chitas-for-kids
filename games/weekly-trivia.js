@@ -92,8 +92,15 @@ class WeeklyTriviaManager {
         this.timerInterval = null;
         this.timerEnabled = true;
 
-        // Звуковой менеджер
-        this.soundManager = new TriviaSoundManager();
+        // Звуковой менеджер (с проверкой доступности)
+        try {
+            this.soundManager = typeof TriviaSoundManager !== 'undefined'
+                ? new TriviaSoundManager()
+                : null;
+        } catch (error) {
+            console.warn('Failed to initialize TriviaSoundManager:', error);
+            this.soundManager = null;
+        }
     }
 
     /**
@@ -444,24 +451,24 @@ class WeeklyTriviaManager {
 
             // Звук тика каждую секунду в последние 5 секунд
             if (this.timeRemaining <= 5 && this.timeRemaining > 0) {
-                this.soundManager.playTickSound();
+                this.soundManager?.playTickSound();
             }
 
             // Предупреждение на 10 секундах
             if (this.timeRemaining === 10) {
-                this.soundManager.playWarningSound();
+                this.soundManager?.playWarningSound();
             }
 
             // Время вышло
             if (this.timeRemaining <= 0) {
                 this.stopTimer();
-                this.soundManager.playTimeUpSound();
+                this.soundManager?.playTimeUpSound();
                 this.handleTimeUp();
             }
         }, 1000);
 
         // Звук начала
-        this.soundManager.playStartSound();
+        this.soundManager?.playStartSound();
     }
 
     /**
@@ -919,9 +926,9 @@ class WeeklyTriviaManager {
 
         // Воспроизводим звук
         if (isCorrect) {
-            this.soundManager.playCorrectSound();
+            this.soundManager?.playCorrectSound();
         } else {
-            this.soundManager.playIncorrectSound();
+            this.soundManager?.playIncorrectSound();
         }
 
         // Отключаем все интерактивные элементы
@@ -1009,7 +1016,7 @@ class WeeklyTriviaManager {
 
         // Воспроизводим звук завершения
         if (passed) {
-            this.soundManager.playCompleteSound();
+            this.soundManager?.playCompleteSound();
         }
 
         container.innerHTML = `
