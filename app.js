@@ -216,15 +216,23 @@ class ChitasApp {
      */
     async loadIndex() {
         try {
+            console.log('📥 Загрузка index.json из:', `${CONFIG.DATA_PATH}index.json`);
             const indexResponse = await fetch(`${CONFIG.DATA_PATH}index.json`);
+
+            if (!indexResponse.ok) {
+                throw new Error(`HTTP ${indexResponse.status}: ${indexResponse.statusText}`);
+            }
+
             const index = await indexResponse.json();
+            console.log('✅ index.json загружен:', index.dates.length, 'дат');
 
             this.dateIndex = index;
             this.availableDates = index.dates.map(d => d.date).sort();
         } catch (error) {
-            console.error('Error loading index:', error);
+            console.error('❌ Error loading index:', error);
             this.availableDates = [];
             this.dateIndex = null;
+            this.showError('Не удалось загрузить index.json');
         }
     }
 
@@ -315,9 +323,16 @@ class ChitasApp {
 
     async loadData() {
         try {
+            console.log('📅 Загрузка данных для даты:', this.currentDate);
+
             // Если индекс еще не загружен, загружаем его
             if (!this.dateIndex || !this.availableDates) {
                 await this.loadIndex();
+            }
+
+            // Проверяем, что индекс загружен успешно
+            if (!this.dateIndex || !this.dateIndex.dates) {
+                throw new Error('Индекс не загружен или некорректен');
             }
 
             let dateEntry = this.dateIndex.dates.find(d => d.date === this.currentDate);
@@ -340,23 +355,37 @@ class ChitasApp {
                 }
             }
 
+            console.log('📥 Загрузка файлов данных:', {
+                content: `${CONFIG.DATA_PATH}${dateEntry.content}`,
+                games: `${CONFIG.DATA_PATH}${dateEntry.games}`
+            });
+
             const [contentResponse, gamesResponse] = await Promise.all([
                 fetch(`${CONFIG.DATA_PATH}${dateEntry.content}`),
                 fetch(`${CONFIG.DATA_PATH}${dateEntry.games}`)
             ]);
 
-            if (contentResponse.ok && gamesResponse.ok) {
-                this.contentData = await contentResponse.json();
-                this.gamesData = await gamesResponse.json();
-
-                this.mergeData();
-                this.renderPage();
-
-                // Update navigation buttons state after loading
-                this.updateNavigationButtons();
-            } else {
-                throw new Error('Failed to load data files');
+            if (!contentResponse.ok) {
+                throw new Error(`Не удалось загрузить ${dateEntry.content}: HTTP ${contentResponse.status}`);
             }
+
+            if (!gamesResponse.ok) {
+                throw new Error(`Не удалось загрузить ${dateEntry.games}: HTTP ${gamesResponse.status}`);
+            }
+
+            this.contentData = await contentResponse.json();
+            this.gamesData = await gamesResponse.json();
+
+            console.log('✅ Данные загружены:', {
+                sections: this.contentData.sections?.length || 0,
+                games: Object.keys(this.gamesData.games || {}).length
+            });
+
+            this.mergeData();
+            this.renderPage();
+
+            // Update navigation buttons state after loading
+            this.updateNavigationButtons();
         } catch (error) {
             console.error('Error loading data:', error);
             this.showError('Ошибка загрузки данных');
