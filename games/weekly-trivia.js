@@ -280,13 +280,6 @@ class WeeklyTriviaManager {
                         </span>
                     </label>
                     <label class="game-type-toggle">
-                        <input type="checkbox" id="filterMatch" ${this.gameTypeFilter.match ? 'checked' : ''}>
-                        <span class="toggle-label">
-                            <span class="toggle-icon">🔗</span>
-                            Найди пару
-                        </span>
-                    </label>
-                    <label class="game-type-toggle">
                         <input type="checkbox" id="filterTrueFalse" ${this.gameTypeFilter.truefalse ? 'checked' : ''}>
                         <span class="toggle-label">
                             <span class="toggle-icon">✓</span>
