@@ -660,6 +660,14 @@ class ChitasApp {
      * Setup event listeners for game selection buttons
      */
     setupGameButtons(section) {
+        // Удаляем старые обработчики, чтобы избежать дубликатов
+        document.querySelectorAll('.game-button').forEach(btn => {
+            // Клонируем элемент, чтобы удалить все обработчики событий
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        });
+
+        // Теперь добавляем новые обработчики
         document.querySelectorAll('.game-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const gameIndex = parseInt(e.target.dataset.gameIndex);
