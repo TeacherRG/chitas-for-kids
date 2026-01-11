@@ -364,34 +364,12 @@ class ChitasApp {
     }
 
     mergeData() {
-        console.log('🔄 mergeData: Starting merge process');
-        console.log('📦 contentData:', this.contentData);
-        console.log('🎮 gamesData:', this.gamesData);
-
         if (this.contentData && this.gamesData) {
-            console.log('✅ Both contentData and gamesData exist');
-            console.log('📋 Sections count:', this.contentData.sections.length);
-            console.log('🎯 Games object:', this.gamesData.games);
-
             this.contentData.sections.forEach(section => {
-                console.log(`🔍 Processing section: ${section.id}`);
                 const sectionGames = this.gamesData.games[section.id];
-                console.log(`🎮 Games for ${section.id}:`, sectionGames);
-
                 if (sectionGames) {
                     section.games = sectionGames;
-                    console.log(`✅ Assigned ${sectionGames.length} games to ${section.id}`);
-                } else {
-                    console.warn(`⚠️ No games found for section: ${section.id}`);
                 }
-            });
-
-            console.log('🏁 mergeData: Merge complete');
-            console.log('📦 Final contentData:', this.contentData);
-        } else {
-            console.error('❌ mergeData: Missing data!', {
-                hasContentData: !!this.contentData,
-                hasGamesData: !!this.gamesData
             });
         }
     }
@@ -529,10 +507,6 @@ class ChitasApp {
     }
 
     async renderSectionContent(section) {
-        console.log(`📄 renderSectionContent: Starting for section ${section.id}`);
-        console.log(`📦 section object:`, section);
-        console.log(`🎮 section.games:`, section.games);
-
         const container = document.getElementById('sectionContent');
         if (!container) return;
 
@@ -550,7 +524,6 @@ class ChitasApp {
 
         container.innerHTML = html;
         await this.initializeGames(section);
-        console.log(`🏁 renderSectionContent: Complete for section ${section.id}`);
     }
 
     async renderParagraph(para) {
@@ -567,15 +540,7 @@ class ChitasApp {
     }
 
     async renderGamesContainer(section) {
-        console.log(`🎨 renderGamesContainer: Starting for section ${section.id}`);
-        console.log(`🎮 section.games:`, section.games);
-
-        if (!section.games || section.games.length === 0) {
-            console.warn(`⚠️ renderGamesContainer: No games for section ${section.id}`);
-            return '';
-        }
-
-        console.log(`✅ renderGamesContainer: Found ${section.games.length} games`);
+        if (!section.games || section.games.length === 0) return '';
 
         const isPartiallyCompleted = this.isSectionPartiallyCompleted(section.id);
         const isFullyCompleted = this.isSectionCompleted(section.id);
@@ -659,25 +624,15 @@ class ChitasApp {
      * Cleaner and more maintainable than the original switch statement
      */
     async initializeGames(section) {
-        console.log(`🎮 initializeGames: Starting for section ${section.id}`);
-        console.log(`📦 section.games:`, section.games);
-
-        if (!section.games) {
-            console.error(`❌ initializeGames: No games found for section ${section.id}`);
-            return;
-        }
-
-        console.log(`✅ Found ${section.games.length} games for section ${section.id}`);
+        if (!section.games) return;
 
         // Инициализируем все игры параллельно
-        const promises = section.games.map((gameData, index) => {
-            console.log(`🎯 Initializing game ${index}: ${gameData.type} - ${gameData.title}`);
-            return this.initializeSingleGame(section, gameData, index);
-        });
+        const promises = section.games.map((gameData, index) =>
+            this.initializeSingleGame(section, gameData, index)
+        );
         await Promise.all(promises);
 
         this.setupGameButtons(section);
-        console.log(`🏁 initializeGames: Complete for section ${section.id}`);
     }
 
     /**
@@ -705,6 +660,14 @@ class ChitasApp {
      * Setup event listeners for game selection buttons
      */
     setupGameButtons(section) {
+        // Удаляем старые обработчики, чтобы избежать дубликатов
+        document.querySelectorAll('.game-button').forEach(btn => {
+            // Клонируем элемент, чтобы удалить все обработчики событий
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        });
+
+        // Теперь добавляем новые обработчики
         document.querySelectorAll('.game-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const gameIndex = parseInt(e.target.dataset.gameIndex);
