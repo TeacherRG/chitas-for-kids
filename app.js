@@ -368,7 +368,8 @@ class ChitasApp {
             this.contentData.sections.forEach(section => {
                 const sectionGames = this.gamesData.games[section.id];
                 if (sectionGames) {
-                    section.games = sectionGames;
+                    // Временно фильтруем игры типа "match"
+                    section.games = sectionGames.filter(game => game.type !== 'match');
                 }
             });
         }
