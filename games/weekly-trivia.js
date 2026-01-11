@@ -82,7 +82,7 @@ class WeeklyTriviaManager {
         // Настройки фильтра типов игр
         this.gameTypeFilter = {
             quiz: true,
-            match: true,
+            match: false, // Временно отключено
             truefalse: true
         };
 
