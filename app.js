@@ -348,7 +348,8 @@ class ChitasApp {
             if (contentResponse.ok && gamesResponse.ok) {
                 this.contentData = await contentResponse.json();
                 this.gamesData = await gamesResponse.json();
-             
+
+                this.mergeData();
                 this.renderPage();
 
                 // Update navigation buttons state after loading
@@ -359,6 +360,17 @@ class ChitasApp {
         } catch (error) {
             console.error('Error loading data:', error);
             this.showError('Ошибка загрузки данных');
+        }
+    }
+
+    mergeData() {
+        if (this.contentData && this.gamesData) {
+            this.contentData.sections.forEach(section => {
+                const sectionGames = this.gamesData.games[section.id];
+                if (sectionGames) {
+                    section.games = sectionGames;
+                }
+            });
         }
     }
 
