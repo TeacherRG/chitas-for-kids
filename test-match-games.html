@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тест игр Match</title>
+</head>
+<body>
+    <h1>Проверка игр типа Match</h1>
+    <div id="result"></div>
+
+    <script>
+        async function testMatchGames() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Загрузка данных...</p>';
+
+            try {
+                const response = await fetch('data/2026-01-11-games.json');
+                const data = await response.json();
+
+                let html = '<h2>Игры типа "match" в каждом разделе:</h2>';
+
+                for (const section in data.games) {
+                    const matchGames = data.games[section].filter(g => g.type === 'match');
+                    html += `<div style="margin: 10px; padding: 10px; border: 1px solid #ccc;">`;
+                    html += `<h3>${section}</h3>`;
+                    html += `<p>Всего игр: ${data.games[section].length}</p>`;
+                    html += `<p>Игр match: ${matchGames.length}</p>`;
+
+                    if (matchGames.length > 0) {
+                        html += '<ul>';
+                        matchGames.forEach(game => {
+                            html += `<li>${game.title} (${game.pairs ? game.pairs.length : 0} пар)</li>`;
+                        });
+                        html += '</ul>';
+                    } else {
+                        html += '<p style="color: red;">⚠️ Игры match не найдены!</p>';
+                    }
+                    html += '</div>';
+                }
+
+                result.innerHTML = html;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Ошибка: ${error.message}</p>`;
+            }
+        }
+
+        testMatchGames();
+    </script>
+</body>
+</html>
