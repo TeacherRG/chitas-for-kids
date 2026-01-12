@@ -916,7 +916,7 @@ class ChitasApp {
                     sound: true,
                     animations: true,
                     darkMode: false,
-                    pushNotifications: false
+                    pushNotifications: true
                 }
             };
             this.saveProgress();
@@ -1151,7 +1151,7 @@ class ChitasApp {
                 sound: true,
                 animations: true,
                 darkMode: false,
-                pushNotifications: false
+                pushNotifications: true
             }
         };
     }
