@@ -320,6 +320,13 @@
                 </div>
                 <div class="toggle-switch" id="darkModeToggle"></div>
             </div>
+            <div class="card setting-item" data-setting="pushNotifications">
+                <div class="setting-info">
+                    <h3>🔔 Push-уведомления</h3>
+                    <p>Напоминание о уроках в 18:00</p>
+                </div>
+                <div class="toggle-switch" id="pushNotificationsToggle"></div>
+            </div>
             <div class="card setting-item" id="syncProgressBtn">
                 <div class="setting-info">
                     <h3>☁️ Синхронизация</h3>
@@ -608,6 +615,10 @@
 
     <!-- Weekly Trivia Manager (использует TriviaSoundManager) -->
     <script src="games/weekly-trivia.js"></script>
+
+    <!-- Notification Manager -->
+    <script src="notification-manager.js"></script>
+    <script src="notification-init.js"></script>
 
     <!-- Main App -->
     <script src="app.js"></script>
