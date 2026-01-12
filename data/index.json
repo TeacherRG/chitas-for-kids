@@ -103,11 +103,19 @@
     },
     {
       "date": "2026-01-11",
-      "hebrew": "כ''א טבת ה׳תשפ״ו ",
+      "hebrew": "כ''ב טבת ה׳תשפ״ו ",
       "parsha": "Ваэйра",
       "specialDay": "",
       "content": "2026-01-11-content.json",
       "games": "2026-01-11-games.json"
+    },
+    {
+      "date": "2026-01-12",
+      "hebrew": "כ''ג טבת ה׳תשפ״ו ",
+      "parsha": "Ваэйра",
+      "specialDay": "",
+      "content": "2026-01-12-content.json",
+      "games": "2026-01-12-games.json"
     }
   ]
 }
