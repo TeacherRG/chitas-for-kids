@@ -849,11 +849,10 @@ class ChitasApp {
         window.scrollTo(0, 0);
     }
 
-    toggleSetting(setting) {
+    async toggleSetting(setting) {
         // ИСПРАВЛЕНИЕ: правильное переключение состояния
         this.state.settings[setting] = !this.state.settings[setting];
-        this.saveProgress();
-        
+
         // Обновляем визуальное состояние переключателя
         const toggleId = setting + 'Toggle';
         const toggle = document.getElementById(toggleId);
@@ -870,6 +869,21 @@ class ChitasApp {
             document.body.classList.toggle('dark-mode', this.state.settings[setting]);
         }
 
+        // Обработка push-уведомлений
+        if (setting === 'pushNotifications') {
+            if (window.handleNotificationToggle) {
+                const success = await window.handleNotificationToggle(this.state.settings[setting]);
+                if (!success) {
+                    // Если не удалось включить уведомления, возвращаем настройку обратно
+                    this.state.settings[setting] = false;
+                    if (toggle) {
+                        toggle.classList.remove('active');
+                    }
+                }
+            }
+        }
+
+        this.saveProgress();
         console.log(`Setting ${setting} is now:`, this.state.settings[setting]);
     }
 
@@ -901,7 +915,8 @@ class ChitasApp {
                 settings: {
                     sound: true,
                     animations: true,
-                    darkMode: false
+                    darkMode: false,
+                    pushNotifications: false
                 }
             };
             this.saveProgress();
@@ -1135,7 +1150,8 @@ class ChitasApp {
             settings: {
                 sound: true,
                 animations: true,
-                darkMode: false
+                darkMode: false,
+                pushNotifications: false
             }
         };
     }
