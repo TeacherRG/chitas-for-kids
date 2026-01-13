@@ -83,6 +83,9 @@ class ChitasApp {
         this.setupEventListeners();
         this.applySettings();
 
+        // Настраиваем автоматическую синхронизацию при входе/выходе пользователя
+        this.setupAuthSync();
+
         // Загружаем индекс для определения доступных дат
         await this.loadIndex();
 
@@ -100,6 +103,205 @@ class ChitasApp {
         }
 
         this.loadData();
+    }
+
+    /**
+     * Настройка автоматической синхронизации прогресса при входе/выходе
+     */
+    setupAuthSync() {
+        if (!window.authManager) return;
+
+        window.authManager.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('User signed in, loading progress from Firebase...');
+                // Пользователь вошел - загружаем и мерджим прогресс из Firebase
+                await this.loadAndMergeProgressFromFirebase();
+
+                // Запускаем периодическую синхронизацию каждые 5 минут
+                this.startPeriodicSync();
+            } else {
+                console.log('User signed out');
+                // Пользователь вышел - останавливаем периодическую синхронизацию
+                this.stopPeriodicSync();
+            }
+        });
+    }
+
+    /**
+     * Запуск периодической синхронизации с Firebase (каждые 5 минут)
+     */
+    startPeriodicSync() {
+        // Останавливаем предыдущий интервал, если есть
+        this.stopPeriodicSync();
+
+        // Синхронизируем каждые 5 минут
+        this.syncInterval = setInterval(async () => {
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Periodic sync: syncing progress to Firebase...');
+                try {
+                    await this.achievementsManager.syncToFirebase(true);
+                    console.log('Periodic sync: success');
+                } catch (error) {
+                    console.warn('Periodic sync failed:', error);
+                }
+            } else {
+                // Пользователь вышел, останавливаем синхронизацию
+                this.stopPeriodicSync();
+            }
+        }, 5 * 60 * 1000); // 5 минут
+
+        console.log('Periodic sync started (every 5 minutes)');
+    }
+
+    /**
+     * Остановка периодической синхронизации
+     */
+    stopPeriodicSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+            console.log('Periodic sync stopped');
+        }
+    }
+
+    /**
+     * Настройка синхронизации при переключении вкладки и закрытии страницы
+     */
+    setupVisibilitySync() {
+        // Синхронизация при переключении вкладки (когда пользователь уходит с вкладки)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Page hidden, syncing progress...');
+                // Используем navigator.sendBeacon для надежной отправки при закрытии
+                this.syncProgressOnPageLeave();
+            }
+        });
+
+        // Синхронизация перед закрытием страницы
+        window.addEventListener('beforeunload', () => {
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Page unloading, syncing progress...');
+                this.syncProgressOnPageLeave();
+            }
+        });
+    }
+
+    /**
+     * Синхронизация прогресса при закрытии страницы
+     * Использует синхронный подход для надежности
+     */
+    syncProgressOnPageLeave() {
+        if (!window.authManager || !window.authManager.getCurrentUser()) {
+            return;
+        }
+
+        try {
+            // Пытаемся синхронизировать (без await, т.к. страница закрывается)
+            this.achievementsManager.syncToFirebase(true).catch(error => {
+                console.warn('Failed to sync on page leave:', error);
+            });
+        } catch (error) {
+            console.warn('Error during page leave sync:', error);
+        }
+    }
+
+    /**
+     * Загружает прогресс из Firebase и мерджит с локальным прогрессом
+     * @async
+     * @returns {Promise<void>}
+     *
+     * Стратегия мерджинга:
+     * - Баллы/звёзды/стрики: Math.max() - берём максимальное значение
+     * - Completed: Union - объединяем все пройденные даты и секции
+     * - Settings: Firebase перезаписывает локальные настройки
+     *
+     * КРИТИЧНО для защиты стриков:
+     * - currentStreak и maxStreak мерджатся через Math.max()
+     * - Гарантирует, что рекорды пользователя не потеряются
+     * - Защита от потери данных при переключении устройств
+     */
+    async loadAndMergeProgressFromFirebase() {
+        // Проверяем авторизацию пользователя
+        if (!window.authManager || !window.authManager.getCurrentUser()) {
+            return;
+        }
+
+        try {
+            const user = window.authManager.getCurrentUser();
+            const userId = user.uid;
+
+            // Проверяем инициализацию Firebase
+            if (typeof db === 'undefined') {
+                console.warn('⚠️ Firebase Firestore not initialized');
+                return;
+            }
+
+            console.log('📥 Loading progress from Firebase for user:', userId);
+
+            // Загружаем документ пользователя из Firestore
+            const doc = await db.collection('userProgress').doc(userId).get();
+
+            if (doc.exists) {
+                const firebaseData = doc.data();
+                const localData = this.state;
+
+                console.log('🔄 Firebase progress loaded, merging with local data...');
+
+                // ========== МЕРДЖИНГ ПРОГРЕССА ==========
+                // Берём максимальные значения для числовых полей
+                // Объединяем (union) для объектов completed
+                const mergedState = {
+                    score: Math.max(localData.score || 0, firebaseData.score || 0),
+                    stars: Math.max(localData.stars || 0, firebaseData.stars || 0),
+                    completed: this.mergeCompletedData(localData.completed || {}, firebaseData.completed || {}),
+                    // КРИТИЧНО: Мерджим стрики через Math.max для защиты рекордов
+                    currentStreak: Math.max(localData.currentStreak || 0, firebaseData.currentStreak || 0),
+                    maxStreak: Math.max(localData.maxStreak || 0, firebaseData.maxStreak || 0),
+                    settings: { ...localData.settings, ...firebaseData.settings }
+                };
+
+                // Применяем мерженное состояние
+                this.state = mergedState;
+
+                // Сохраняем результат локально и синхронизируем обратно в Firebase
+                this.saveProgress();
+
+                // Обновляем интерфейс
+                this.applySettings();
+                this.updateProgress();
+                this.achievementsManager.updateAchievements();
+                this.renderTiles();
+
+                console.log('✅ Progress merged successfully (local + Firebase)');
+            } else {
+                console.log('📤 No saved progress found in Firebase, uploading local data');
+                // Первый вход пользователя - синхронизируем локальный прогресс в Firebase
+                await this.achievementsManager.syncToFirebase(true);
+            }
+        } catch (e) {
+            console.error('❌ Error loading progress from Firebase:', e);
+            // Graceful degradation: продолжаем с локальным прогрессом
+            // Не показываем ошибку пользователю, чтобы не испугать
+        }
+    }
+
+    /**
+     * Мерджит два объекта completed (берет объединение всех дат)
+     */
+    mergeCompletedData(local, firebase) {
+        const merged = { ...local };
+
+        // Добавляем все даты из Firebase
+        for (const date in firebase) {
+            if (!merged[date]) {
+                merged[date] = firebase[date];
+            } else {
+                // Мерджим данные для конкретной даты
+                merged[date] = { ...merged[date], ...firebase[date] };
+            }
+        }
+
+        return merged;
     }
 
     setupEventListeners() {
@@ -163,6 +365,9 @@ class ChitasApp {
             this.currentDate = this.getTodayDate();
             this.loadData();
         });
+
+        // Синхронизация при закрытии страницы или переключении вкладки
+        this.setupVisibilitySync();
     }
 
     addClickHandler(elementId, handler) {
@@ -807,24 +1012,71 @@ class ChitasApp {
         }
     }
 
+    /**
+     * Обновляет отображение прогресса пользователя в интерфейсе
+     *
+     * Функция выполняет несколько задач:
+     * 1. Подсчитывает общее количество дней с активностью (completedDays)
+     * 2. КРИТИЧНО: Вычисляет и сохраняет текущий стрик (currentStreak)
+     * 3. КРИТИЧНО: Обновляет максимальный стрик (maxStreak) если побит рекорд
+     * 4. Подсчитывает прогресс за сегодняшний день (todayCompletedCount)
+     * 5. Обновляет UI элементы: баллы, звёзды, дни, прогресс-бар
+     */
     updateProgress() {
-        const dateKey = this.currentDate;
+        // ========== ШАГ 1: Подсчет общего количества дней с активностью ==========
+        const completedDays = Object.keys(this.state.completed)
+            .filter(date => {
+                const dayData = this.state.completed[date];
+                // Проверяем, есть ли хотя бы одна завершенная игра в этот день
+                return Object.keys(dayData).length > 0 &&
+                       Object.values(dayData).some(sectionData => {
+                           // Проверка для нового формата (объект с индексами игр)
+                           if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                               return Object.keys(sectionData).length > 0;
+                           }
+                           // Проверка для старого формата (boolean)
+                           return sectionData === true;
+                       });
+            }).length;
 
-        // Count only fully completed sections (all games in section completed)
-        let completedCount = 0;
+        // ========== ШАГ 2: КРИТИЧНО - Обновление стриков ==========
+        // Стрики теперь сохраняются в state и в Firebase для защиты от потери данных
+        if (this.achievementsManager) {
+            // Вычисляем текущий стрик через achievementsManager.calculateStreak()
+            // Эта функция учитывает субботы (не сбрасывает стрик за пропуск субботы)
+            const calculatedStreak = this.achievementsManager.calculateStreak();
+            this.state.currentStreak = calculatedStreak;
+
+            // Обновляем максимальный стрик, если текущий больше (побит рекорд!)
+            if (calculatedStreak > (this.state.maxStreak || 0)) {
+                this.state.maxStreak = calculatedStreak;
+                console.log(`🎉 Новый рекорд стрика: ${calculatedStreak} дней!`);
+            }
+        }
+
+        // ========== ШАГ 3: Подсчет прогресса за сегодняшний день ==========
+        let todayCompletedCount = 0;
         if (this.contentData && this.contentData.sections) {
-            completedCount = this.contentData.sections.filter(section =>
+            // Считаем только полностью завершенные секции (все игры в секции пройдены)
+            todayCompletedCount = this.contentData.sections.filter(section =>
                 this.isSectionCompleted(section.id)
             ).length;
         }
 
         const totalSections = this.contentData?.sections?.length || 0;
-        const percentage = totalSections > 0 ? Math.round((completedCount / totalSections) * 100) : 0;
+        const percentage = totalSections > 0 ? Math.round((todayCompletedCount / totalSections) * 100) : 0;
 
+        // ========== ШАГ 4: Обновление UI элементов ==========
         this.setTextContent('scoreValue', this.state.score);
         this.setTextContent('starsValue', this.state.stars);
-        this.setTextContent('completedValue', `${completedCount}/${totalSections}`);
 
+        // Показываем количество дней с активностью (общее за все время)
+        this.setTextContent('completedValue', `${completedDays}`);
+
+        // Показываем прогресс за сегодняшний день
+        this.setTextContent('todayProgressText', `Сегодня: ${todayCompletedCount}/${totalSections} разделов`);
+
+        // Обновляем прогресс-бар (отражает прогресс за сегодня)
         const progressBar = document.getElementById('progressBar');
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
@@ -906,12 +1158,25 @@ class ChitasApp {
         });
     }
 
+    /**
+     * Сбрасывает весь прогресс пользователя к начальному состоянию
+     *
+     * ВНИМАНИЕ: Эта операция необратима!
+     * Удаляет:
+     * - Все баллы и звёзды
+     * - Все пройденные секции
+     * - Текущий и максимальный стрики
+     * - НЕ удаляет настройки (sound, animations, darkMode, pushNotifications)
+     */
     resetProgress() {
         if (confirm('Вы уверены? Весь прогресс будет удалён!')) {
+            // Сбрасываем состояние к начальным значениям
             this.state = {
                 score: 0,
                 stars: 0,
                 completed: {},
+                currentStreak: 0,      // Сбрасываем текущий стрик
+                maxStreak: 0,          // Сбрасываем рекорд стрика
                 settings: {
                     sound: true,
                     animations: true,
@@ -919,11 +1184,16 @@ class ChitasApp {
                     pushNotifications: true
                 }
             };
+
+            // Сохраняем сброшенное состояние локально и в Firebase
             this.saveProgress();
+
+            // Обновляем интерфейс
             this.applySettings();
             this.updateProgress();
             this.achievementsManager.updateAchievements();
             this.renderTiles();
+
             alert('✅ Прогресс сброшен!');
         }
     }
@@ -1135,6 +1405,16 @@ class ChitasApp {
         this.printManager.print();
     }
 
+    /**
+     * Загружает прогресс пользователя из localStorage
+     * @returns {Object} Объект состояния с прогрессом пользователя
+     * @property {number} score - Накопленные баллы
+     * @property {number} stars - Накопленные звёзды
+     * @property {Object} completed - Пройденные секции по датам
+     * @property {number} currentStreak - Текущий стрик (дни подряд)
+     * @property {number} maxStreak - Максимальный стрик за все время
+     * @property {Object} settings - Настройки приложения
+     */
     loadProgress() {
         try {
             const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
@@ -1142,11 +1422,14 @@ class ChitasApp {
         } catch (e) {
             console.error('Error loading progress:', e);
         }
-        
+
+        // Если нет сохраненного прогресса, возвращаем начальное состояние
         return {
             score: 0,
             stars: 0,
             completed: {},
+            currentStreak: 0,      // Текущий стрик (дни подряд)
+            maxStreak: 0,          // Максимальный стрик за все время (рекорд)
             settings: {
                 sound: true,
                 animations: true,
@@ -1156,15 +1439,34 @@ class ChitasApp {
         };
     }
 
-    saveProgress() {
+    /**
+     * Сохраняет прогресс в localStorage и автоматически синхронизирует с Firebase
+     * @async
+     * @returns {Promise<void>}
+     *
+     * Действия:
+     * 1. Сохраняет состояние в localStorage (включая currentStreak и maxStreak)
+     * 2. Если пользователь авторизован - синхронизирует с Firebase в silent режиме
+     * 3. Обрабатывает ошибки gracefully (не показывает пользователю в silent mode)
+     */
+    async saveProgress() {
         try {
+            // Сохраняем полное состояние в localStorage (включая стрики)
             localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.state));
+
             // Автоматическая синхронизация с Firebase (если пользователь авторизован)
             if (window.authManager && window.authManager.getCurrentUser()) {
-                this.achievementsManager.syncToFirebase(true); // silent mode
+                try {
+                    await this.achievementsManager.syncToFirebase(true); // silent mode
+                    console.log('✅ Progress synced to Firebase automatically');
+                } catch (syncError) {
+                    console.warn('⚠️ Failed to auto-sync to Firebase:', syncError);
+                    // Не показываем ошибку пользователю в silent mode, но логируем
+                    // Локальный прогресс сохранён, синхронизация повторится позже
+                }
             }
         } catch (e) {
-            console.error('Error saving progress:', e);
+            console.error('❌ Error saving progress to localStorage:', e);
         }
     }
 

@@ -188,10 +188,16 @@ class AchievementsManager {
         const currentStreak = this.calculateStreak();
         const level = this.calculateLevel();
         const weeklyBadges = this.getWeeklyBadges();
+        const maxStreak = this.app.state.maxStreak || 0;
+
+        // Строка стрика с учетом максимального значения
+        const streakText = maxStreak > currentStreak
+            ? `🔥 Стрик: ${currentStreak} дней (рекорд: ${maxStreak})`
+            : `🔥 Стрик: ${currentStreak} дней подряд`;
 
         const message = `🔥 Мой прогресс в Хитас для вундеркиндов!\n\n` +
             `📚 Уровень: ${level.icon} ${level.name}\n` +
-            `🔥 Стрик: ${currentStreak} дней подряд\n` +
+            `${streakText}\n` +
             `⭐ Звёзды: ${this.app.state.stars}\n` +
             `🏆 Баллы: ${this.app.state.score}\n` +
             `🏅 Недель завершено: ${weeklyBadges.length}\n\n` +
@@ -228,7 +234,17 @@ class AchievementsManager {
 
     /**
      * Синхронизация прогресса с Firebase Firestore
-     * Локальное хранилище + Firebase sync
+     * @async
+     * @param {boolean} silent - Если true, не показывать пользователю сообщения и ошибки
+     * @returns {Promise<void>}
+     *
+     * Сохраняет в Firebase полное состояние приложения:
+     * - score, stars - Баллы и звёзды
+     * - completed - Все пройденные секции по датам
+     * - currentStreak - Текущий стрик (дни подряд)
+     * - maxStreak - Максимальный стрик за всё время (КРИТИЧНО для сохранения рекордов!)
+     * - settings - Пользовательские настройки
+     * - lastSync - Timestamp последней синхронизации
      */
     async syncToFirebase(silent = false) {
         if (!window.authManager || !window.authManager.getCurrentUser()) {
@@ -244,22 +260,26 @@ class AchievementsManager {
 
             // Используем Firebase Firestore из firebase-config.js
             if (typeof db === 'undefined') {
-                console.error('Firebase Firestore not initialized');
+                console.error('❌ Firebase Firestore not initialized');
                 if (!silent) {
                     alert('❌ Firebase не инициализирован');
                 }
                 return;
             }
 
-            console.log('Syncing progress to Firebase for user:', userId);
+            console.log('📤 Syncing progress to Firebase for user:', userId);
 
-            // Сохраняем прогресс в Firestore
+            // ========== СОХРАНЕНИЕ В FIRESTORE ==========
+            // Сохраняем полное состояние приложения, включая стрики
             await db.collection('userProgress').doc(userId).set({
                 score: this.app.state.score,
                 stars: this.app.state.stars,
                 completed: this.app.state.completed,
+                // КРИТИЧНО: Сохраняем стрики для защиты от потери данных
+                currentStreak: this.app.state.currentStreak || 0,  // Текущий стрик
+                maxStreak: this.app.state.maxStreak || 0,          // Максимальный стрик (рекорд)
                 settings: this.app.state.settings,
-                lastSync: new Date().toISOString()
+                lastSync: new Date().toISOString()  // Время синхронизации для отладки
             });
 
             if (!silent) {
@@ -274,7 +294,7 @@ class AchievementsManager {
             if (!silent) {
                 let errorMessage = '❌ Ошибка синхронизации с облаком';
 
-                // Детальные сообщения об ошибках
+                // Детальные сообщения об ошибках для пользователя
                 if (e.code === 'permission-denied') {
                     errorMessage = '❌ Нет прав доступа к базе данных.\n\nНеобходимо настроить правила безопасности в Firebase Console:\n1. Откройте Firebase Console\n2. Firestore Database → Rules\n3. Установите правила доступа';
                 } else if (e.code === 'unavailable') {
@@ -290,6 +310,8 @@ class AchievementsManager {
 
     /**
      * Загрузка прогресса из Firebase Firestore
+     * ВНИМАНИЕ: Этот метод мерджит прогресс из Firebase с локальным прогрессом,
+     * а не перезаписывает его полностью
      */
     async loadFromFirebase() {
         if (!window.authManager || !window.authManager.getCurrentUser()) {
@@ -312,17 +334,20 @@ class AchievementsManager {
             const doc = await db.collection('userProgress').doc(userId).get();
 
             if (doc.exists) {
-                const data = doc.data();
-                this.app.state = {
-                    score: data.score || 0,
-                    stars: data.stars || 0,
-                    completed: data.completed || {},
-                    settings: data.settings || {
-                        sound: true,
-                        animations: true,
-                        darkMode: false
-                    }
+                const firebaseData = doc.data();
+                const localData = this.app.state;
+
+                // Мерджим прогресс вместо перезаписи
+                const mergedState = {
+                    score: Math.max(localData.score || 0, firebaseData.score || 0),
+                    stars: Math.max(localData.stars || 0, firebaseData.stars || 0),
+                    completed: this.app.mergeCompletedData(localData.completed || {}, firebaseData.completed || {}),
+                    currentStreak: Math.max(localData.currentStreak || 0, firebaseData.currentStreak || 0),
+                    maxStreak: Math.max(localData.maxStreak || 0, firebaseData.maxStreak || 0),
+                    settings: { ...localData.settings, ...firebaseData.settings }
                 };
+
+                this.app.state = mergedState;
 
                 this.app.saveProgress();
                 this.app.applySettings();
@@ -330,11 +355,13 @@ class AchievementsManager {
                 this.updateAchievements();
                 this.app.renderTiles();
 
-                alert('✅ Прогресс загружен из облака!');
-                console.log('✅ Progress loaded from Firebase successfully');
+                alert('✅ Прогресс синхронизирован с облаком!\n\nВаш локальный прогресс объединен с прогрессом из облака.');
+                console.log('✅ Progress merged from Firebase successfully');
             } else {
-                alert('В облаке нет сохранённого прогресса');
-                console.log('No saved progress found in Firebase');
+                alert('В облаке нет сохранённого прогресса.\n\nВаш локальный прогресс будет загружен в облако.');
+                // Синхронизируем локальный прогресс в Firebase
+                await this.syncToFirebase(false);
+                console.log('No saved progress found in Firebase, uploaded local progress');
             }
         } catch (e) {
             console.error('❌ Error loading from Firebase:', e);
