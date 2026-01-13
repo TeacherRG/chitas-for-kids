@@ -234,7 +234,17 @@ class AchievementsManager {
 
     /**
      * Синхронизация прогресса с Firebase Firestore
-     * Локальное хранилище + Firebase sync
+     * @async
+     * @param {boolean} silent - Если true, не показывать пользователю сообщения и ошибки
+     * @returns {Promise<void>}
+     *
+     * Сохраняет в Firebase полное состояние приложения:
+     * - score, stars - Баллы и звёзды
+     * - completed - Все пройденные секции по датам
+     * - currentStreak - Текущий стрик (дни подряд)
+     * - maxStreak - Максимальный стрик за всё время (КРИТИЧНО для сохранения рекордов!)
+     * - settings - Пользовательские настройки
+     * - lastSync - Timestamp последней синхронизации
      */
     async syncToFirebase(silent = false) {
         if (!window.authManager || !window.authManager.getCurrentUser()) {
@@ -250,24 +260,26 @@ class AchievementsManager {
 
             // Используем Firebase Firestore из firebase-config.js
             if (typeof db === 'undefined') {
-                console.error('Firebase Firestore not initialized');
+                console.error('❌ Firebase Firestore not initialized');
                 if (!silent) {
                     alert('❌ Firebase не инициализирован');
                 }
                 return;
             }
 
-            console.log('Syncing progress to Firebase for user:', userId);
+            console.log('📤 Syncing progress to Firebase for user:', userId);
 
-            // Сохраняем прогресс в Firestore
+            // ========== СОХРАНЕНИЕ В FIRESTORE ==========
+            // Сохраняем полное состояние приложения, включая стрики
             await db.collection('userProgress').doc(userId).set({
                 score: this.app.state.score,
                 stars: this.app.state.stars,
                 completed: this.app.state.completed,
+                // КРИТИЧНО: Сохраняем стрики для защиты от потери данных
                 currentStreak: this.app.state.currentStreak || 0,  // Текущий стрик
-                maxStreak: this.app.state.maxStreak || 0,          // Максимальный стрик
+                maxStreak: this.app.state.maxStreak || 0,          // Максимальный стрик (рекорд)
                 settings: this.app.state.settings,
-                lastSync: new Date().toISOString()
+                lastSync: new Date().toISOString()  // Время синхронизации для отладки
             });
 
             if (!silent) {
@@ -282,7 +294,7 @@ class AchievementsManager {
             if (!silent) {
                 let errorMessage = '❌ Ошибка синхронизации с облаком';
 
-                // Детальные сообщения об ошибках
+                // Детальные сообщения об ошибках для пользователя
                 if (e.code === 'permission-denied') {
                     errorMessage = '❌ Нет прав доступа к базе данных.\n\nНеобходимо настроить правила безопасности в Firebase Console:\n1. Откройте Firebase Console\n2. Firestore Database → Rules\n3. Установите правила доступа';
                 } else if (e.code === 'unavailable') {
