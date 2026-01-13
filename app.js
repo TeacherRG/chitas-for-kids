@@ -1110,9 +1110,14 @@ class ChitasApp {
 
         // Обновляем прогресс-бар (отражает прогресс разделов за сегодня)
         const progressBar = document.getElementById('progressBar');
+        const progressBarText = document.getElementById('progressBarText');
+
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
-            progressBar.textContent = `${percentage}%`;
+        }
+
+        if (progressBarText) {
+            progressBarText.textContent = `${percentage}%`;
         }
     }
 
