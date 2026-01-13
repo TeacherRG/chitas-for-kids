@@ -188,10 +188,16 @@ class AchievementsManager {
         const currentStreak = this.calculateStreak();
         const level = this.calculateLevel();
         const weeklyBadges = this.getWeeklyBadges();
+        const maxStreak = this.app.state.maxStreak || 0;
+
+        // Строка стрика с учетом максимального значения
+        const streakText = maxStreak > currentStreak
+            ? `🔥 Стрик: ${currentStreak} дней (рекорд: ${maxStreak})`
+            : `🔥 Стрик: ${currentStreak} дней подряд`;
 
         const message = `🔥 Мой прогресс в Хитас для вундеркиндов!\n\n` +
             `📚 Уровень: ${level.icon} ${level.name}\n` +
-            `🔥 Стрик: ${currentStreak} дней подряд\n` +
+            `${streakText}\n` +
             `⭐ Звёзды: ${this.app.state.stars}\n` +
             `🏆 Баллы: ${this.app.state.score}\n` +
             `🏅 Недель завершено: ${weeklyBadges.length}\n\n` +
@@ -258,6 +264,8 @@ class AchievementsManager {
                 score: this.app.state.score,
                 stars: this.app.state.stars,
                 completed: this.app.state.completed,
+                currentStreak: this.app.state.currentStreak || 0,  // Текущий стрик
+                maxStreak: this.app.state.maxStreak || 0,          // Максимальный стрик
                 settings: this.app.state.settings,
                 lastSync: new Date().toISOString()
             });
@@ -322,6 +330,8 @@ class AchievementsManager {
                     score: Math.max(localData.score || 0, firebaseData.score || 0),
                     stars: Math.max(localData.stars || 0, firebaseData.stars || 0),
                     completed: this.app.mergeCompletedData(localData.completed || {}, firebaseData.completed || {}),
+                    currentStreak: Math.max(localData.currentStreak || 0, firebaseData.currentStreak || 0),
+                    maxStreak: Math.max(localData.maxStreak || 0, firebaseData.maxStreak || 0),
                     settings: { ...localData.settings, ...firebaseData.settings }
                 };
 

@@ -238,6 +238,8 @@ class ChitasApp {
                     score: Math.max(localData.score || 0, firebaseData.score || 0),
                     stars: Math.max(localData.stars || 0, firebaseData.stars || 0),
                     completed: this.mergeCompletedData(localData.completed || {}, firebaseData.completed || {}),
+                    currentStreak: Math.max(localData.currentStreak || 0, firebaseData.currentStreak || 0),
+                    maxStreak: Math.max(localData.maxStreak || 0, firebaseData.maxStreak || 0),
                     settings: { ...localData.settings, ...firebaseData.settings }
                 };
 
@@ -1007,6 +1009,17 @@ class ChitasApp {
                        });
             }).length;
 
+        // Обновляем текущий стрик (вычисляем через achievementsManager)
+        if (this.achievementsManager) {
+            const calculatedStreak = this.achievementsManager.calculateStreak();
+            this.state.currentStreak = calculatedStreak;
+
+            // Обновляем максимальный стрик, если текущий больше
+            if (calculatedStreak > (this.state.maxStreak || 0)) {
+                this.state.maxStreak = calculatedStreak;
+            }
+        }
+
         // Для прогресс-бара используем прогресс текущего дня
         let todayCompletedCount = 0;
         if (this.contentData && this.contentData.sections) {
@@ -1114,6 +1127,8 @@ class ChitasApp {
                 score: 0,
                 stars: 0,
                 completed: {},
+                currentStreak: 0,
+                maxStreak: 0,
                 settings: {
                     sound: true,
                     animations: true,
@@ -1349,6 +1364,8 @@ class ChitasApp {
             score: 0,
             stars: 0,
             completed: {},
+            currentStreak: 0,      // Текущий стрик (дни подряд)
+            maxStreak: 0,          // Максимальный стрик за все время
             settings: {
                 sound: true,
                 animations: true,
