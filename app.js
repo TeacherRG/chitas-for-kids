@@ -1055,21 +1055,21 @@ class ChitasApp {
         }
 
         // ========== ШАГ 3: Подсчет прогресса за сегодняшний день ==========
-        // Считаем прогресс по ИГРАМ, а не по разделам (более точная метрика)
-        let todayCompletedGames = 0;
-        let totalGames = 0;
+        // Раздел считается пройденным, если хотя бы ОДНА игра в нём завершена
+        let todayCompletedSections = 0;
+        const totalSections = this.contentData?.sections?.length || 0;
 
         if (this.contentData && this.contentData.sections) {
-            // Подсчитываем все игры и завершенные игры
+            // Считаем разделы, в которых пройдена хотя бы одна игра
             this.contentData.sections.forEach(section => {
                 if (section.games && section.games.length > 0) {
-                    totalGames += section.games.length;
+                    // Проверяем, есть ли хотя бы одна завершенная игра
+                    const hasCompletedGame = section.games.some((_, idx) =>
+                        this.isGameCompleted(section.id, idx)
+                    );
 
-                    // Считаем завершенные игры в этой секции
-                    for (let i = 0; i < section.games.length; i++) {
-                        if (this.isGameCompleted(section.id, i)) {
-                            todayCompletedGames++;
-                        }
+                    if (hasCompletedGame) {
+                        todayCompletedSections++;
                     }
                 }
             });
@@ -1081,18 +1081,19 @@ class ChitasApp {
                     const completedInSection = section.games.filter((_, idx) =>
                         this.isGameCompleted(section.id, idx)
                     ).length;
+                    const hasCompletedGame = completedInSection > 0;
                     const gamesStatus = section.games.map((_, idx) =>
                         this.isGameCompleted(section.id, idx) ? '✅' : '❌'
                     ).join(' ');
-                    console.log(`  ${section.id}: ${completedInSection}/${section.games.length} игр (${gamesStatus})`);
+                    console.log(`  ${section.id}: ${hasCompletedGame ? '✅ ПРОЙДЕН' : '❌ НЕ ПРОЙДЕН'} - ${completedInSection}/${section.games.length} игр (${gamesStatus})`);
                 }
             });
-            console.log(`Итого: ${todayCompletedGames}/${totalGames} игр пройдено`);
+            console.log(`Итого: ${todayCompletedSections}/${totalSections} разделов с прогрессом`);
         } else {
             console.warn('⚠️ contentData или sections не загружены!');
         }
 
-        const percentage = totalGames > 0 ? Math.round((todayCompletedGames / totalGames) * 100) : 0;
+        const percentage = totalSections > 0 ? Math.round((todayCompletedSections / totalSections) * 100) : 0;
 
         // ========== ШАГ 4: Обновление UI элементов ==========
         this.setTextContent('scoreValue', this.state.score);
@@ -1101,12 +1102,13 @@ class ChitasApp {
         // Показываем количество дней с активностью (общее за все время)
         this.setTextContent('completedValue', `${completedDays}`);
 
-        // Показываем прогресс за сегодняшний день (по ИГРАМ, а не по разделам!)
-        const todayText = `Сегодня: ${todayCompletedGames}/${totalGames} игр`;
+        // Показываем прогресс за сегодняшний день
+        // Раздел считается пройденным при завершении хотя бы одной игры
+        const todayText = `Сегодня: ${todayCompletedSections}/${totalSections} разделов`;
         this.setTextContent('todayProgressText', todayText);
         console.log(`📝 Обновлен текст прогресса: "${todayText}"`);
 
-        // Обновляем прогресс-бар (отражает прогресс игр за сегодня)
+        // Обновляем прогресс-бар (отражает прогресс разделов за сегодня)
         const progressBar = document.getElementById('progressBar');
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
