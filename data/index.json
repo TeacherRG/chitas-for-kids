@@ -116,6 +116,14 @@
       "specialDay": "",
       "content": "2026-01-12-content.json",
       "games": "2026-01-12-games.json"
+    },
+    {
+      "date": "2026-01-13",
+      "hebrew": "כ''ד טבת ה׳תשפ״ו ",
+      "parsha": "Ваэйра",
+      "specialDay": "Йорцайт Альтер Ребе",
+      "content": "2026-01-13-content.json",
+      "games": "2026-01-13-games.json"
     }
   ]
 }
