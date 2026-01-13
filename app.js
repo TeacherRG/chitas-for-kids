@@ -83,6 +83,9 @@ class ChitasApp {
         this.setupEventListeners();
         this.applySettings();
 
+        // Настраиваем автоматическую синхронизацию при входе/выходе пользователя
+        this.setupAuthSync();
+
         // Загружаем индекс для определения доступных дат
         await this.loadIndex();
 
@@ -100,6 +103,183 @@ class ChitasApp {
         }
 
         this.loadData();
+    }
+
+    /**
+     * Настройка автоматической синхронизации прогресса при входе/выходе
+     */
+    setupAuthSync() {
+        if (!window.authManager) return;
+
+        window.authManager.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('User signed in, loading progress from Firebase...');
+                // Пользователь вошел - загружаем и мерджим прогресс из Firebase
+                await this.loadAndMergeProgressFromFirebase();
+
+                // Запускаем периодическую синхронизацию каждые 5 минут
+                this.startPeriodicSync();
+            } else {
+                console.log('User signed out');
+                // Пользователь вышел - останавливаем периодическую синхронизацию
+                this.stopPeriodicSync();
+            }
+        });
+    }
+
+    /**
+     * Запуск периодической синхронизации с Firebase (каждые 5 минут)
+     */
+    startPeriodicSync() {
+        // Останавливаем предыдущий интервал, если есть
+        this.stopPeriodicSync();
+
+        // Синхронизируем каждые 5 минут
+        this.syncInterval = setInterval(async () => {
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Periodic sync: syncing progress to Firebase...');
+                try {
+                    await this.achievementsManager.syncToFirebase(true);
+                    console.log('Periodic sync: success');
+                } catch (error) {
+                    console.warn('Periodic sync failed:', error);
+                }
+            } else {
+                // Пользователь вышел, останавливаем синхронизацию
+                this.stopPeriodicSync();
+            }
+        }, 5 * 60 * 1000); // 5 минут
+
+        console.log('Periodic sync started (every 5 minutes)');
+    }
+
+    /**
+     * Остановка периодической синхронизации
+     */
+    stopPeriodicSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+            console.log('Periodic sync stopped');
+        }
+    }
+
+    /**
+     * Настройка синхронизации при переключении вкладки и закрытии страницы
+     */
+    setupVisibilitySync() {
+        // Синхронизация при переключении вкладки (когда пользователь уходит с вкладки)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Page hidden, syncing progress...');
+                // Используем navigator.sendBeacon для надежной отправки при закрытии
+                this.syncProgressOnPageLeave();
+            }
+        });
+
+        // Синхронизация перед закрытием страницы
+        window.addEventListener('beforeunload', () => {
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                console.log('Page unloading, syncing progress...');
+                this.syncProgressOnPageLeave();
+            }
+        });
+    }
+
+    /**
+     * Синхронизация прогресса при закрытии страницы
+     * Использует синхронный подход для надежности
+     */
+    syncProgressOnPageLeave() {
+        if (!window.authManager || !window.authManager.getCurrentUser()) {
+            return;
+        }
+
+        try {
+            // Пытаемся синхронизировать (без await, т.к. страница закрывается)
+            this.achievementsManager.syncToFirebase(true).catch(error => {
+                console.warn('Failed to sync on page leave:', error);
+            });
+        } catch (error) {
+            console.warn('Error during page leave sync:', error);
+        }
+    }
+
+    /**
+     * Загружает прогресс из Firebase и мерджит с локальным прогрессом
+     * Использует стратегию "последний выигрывает" для каждой даты
+     */
+    async loadAndMergeProgressFromFirebase() {
+        if (!window.authManager || !window.authManager.getCurrentUser()) {
+            return;
+        }
+
+        try {
+            const user = window.authManager.getCurrentUser();
+            const userId = user.uid;
+
+            if (typeof db === 'undefined') {
+                console.warn('Firebase Firestore not initialized');
+                return;
+            }
+
+            console.log('Loading progress from Firebase for user:', userId);
+
+            const doc = await db.collection('userProgress').doc(userId).get();
+
+            if (doc.exists) {
+                const firebaseData = doc.data();
+                const localData = this.state;
+
+                console.log('Firebase progress loaded, merging with local data...');
+
+                // Мерджим прогресс: берем максимальные значения
+                const mergedState = {
+                    score: Math.max(localData.score || 0, firebaseData.score || 0),
+                    stars: Math.max(localData.stars || 0, firebaseData.stars || 0),
+                    completed: this.mergeCompletedData(localData.completed || {}, firebaseData.completed || {}),
+                    settings: { ...localData.settings, ...firebaseData.settings }
+                };
+
+                // Обновляем состояние
+                this.state = mergedState;
+
+                // Сохраняем мерженный прогресс локально и в Firebase
+                this.saveProgress();
+                this.applySettings();
+                this.updateProgress();
+                this.achievementsManager.updateAchievements();
+                this.renderTiles();
+
+                console.log('✅ Progress merged successfully (local + Firebase)');
+            } else {
+                console.log('No saved progress found in Firebase, using local data');
+                // Синхронизируем локальный прогресс в Firebase
+                await this.achievementsManager.syncToFirebase(true);
+            }
+        } catch (e) {
+            console.error('❌ Error loading progress from Firebase:', e);
+            // Не показываем ошибку пользователю, продолжаем с локальным прогрессом
+        }
+    }
+
+    /**
+     * Мерджит два объекта completed (берет объединение всех дат)
+     */
+    mergeCompletedData(local, firebase) {
+        const merged = { ...local };
+
+        // Добавляем все даты из Firebase
+        for (const date in firebase) {
+            if (!merged[date]) {
+                merged[date] = firebase[date];
+            } else {
+                // Мерджим данные для конкретной даты
+                merged[date] = { ...merged[date], ...firebase[date] };
+            }
+        }
+
+        return merged;
     }
 
     setupEventListeners() {
@@ -163,6 +343,9 @@ class ChitasApp {
             this.currentDate = this.getTodayDate();
             this.loadData();
         });
+
+        // Синхронизация при закрытии страницы или переключении вкладки
+        this.setupVisibilitySync();
     }
 
     addClickHandler(elementId, handler) {
@@ -1156,12 +1339,18 @@ class ChitasApp {
         };
     }
 
-    saveProgress() {
+    async saveProgress() {
         try {
             localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(this.state));
             // Автоматическая синхронизация с Firebase (если пользователь авторизован)
             if (window.authManager && window.authManager.getCurrentUser()) {
-                this.achievementsManager.syncToFirebase(true); // silent mode
+                try {
+                    await this.achievementsManager.syncToFirebase(true); // silent mode
+                    console.log('Progress synced to Firebase automatically');
+                } catch (syncError) {
+                    console.warn('Failed to auto-sync to Firebase:', syncError);
+                    // Не показываем ошибку пользователю в silent mode, но логируем
+                }
             }
         } catch (e) {
             console.error('Error saving progress:', e);
