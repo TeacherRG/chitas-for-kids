@@ -1024,6 +1024,9 @@ class ChitasApp {
         // Показываем количество дней с активностью
         this.setTextContent('completedValue', `${completedDays}`);
 
+        // Обновляем текст прогресса за сегодня
+        this.setTextContent('todayProgressText', `Сегодня: ${todayCompletedCount}/${totalSections} разделов`);
+
         const progressBar = document.getElementById('progressBar');
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
