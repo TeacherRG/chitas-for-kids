@@ -991,22 +991,38 @@ class ChitasApp {
     }
 
     updateProgress() {
-        const dateKey = this.currentDate;
+        // Считаем общее количество дней с завершенными активностями
+        const completedDays = Object.keys(this.state.completed)
+            .filter(date => {
+                const dayData = this.state.completed[date];
+                // Проверяем, есть ли хотя бы одна завершенная игра в этот день
+                return Object.keys(dayData).length > 0 &&
+                       Object.values(dayData).some(sectionData => {
+                           // Проверка для нового формата (объект с играми)
+                           if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                               return Object.keys(sectionData).length > 0;
+                           }
+                           // Проверка для старого формата (boolean)
+                           return sectionData === true;
+                       });
+            }).length;
 
-        // Count only fully completed sections (all games in section completed)
-        let completedCount = 0;
+        // Для прогресс-бара используем прогресс текущего дня
+        let todayCompletedCount = 0;
         if (this.contentData && this.contentData.sections) {
-            completedCount = this.contentData.sections.filter(section =>
+            todayCompletedCount = this.contentData.sections.filter(section =>
                 this.isSectionCompleted(section.id)
             ).length;
         }
 
         const totalSections = this.contentData?.sections?.length || 0;
-        const percentage = totalSections > 0 ? Math.round((completedCount / totalSections) * 100) : 0;
+        const percentage = totalSections > 0 ? Math.round((todayCompletedCount / totalSections) * 100) : 0;
 
         this.setTextContent('scoreValue', this.state.score);
         this.setTextContent('starsValue', this.state.stars);
-        this.setTextContent('completedValue', `${completedCount}/${totalSections}`);
+
+        // Показываем количество дней с активностью
+        this.setTextContent('completedValue', `${completedDays}`);
 
         const progressBar = document.getElementById('progressBar');
         if (progressBar) {
