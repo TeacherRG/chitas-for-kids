@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пересчет стриков - Админ панель</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .warning h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .warning p {
+            color: #856404;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .warning ul {
+            margin-left: 20px;
+            color: #856404;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #0d47a1;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            color: #0d47a1;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .log-container {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .log-container:empty::before {
+            content: 'Лог будет отображаться здесь...';
+            color: #999;
+            font-style: italic;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .log-info {
+            color: #2196f3;
+        }
+
+        .log-success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .log-error {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .log-warning {
+            color: #ff9800;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stats-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .stats-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Пересчет стриков пользователей</h1>
+        <p class="subtitle">Административная панель для одноразового пересчета стриков</p>
+
+        <div class="warning">
+            <h3>⚠️ ВНИМАНИЕ!</h3>
+            <p>Эта функция предназначена для <strong>одноразового использования</strong>. Она пересчитает стрики для всех пользователей на основе их completed данных.</p>
+            <ul>
+                <li>Функция обновит currentStreak и maxStreak в базе данных</li>
+                <li>Требуется авторизация администратора в Firebase</li>
+                <li>Процесс необратим (но безопасен)</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h3>ℹ️ Что делает эта функция?</h3>
+            <p>Функция анализирует историю активности каждого пользователя (completed) и корректно вычисляет:</p>
+            <ul>
+                <li><strong>currentStreak</strong> - текущий стрик (дни подряд с учетом субботы)</li>
+                <li><strong>maxStreak</strong> - максимальный стрик за все время</li>
+            </ul>
+            <p style="margin-top: 10px;">Это исправит ситуацию, когда у пользователя 10 дней пройдено, но стрик = 0.</p>
+        </div>
+
+        <div id="statusMessage" class="status hidden"></div>
+
+        <div class="button-container">
+            <button id="runButton" class="btn-primary" onclick="runRecalculation()">
+                🚀 Запустить пересчет
+            </button>
+            <button id="clearButton" class="btn-danger" onclick="clearLog()">
+                🗑️ Очистить лог
+            </button>
+        </div>
+
+        <h3 style="margin-bottom: 10px;">📋 Лог выполнения:</h3>
+        <div id="logContainer" class="log-container"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Recalculate Streaks Script -->
+    <script src="recalculate-streaks.js"></script>
+
+    <script>
+        const logContainer = document.getElementById('logContainer');
+        const runButton = document.getElementById('runButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Перехватываем console.log для отображения в UI
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalTable = console.table;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToUI(args.join(' '), 'info');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logToUI(args.join(' '), 'error');
+        };
+
+        console.table = function(data) {
+            originalTable.apply(console, arguments);
+            if (Array.isArray(data)) {
+                logToUI('📊 Таблица с детальными данными (см. консоль браузера)', 'info');
+            }
+        };
+
+        function logToUI(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status ${type}`;
+            statusMessage.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            statusMessage.classList.add('hidden');
+        }
+
+        async function runRecalculation() {
+            // Проверяем авторизацию
+            if (!firebase.auth().currentUser) {
+                alert('❌ Необходима авторизация!\n\nПожалуйста, авторизуйтесь в Firebase, затем повторите попытку.');
+                return;
+            }
+
+            // Подтверждение
+            const confirmed = confirm(
+                '⚠️ Вы уверены, что хотите пересчитать стрики для всех пользователей?\n\n' +
+                'Это действие обновит currentStreak и maxStreak в базе данных для всех пользователей.\n\n' +
+                'Продолжить?'
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                runButton.disabled = true;
+                showStatus('⏳ Выполняется пересчет стриков...', 'loading');
+                logToUI('='.repeat(60), 'info');
+                logToUI('🚀 НАЧАЛО ПЕРЕСЧЕТА СТРИКОВ', 'info');
+                logToUI('='.repeat(60), 'info');
+
+                const result = await recalculateAllUserStreaks();
+
+                if (result.success) {
+                    showStatus(
+                        `✅ Успешно! Обработано: ${result.processed}, Обновлено: ${result.updated}, Ошибок: ${result.errors}`,
+                        'success'
+                    );
+                    logToUI('='.repeat(60), 'success');
+                    logToUI('✅ ПЕРЕСЧЕТ ЗАВЕРШЕН УСПЕШНО!', 'success');
+                    logToUI('='.repeat(60), 'success');
+                } else {
+                    showStatus(`❌ Ошибка: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Критическая ошибка: ${error.message}`, 'error');
+                logToUI(`❌ КРИТИЧЕСКАЯ ОШИБКА: ${error.message}`, 'error');
+            } finally {
+                runButton.disabled = false;
+            }
+        }
+
+        function clearLog() {
+            logContainer.innerHTML = '';
+            hideStatus();
+        }
+
+        // Проверяем инициализацию Firebase при загрузке
+        window.addEventListener('load', () => {
+            if (typeof db !== 'undefined') {
+                logToUI('✅ Firebase успешно инициализирован', 'success');
+                logToUI('ℹ️ Готов к пересчету стриков', 'info');
+            } else {
+                logToUI('❌ Firebase не инициализирован!', 'error');
+                logToUI('⚠️ Проверьте firebase-config.js', 'warning');
+                showStatus('❌ Firebase не инициализирован', 'error');
+                runButton.disabled = true;
+            }
+
+            // Проверяем авторизацию
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    logToUI(`✅ Авторизован: ${user.email}`, 'success');
+                } else {
+                    logToUI('⚠️ Не авторизован. Требуется авторизация для выполнения операции.', 'warning');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
