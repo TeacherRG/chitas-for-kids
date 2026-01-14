@@ -382,6 +382,115 @@ class AchievementsManager {
             alert(errorMessage);
         }
     }
+
+    /**
+     * ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ ДЛЯ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
+     *
+     * Эта функция автоматически вызывается при загрузке сайта и:
+     * 1. Проверяет, был ли уже пересчет (флаг streaksRecalculated)
+     * 2. Если нет - пересчитывает currentStreak и maxStreak на основе completed данных
+     * 3. Устанавливает флаг, чтобы не пересчитывать повторно
+     * 4. Сохраняет изменения в localStorage и Firebase
+     *
+     * Это исправляет ситуацию когда у пользователя 10 дней пройдено, но стрик = 0
+     */
+    async recalculateStreaksOnce() {
+        // Проверяем флаг - был ли уже пересчет
+        if (this.app.state.streaksRecalculated) {
+            console.log('ℹ️ Стрики уже пересчитаны ранее');
+            return;
+        }
+
+        console.log('🔄 Выполняется одноразовый пересчет стриков...');
+
+        try {
+            // Получаем старые значения
+            const oldCurrentStreak = this.app.state.currentStreak || 0;
+            const oldMaxStreak = this.app.state.maxStreak || 0;
+
+            // Вычисляем новые стрики на основе completed данных
+            const newCurrentStreak = this.calculateStreak();
+            const newMaxStreak = this.calculateMaxStreak();
+
+            // Обновляем state
+            this.app.state.currentStreak = newCurrentStreak;
+            this.app.state.maxStreak = Math.max(oldMaxStreak, newMaxStreak);
+            this.app.state.streaksRecalculated = true; // Ставим флаг, что пересчет выполнен
+
+            // Логируем изменения
+            console.log(`📊 Пересчет стриков завершен:`);
+            console.log(`   Старые: currentStreak=${oldCurrentStreak}, maxStreak=${oldMaxStreak}`);
+            console.log(`   Новые: currentStreak=${newCurrentStreak}, maxStreak=${this.app.state.maxStreak}`);
+
+            // Сохраняем в localStorage и Firebase
+            await this.app.saveProgress();
+
+            // Обновляем UI
+            this.updateAchievements();
+
+            console.log('✅ Стрики успешно пересчитаны и сохранены');
+        } catch (error) {
+            console.error('❌ Ошибка при пересчете стриков:', error);
+        }
+    }
+
+    /**
+     * Вычисляет максимальный стрик за все время на основе completed данных
+     *
+     * @returns {number} Максимальный стрик
+     */
+    calculateMaxStreak() {
+        const completedDates = Object.keys(this.app.state.completed)
+            .filter(date => Object.keys(this.app.state.completed[date]).length > 0)
+            .sort();
+
+        if (completedDates.length === 0) return 0;
+
+        let maxStreak = 0;
+        let currentStreak = 0;
+        let lastDate = null;
+
+        for (const dateStr of completedDates) {
+            const currentDate = new Date(dateStr);
+            currentDate.setHours(0, 0, 0, 0);
+
+            if (lastDate === null) {
+                // Первый день
+                currentStreak = 1;
+            } else {
+                // Проверяем, следующий ли это день
+                const expectedDate = new Date(lastDate);
+                expectedDate.setDate(expectedDate.getDate() + 1);
+
+                if (currentDate.getTime() === expectedDate.getTime()) {
+                    currentStreak++;
+                } else {
+                    // Проверяем, не пропущена ли только суббота
+                    const dayOfWeek = expectedDate.getDay();
+                    if (dayOfWeek === 6) {
+                        // Суббота пропущена - проверяем воскресенье
+                        expectedDate.setDate(expectedDate.getDate() + 1);
+                        if (currentDate.getTime() === expectedDate.getTime()) {
+                            currentStreak++;
+                        } else {
+                            // Стрик прерван
+                            maxStreak = Math.max(maxStreak, currentStreak);
+                            currentStreak = 1;
+                        }
+                    } else {
+                        // Стрик прерван
+                        maxStreak = Math.max(maxStreak, currentStreak);
+                        currentStreak = 1;
+                    }
+                }
+            }
+
+            lastDate = currentDate;
+            maxStreak = Math.max(maxStreak, currentStreak);
+        }
+
+        return maxStreak;
+    }
 }
 
 // Экспорт для использования в других модулях

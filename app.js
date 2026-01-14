@@ -103,6 +103,10 @@ class ChitasApp {
         }
 
         this.loadData();
+
+        // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ (если еще не был выполнен)
+        // Исправляет ситуацию когда у пользователя 10 дней пройдено, но стрик = 0
+        await this.achievementsManager.recalculateStreaksOnce();
     }
 
     /**
