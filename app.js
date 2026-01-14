@@ -102,7 +102,12 @@ class ChitasApp {
             }
         }
 
-        this.loadData();
+        await this.loadData();
+
+        // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ после загрузки данных
+        // Для неавторизованных пользователей - сразу после loadData
+        // Для авторизованных - также запустится после loadAndMergeProgressFromFirebase
+        await this.achievementsManager.recalculateStreaksOnce();
     }
 
     /**
@@ -126,9 +131,6 @@ class ChitasApp {
                 console.log('User signed out');
                 // Пользователь вышел - останавливаем периодическую синхронизацию
                 this.stopPeriodicSync();
-
-                // Для не авторизованных пользователей тоже запускаем пересчет
-                await this.achievementsManager.recalculateStreaksOnce();
             }
         });
     }
