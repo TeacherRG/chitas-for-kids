@@ -114,6 +114,12 @@ class ChitasApp {
         window.authManager.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('User signed in, loading progress from Firebase...');
+
+                // Обновляем UI для отображения пользователя
+                if (typeof renderAuthUI === 'function') {
+                    renderAuthUI();
+                }
+
                 // Пользователь вошел - загружаем и мерджим прогресс из Firebase
                 await this.loadAndMergeProgressFromFirebase();
 
@@ -127,6 +133,12 @@ class ChitasApp {
                 this.startPeriodicSync();
             } else {
                 console.log('User signed out');
+
+                // Обновляем UI для отображения кнопки входа
+                if (typeof renderAuthUI === 'function') {
+                    renderAuthUI();
+                }
+
                 // Пользователь вышел - останавливаем периодическую синхронизацию
                 this.stopPeriodicSync();
             }
