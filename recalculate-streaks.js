@@ -98,25 +98,28 @@ function calculateMaxStreakFromCompleted(completed) {
             const expectedDate = new Date(lastDate);
             expectedDate.setDate(expectedDate.getDate() + 1);
 
-            // Проверяем субботу
-            if (expectedDate.getDay() === 6) {
-                expectedDate.setDate(expectedDate.getDate() + 1);
-            }
-
             if (currentDate.getTime() === expectedDate.getTime()) {
                 currentStreak++;
             } else {
-                // Проверяем, не пропущена ли только суббота
-                const saturdayCheck = new Date(lastDate);
-                saturdayCheck.setDate(saturdayCheck.getDate() + 2);
+                // Есть пропуск - проверяем, состоит ли он только из суббот
+                let gapContainsNonSaturday = false;
+                let tempDate = new Date(expectedDate);
 
-                if (currentDate.getTime() === saturdayCheck.getTime() && lastDate.getDay() === 5) {
-                    // Пропущена только суббота между пятницей и воскресеньем
-                    currentStreak++;
-                } else {
-                    // Стрик прерван
+                while (tempDate < currentDate) {
+                    if (tempDate.getDay() !== 6) {  // Не суббота
+                        gapContainsNonSaturday = true;
+                        break;
+                    }
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+                if (gapContainsNonSaturday) {
+                    // Пропуск содержит не только субботы - стрик прерван
                     maxStreak = Math.max(maxStreak, currentStreak);
                     currentStreak = 1;
+                } else {
+                    // Пропуск содержит только субботы - стрик продолжается
+                    currentStreak++;
                 }
             }
         }

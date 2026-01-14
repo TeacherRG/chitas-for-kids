@@ -467,22 +467,25 @@ class AchievementsManager {
                 if (currentDate.getTime() === expectedDate.getTime()) {
                     currentStreak++;
                 } else {
-                    // Проверяем, не пропущена ли только суббота
-                    const dayOfWeek = expectedDate.getDay();
-                    if (dayOfWeek === 6) {
-                        // Суббота пропущена - проверяем воскресенье
-                        expectedDate.setDate(expectedDate.getDate() + 1);
-                        if (currentDate.getTime() === expectedDate.getTime()) {
-                            currentStreak++;
-                        } else {
-                            // Стрик прерван
-                            maxStreak = Math.max(maxStreak, currentStreak);
-                            currentStreak = 1;
+                    // Есть пропуск - проверяем, состоит ли он только из суббот
+                    let gapContainsNonSaturday = false;
+                    let tempDate = new Date(expectedDate);
+
+                    while (tempDate < currentDate) {
+                        if (tempDate.getDay() !== 6) {  // Не суббота
+                            gapContainsNonSaturday = true;
+                            break;
                         }
-                    } else {
-                        // Стрик прерван
+                        tempDate.setDate(tempDate.getDate() + 1);
+                    }
+
+                    if (gapContainsNonSaturday) {
+                        // Пропуск содержит не только субботы - стрик прерван
                         maxStreak = Math.max(maxStreak, currentStreak);
                         currentStreak = 1;
+                    } else {
+                        // Пропуск содержит только субботы - стрик продолжается
+                        currentStreak++;
                     }
                 }
             }
