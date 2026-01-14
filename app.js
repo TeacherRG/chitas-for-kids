@@ -117,6 +117,12 @@ class ChitasApp {
                 // Пользователь вошел - загружаем и мерджим прогресс из Firebase
                 await this.loadAndMergeProgressFromFirebase();
 
+                // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ после загрузки данных из Firebase
+                // Вызываем БЕЗ await, чтобы не блокировать авторизацию
+                this.achievementsManager.recalculateStreaksOnce().catch(err => {
+                    console.error('Ошибка при пересчете стриков:', err);
+                });
+
                 // Запускаем периодическую синхронизацию каждые 5 минут
                 this.startPeriodicSync();
             } else {
@@ -559,6 +565,14 @@ class ChitasApp {
 
                 // Update navigation buttons state after loading
                 this.updateNavigationButtons();
+
+                // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ для неавторизованных пользователей
+                // Вызываем БЕЗ await, чтобы не блокировать загрузку интерфейса
+                if (!window.authManager || !window.authManager.isSignedIn()) {
+                    this.achievementsManager.recalculateStreaksOnce().catch(err => {
+                        console.error('Ошибка при пересчете стриков:', err);
+                    });
+                }
             } else {
                 throw new Error('Failed to load data files');
             }
