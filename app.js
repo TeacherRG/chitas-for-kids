@@ -103,10 +103,6 @@ class ChitasApp {
         }
 
         this.loadData();
-
-        // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ (если еще не был выполнен)
-        // Исправляет ситуацию когда у пользователя 10 дней пройдено, но стрик = 0
-        await this.achievementsManager.recalculateStreaksOnce();
     }
 
     /**
@@ -121,12 +117,18 @@ class ChitasApp {
                 // Пользователь вошел - загружаем и мерджим прогресс из Firebase
                 await this.loadAndMergeProgressFromFirebase();
 
+                // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ после загрузки данных из Firebase
+                await this.achievementsManager.recalculateStreaksOnce();
+
                 // Запускаем периодическую синхронизацию каждые 5 минут
                 this.startPeriodicSync();
             } else {
                 console.log('User signed out');
                 // Пользователь вышел - останавливаем периодическую синхронизацию
                 this.stopPeriodicSync();
+
+                // Для не авторизованных пользователей тоже запускаем пересчет
+                await this.achievementsManager.recalculateStreaksOnce();
             }
         });
     }
