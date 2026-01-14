@@ -102,12 +102,7 @@ class ChitasApp {
             }
         }
 
-        await this.loadData();
-
-        // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ после загрузки данных
-        // Для неавторизованных пользователей - сразу после loadData
-        // Для авторизованных - также запустится после loadAndMergeProgressFromFirebase
-        await this.achievementsManager.recalculateStreaksOnce();
+        this.loadData();
     }
 
     /**
@@ -121,9 +116,6 @@ class ChitasApp {
                 console.log('User signed in, loading progress from Firebase...');
                 // Пользователь вошел - загружаем и мерджим прогресс из Firebase
                 await this.loadAndMergeProgressFromFirebase();
-
-                // ОДНОРАЗОВЫЙ ПЕРЕСЧЕТ СТРИКОВ после загрузки данных из Firebase
-                await this.achievementsManager.recalculateStreaksOnce();
 
                 // Запускаем периодическую синхронизацию каждые 5 минут
                 this.startPeriodicSync();
