@@ -132,6 +132,15 @@
       "specialDay": "",
       "content": "2026-01-14-content.json",
       "games": "2026-01-14-games.json"
-    }
+    },
+    {
+  "date": "2026-01-15",
+  "hebrew": "כ''ו טבת ה׳תשפ״ו",
+  "parsha": "Ваэйра",
+  "specialDay": "",
+  "content": "2026-01-15-content.json",
+  "games": "2026-01-15-games.json"
+}
+
   ]
 }
