@@ -156,6 +156,15 @@
   "specialDay": "Шаббат Мевархим",
   "content": "2026-01-17-content.json",
   "games": "2026-01-17-games.json"
+},
+    {
+  "date": "2026-01-18",
+  "hebrew": "כ''ט טבת ה׳תשפ״ו",
+  "parsha": "Бо",
+  "specialDay": "Йом Кипур Катан",
+  "content": "2026-01-18-content.json",
+  "games": "2026-01-18-games.json"
 }
+
   ]
 }
