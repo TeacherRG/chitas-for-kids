@@ -164,6 +164,13 @@
   "specialDay": "Йом Кипур Катан",
   "content": "2026-01-18-content.json",
   "games": "2026-01-18-games.json"
+},{
+  "date": "2026-01-19",
+  "hebrew": "א׳ שבט ה׳תשפ״ו",
+  "parsha": "Бо",
+  "specialDay": "Рош Ходеш Шват",
+  "content": "2026-01-19-content.json",
+  "games": "2026-01-19-games.json"
 }
 
   ]
