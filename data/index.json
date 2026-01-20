@@ -171,7 +171,16 @@
   "specialDay": "Рош Ходеш Шват",
   "content": "2026-01-19-content.json",
   "games": "2026-01-19-games.json"
+},
+    {
+  "date": "2026-01-20",
+  "hebrew": "ב׳ שבט ה׳תשפ״ו",
+  "parsha": "Бо",
+  "specialDay": "50 лет кампании 12 стихов Торы",
+  "content": "2026-01-20-content.json",
+  "games": "2026-01-20-games.json"
 }
+
 
   ]
 }
