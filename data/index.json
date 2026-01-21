@@ -180,7 +180,14 @@
   "content": "2026-01-20-content.json",
   "games": "2026-01-20-games.json"
 }
-
+,{
+  "date": "2026-01-21",
+  "hebrewDate": "ג׳ שבט ה׳תשפ״ו",
+  "parsha": "Бо",
+  "specialDay": "",
+  "content": "2026-01-21-content.json",
+  "games": "2026-01-21-games.json"
+}
 
   ]
 }
