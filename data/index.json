@@ -203,6 +203,14 @@
   "specialDay": "",
   "content": "2026-01-23-content.json",
   "games": "2026-01-23-games.json"
+  },
+  {
+  "date": "2026-01-24",
+  "hebrewDate": "ו׳ שבט ה׳תשפ״ו",
+  "parsha": "Бо",
+  "specialDay": "",
+  "content": "2026-01-24-content.json",
+  "games": "2026-01-24-games.json"
   }
 
   ]
