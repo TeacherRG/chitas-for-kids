@@ -210,8 +210,14 @@
   "parsha": "Бо",
   "specialDay": "",
   "content": "2026-01-24-content.json",
-  "games": "2026-01-24-games.json"
-  }
+  "games": "2026-01-24-games.json"},
+  {
+  "date": "2026-01-25",
+  "hebrewDate": "ז׳ שבט ה׳תשפ״ו",
+  "parsha": "Бешалах",
+  "specialDay": "",
+  "content": "2026-01-25-content.json",
+  "games": "2026-01-25-games.json"}
 
   ]
 }
