@@ -217,7 +217,15 @@
   "parsha": "Бешалах",
   "specialDay": "",
   "content": "2026-01-25-content.json",
-  "games": "2026-01-25-games.json"}
+  "games": "2026-01-25-games.json"},
+    {
+  "date": "2026-01-26",
+  "hebrewDate": "ח׳ שבט ה׳תשפ״ו (8 Шевата 5786)",
+  "parsha": "Бешалах",
+  "specialDay": "",
+  "content": "2026-01-26-content.json",
+  "games": "2026-01-26-games.json"
+    }
 
   ]
 }
