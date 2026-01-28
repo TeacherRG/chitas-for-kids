@@ -233,6 +233,14 @@
   "specialDay": "Эрев Йуд Шевата",
   "content": "2026-01-27-content.json",
   "games": "2026-01-27-games.json"
+    },
+    {
+  "date": "2026-01-28",
+  "hebrewDate": "י׳ שבט ה׳תשפ״ו (10 Шевата 5786)",
+  "parsha": "Бешалах",
+  "specialDay": "Йом Агадоль Веакадош Йуд Шевата",
+  "content": "2026-01-28-content.json",
+  "games": "2026-01-28-games.json"
     }
 
   ]
