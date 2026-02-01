@@ -266,6 +266,14 @@
   "specialDay": "Шаббат Кодеш, Шаббат Шира",
   "content": "2026-01-31-content.json",
   "games": "2026-01-31-games.json"
+    },
+    {
+  "date": "2026-02-01",
+  "hebrewDate": "י״ד שבט ה׳תשפ״ו (14 Шевата 5786)",
+  "parsha": "Итро",
+  "specialDay": "Эрев Ту Бишват",
+  "content": "2026-02-01-content.json",
+  "games": "2026-02-01-games.json"
     }
   ]
 }
