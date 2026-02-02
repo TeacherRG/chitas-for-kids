@@ -274,6 +274,15 @@
   "specialDay": "Эрев Ту Бишват",
   "content": "2026-02-01-content.json",
   "games": "2026-02-01-games.json"
-    }
+    },
+    {
+  "date": "2026-02-02",
+  "hebrewDate": "ט״ו שבט ה׳תשפ״ו",
+  "parsha": "Итро",
+  "specialDay": "Ту би-Шват / Сиюм а-Рамбам",
+  "content": "2026-02-02-content.json",
+  "games": "2026-02-02-games.json"
+}
+
   ]
 }
