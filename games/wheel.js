@@ -327,8 +327,10 @@ class WheelGame {
         // Показываем вопрос
         questionContent.innerHTML = `
             <div class="wheel-question-box">
-                <h4 class="question-title">${this.escapeHtml(question.text)}</h4>
-                <div class="wheel-options" id="wheelOptions">
+        <h4 class="question-title">
+          ${this.escapeHtml(question.text || question.question)}
+        </h4> 
+        <div class="wheel-options" id="wheelOptions">
                     ${question.options.map((option, i) => `
                         <button class="wheel-option" data-index="${i}">
                             ${this.escapeHtml(option)}
