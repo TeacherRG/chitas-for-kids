@@ -1,4 +1,4 @@
-{
+8{
   "version": "2.0",
   "lastUpdated": "2026-01-18",
   "dates": [
@@ -282,7 +282,16 @@
   "specialDay": "Ту би-Шват / Сиюм а-Рамбам",
   "content": "2026-02-02-content.json",
   "games": "2026-02-02-games.json"
+},
+    {
+  "date": "2026-02-03",
+  "hebrewDate": "י״ז שבט ה׳תשפ״ו",
+  "parsha": "Итро",
+  "specialDay": "",
+  "content": "2026-02-03-content.json",
+  "games": "2026-02-03-games.json"
 }
+
 
   ]
 }
