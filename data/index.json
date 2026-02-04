@@ -291,6 +291,14 @@
   "content": "2026-02-03-content.json",
   "games": "2026-02-03-games.json"
 }
+,{
+  "date": "2026-02-04",
+  "hebrewDate": "י״ז שבט ה׳תשפ״ו",
+  "parsha": "Итро",
+  "specialDay": "",
+  "content": "2026-02-04-content.json",
+  "games": "2026-02-04-games.json"
+}
 
 
   ]
