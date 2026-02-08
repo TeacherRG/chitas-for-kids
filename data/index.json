@@ -321,6 +321,14 @@
   "specialDay": "",
   "content": "2026-02-07-content.json",
   "games": "2026-02-07-games.json"
+},
+{
+  "date": "2026-02-08",
+  "hebrewDate": "כ״א שבט ה׳תשפ״ו",
+  "parsha": "Мишпатим",
+  "specialDay": "",
+  "content": "2026-02-08-content.json",
+  "games": "2026-02-08-games.json"
 }
 
 
