@@ -330,6 +330,15 @@
   "content": "2026-02-08-content.json",
   "games": "2026-02-08-games.json"
 }
+,
+    {
+  "date": "2026-02-09",
+  "hebrewDate": "כ״ב שבט ה׳תשפ״ו",
+  "parsha": "Мишпатим",
+  "specialDay": "Йом Аилула",
+  "content": "2026-02-09-content.json",
+  "games": "2026-02-09-games.json"
+}
 
 
   ]
