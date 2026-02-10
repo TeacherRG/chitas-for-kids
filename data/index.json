@@ -335,9 +335,18 @@
   "date": "2026-02-09",
   "hebrewDate": "כ״ב שבט ה׳תשפ״ו",
   "parsha": "Мишпатим",
-  "specialDay": "Йом Аилула",
+  "specialDay": "Йом Аилула  Ребецн Хаи Мушки",
   "content": "2026-02-09-content.json",
   "games": "2026-02-09-games.json"
+}
+,
+    {
+  "date": "2026-02-10",
+  "hebrewDate": "כ״ג שבט ה׳תשפ״ו",
+  "parsha": "Мишпатим",
+  "specialDay": "",
+  "content": "2026-02-10-content.json",
+  "games": "2026-02-10-games.json"
 }
 
 
